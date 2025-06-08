@@ -1,0 +1,4 @@
+<library path="lib/libmanipulator_controller">
+  <class name="aerial_robot_control/manipulator_controller" type="aerial_robot_control::ManipulatorController" base_class_type="aerial_robot_control::ControlBase">
+  </class>
+</library>
