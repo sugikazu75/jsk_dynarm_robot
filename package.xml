@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>dynarm</name>
+  <version>0.0.0</version>
+  <description>The dynarm package</description>
+
+  <maintainer email="sugihara@todo.todo">sugihara</maintainer>
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>aerial_robot_control</build_depend>
+  <build_depend>aerial_robot_dynamics</build_depend>
+  <build_depend>aerial_robot_estimation</build_depend>
+  <build_depend>aerial_robot_model</build_depend>
+  <build_depend>aerial_robot_msgs</build_depend>
+  <build_depend>dragon</build_depend>
+  <build_depend>motion_planning</build_depend>
+  <build_depend>osqp-eigen</build_depend>
+  <build_depend>pluginlib</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>spinal</build_depend>
+
+  <exec_depend>aerial_robot_base</exec_depend>
+  <exec_depend>aerial_robot_control</exec_depend>
+  <exec_depend>aerial_robot_dynamics</exec_depend>
+  <exec_depend>aerial_robot_estimation</exec_depend>
+  <exec_depend>aerial_robot_model</exec_depend>
+  <exec_depend>aerial_robot_msgs</exec_depend>
+  <exec_depend>aerial_robot_simulation</exec_depend>
+  <exec_depend>dragon</exec_depend>
+  <exec_depend>motion_planning</exec_depend>
+  <exec_depend>osqp-eigen</exec_depend>
+  <exec_depend>pluginlib</exec_depend>
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>spinal</exec_depend>
+
+  <export>
+    <aerial_robot_control plugin="${prefix}/plugins/control_plugin.xml" />
+    <aerial_robot_model   plugin="${prefix}/plugins/model_plugin.xml"/>
+  </export>
+
+</package>
