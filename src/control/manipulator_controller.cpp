@@ -103,7 +103,6 @@ void ManipulatorController::controlCore()
       pos_trajectory_generator_.eval(curr_time, pos, vel, acc);
 
       Eigen::VectorXd curr_q = dragon_arm_robot_model_->getCurrentJointPositions();
-      Eigen::VectorXd curr_target_q;
       bool solved = motion_planning::solveIK(*pinocchio_model_, *pinocchio_data_,
                                              pinocchio_model_->getFrameId(end_effector_name_), pos, curr_q,
                                              curr_target_q_, false, 1000, 1e-4);
@@ -112,25 +111,50 @@ void ManipulatorController::controlCore()
       {
         ROS_ERROR_STREAM("[dragon_arm][control] IK solution not found for target position: " << pos.transpose());
       }
+
+      pinocchio::FrameIndex frame_id = pinocchio_model_->getFrameId(end_effector_name_);
+
+      // calculate target dq
+      Eigen::MatrixXd J6 = Eigen::MatrixXd::Zero(6, pinocchio_model_->nv);
+      pinocchio::computeFrameJacobian(*pinocchio_model_, *pinocchio_data_, curr_target_q_, frame_id, pinocchio::WORLD,
+                                      J6);  // world frame
+      Eigen::MatrixXd J = J6.topRows(3);    // position
+      Eigen::MatrixXd JJt = J * J.transpose() + 1e-12 * Eigen::MatrixXd::Identity(3, 3);
+      curr_target_dq_ = J.transpose() * JJt.ldlt().solve(vel);
+
+      // calculate target ddq
+      pinocchio::forwardKinematics(*pinocchio_model_, *pinocchio_data_, curr_target_q_, curr_target_dq_);
+      pinocchio::computeJointJacobiansTimeVariation(*pinocchio_model_, *pinocchio_data_, curr_target_q_,
+                                                    curr_target_dq_);
+      Eigen::MatrixXd Jdot6 = Eigen::MatrixXd::Zero(6, pinocchio_model_->nv);
+      pinocchio::getFrameJacobianTimeVariation(*pinocchio_model_, *pinocchio_data_, frame_id, pinocchio::WORLD, Jdot6);
+      Eigen::MatrixXd Jdot = Jdot6.topRows(3);  // position
+      curr_target_ddq_ = J.transpose() * JJt.ldlt().solve(acc - Jdot * curr_target_dq_);
     }
   }
 
   // process gimbal angles
   curr_target_q_ = dragon_arm_robot_model_->getGimbalNominalAngles(curr_target_q_);
 
-  // calculate target joint velocities and accelerations
-  curr_target_dq_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv);
-  curr_target_ddq_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv);
-
   if (is_transforming_)
   {
-    pinocchio::difference(*pinocchio_model_, prev_target_q_, curr_target_q_, curr_target_dq_);
-    curr_target_dq_ = curr_target_dq_ / ctrl_loop_du_;
+    // generate from trajectory generator method (not working)
+    // double curr_time = ros::Time::now().toSec() - transform_start_time_;
+    // joint_trajectory_generator_.eval(curr_time, curr_target_q_, curr_target_dq_, curr_target_ddq_);
 
-    curr_target_ddq_ = (curr_target_dq_ - prev_target_dq_) / ctrl_loop_du_;
+    // numerical differential method
+    // pinocchio::difference(*pinocchio_model_, prev_target_q_, curr_target_q_, curr_target_dq_);
+    // curr_target_dq_ = curr_target_dq_ / ctrl_loop_du_;
+    // curr_target_ddq_ = (curr_target_dq_ - prev_target_dq_) / ctrl_loop_du_;
 
     // std::cout << "[dragon_arm][control] current target dq: " << curr_target_dq_.transpose() << std::endl;
     // std::cout << "[dragon_arm][control] current target ddq: " << curr_target_ddq_.transpose() << std::endl;
+  }
+  else
+  {
+    // set target dq and ddq to zero
+    curr_target_dq_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv);
+    curr_target_ddq_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv);
   }
 
   // calculate inverse dynamics
@@ -260,8 +284,6 @@ void ManipulatorController::sendJointCommand()
   if (!is_initialized_)
   {
     curr_target_q_ = init_target_q_;
-    curr_target_dq_ = Eigen::VectorXd::Zero(pinocchio_model_->nv);
-    curr_target_tau_ = Eigen::VectorXd::Zero(pinocchio_model_->nv);
   }
 
   for (int i = 0; i < robot_model_->getRotorNum() - 1; i++)
