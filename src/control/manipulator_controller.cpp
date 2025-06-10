@@ -22,9 +22,11 @@ void ManipulatorController::initialize(ros::NodeHandle nh, ros::NodeHandle nhp,
   id_velocity_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/id_debug/velocity", 1);
   id_acc_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/id_debug/acceleration", 1);
   rotor_wrench_pub_ = nh_.advertise<geometry_msgs::WrenchStamped>("rotor_wrench", 1);
+  target_end_effector_pos_pub_ = nh_.advertise<geometry_msgs::Vector3>("debug/target_ee_pos", 1);
+  target_end_effector_vel_pub_ = nh_.advertise<geometry_msgs::Vector3>("debug/target_ee_vel", 1);
 
-  target_end_effector_pos_sub_ =
-      nh_.subscribe("target_ee_pos", 1, &ManipulatorController::targetEndEffectorPosCallback, this);
+  target_end_effector_final_pos_sub_ =
+      nh_.subscribe("target_ee_final_pos", 1, &ManipulatorController::targetEndEffectorPosCallback, this);
 
   robot_ns_ = ros::this_node::getNamespace();
   if (!robot_ns_.empty() && robot_ns_[0] == '/')
@@ -37,6 +39,8 @@ void ManipulatorController::initialize(ros::NodeHandle nh, ros::NodeHandle nhp,
   pinocchio_model_ = pinocchio_robot_model_->getModel();
   pinocchio_data_ = pinocchio_robot_model_->getData();
 
+  target_ee_pos_.setZero();
+  target_ee_vel_.setZero();
   curr_target_q_.resize(pinocchio_robot_model_->getModel()->nq);
   prev_target_q_.resize(pinocchio_robot_model_->getModel()->nq);
   curr_target_dq_.resize(pinocchio_robot_model_->getModel()->nv);
@@ -101,6 +105,8 @@ void ManipulatorController::controlCore()
       double curr_time = ros::Time::now().toSec() - transform_start_time_;
       Eigen::Vector3d pos, vel, acc;
       pos_trajectory_generator_.eval(curr_time, pos, vel, acc);
+      target_ee_pos_ = pos;
+      target_ee_vel_ = vel;
 
       Eigen::VectorXd curr_q = dragon_arm_robot_model_->getCurrentJointPositions();
       bool solved = motion_planning::solveIK(*pinocchio_model_, *pinocchio_data_,
@@ -248,6 +254,18 @@ void ManipulatorController::sendCmd()
   id_torque_pub_.publish(id_torque_msg);
   id_velocity_pub_.publish(id_velocity_msg);
   id_acc_pub_.publish(id_acc_msg);
+
+  // for debug: send target end effector position and velocity
+  geometry_msgs::Vector3 target_ee_pos_msg;
+  geometry_msgs::Vector3 target_ee_vel_msg;
+  target_ee_pos_msg.x = target_ee_pos_(0);
+  target_ee_pos_msg.y = target_ee_pos_(1);
+  target_ee_pos_msg.z = target_ee_pos_(2);
+  target_ee_vel_msg.x = target_ee_vel_(0);
+  target_ee_vel_msg.y = target_ee_vel_(1);
+  target_ee_vel_msg.z = target_ee_vel_(2);
+  target_end_effector_pos_pub_.publish(target_ee_pos_msg);
+  target_end_effector_vel_pub_.publish(target_ee_vel_msg);
 }
 
 void ManipulatorController::sendFourAxisCommand()

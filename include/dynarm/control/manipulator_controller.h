@@ -34,11 +34,16 @@ private:
   ros::Publisher id_velocity_pub_;
   ros::Publisher id_acc_pub_;
   ros::Publisher rotor_wrench_pub_;
-  ros::Subscriber target_end_effector_pos_sub_;
+  ros::Publisher target_end_effector_pos_pub_;
+  ros::Publisher target_end_effector_vel_pub_;
+
+  ros::Subscriber target_end_effector_final_pos_sub_;
 
   std::string robot_ns_;
 
   sensor_msgs::JointState joint_state_;
+  Eigen::Vector3d target_ee_pos_;
+  Eigen::Vector3d target_ee_vel_;
   Eigen::VectorXd curr_target_q_;
   Eigen::VectorXd prev_target_q_;
   Eigen::VectorXd curr_target_dq_;
