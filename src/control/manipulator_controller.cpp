@@ -21,10 +21,12 @@ void ManipulatorController::initialize(ros::NodeHandle nh, ros::NodeHandle nhp,
   id_torque_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/id_debug/torque", 1);
   id_velocity_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/id_debug/velocity", 1);
   id_acc_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/id_debug/acceleration", 1);
+  id_time_pub_ = nh_.advertise<std_msgs::Float32>("debug/id_debug/solve_time", 1);
   rotor_wrench_pub_ = nh_.advertise<geometry_msgs::WrenchStamped>("rotor_wrench", 1);
   target_end_effector_pos_pub_ = nh_.advertise<geometry_msgs::Vector3>("debug/target_ee_pos", 1);
   target_end_effector_vel_pub_ = nh_.advertise<geometry_msgs::Vector3>("debug/target_ee_vel", 1);
 
+  joint_state_sub_ = nh_.subscribe("joint_states", 1, &ManipulatorController::jointStateCallback, this);
   target_end_effector_final_pos_sub_ =
       nh_.subscribe("target_ee_final_pos", 1, &ManipulatorController::targetEndEffectorPosCallback, this);
 
@@ -41,10 +43,14 @@ void ManipulatorController::initialize(ros::NodeHandle nh, ros::NodeHandle nhp,
 
   target_ee_pos_.setZero();
   target_ee_vel_.setZero();
+
+  curr_q_.resize(pinocchio_robot_model_->getModel()->nq);
   curr_target_q_.resize(pinocchio_robot_model_->getModel()->nq);
-  prev_target_q_.resize(pinocchio_robot_model_->getModel()->nq);
+  curr_dq_.resize(pinocchio_robot_model_->getModel()->nv);
   curr_target_dq_.resize(pinocchio_robot_model_->getModel()->nv);
-  prev_target_dq_.resize(pinocchio_robot_model_->getModel()->nv);
+  curr_target_ddq_.resize(pinocchio_robot_model_->getModel()->nv);
+  curr_tau_.resize(pinocchio_robot_model_->getModel()->nv);
+  curr_target_tau_.resize(pinocchio_robot_model_->getModel()->nv);
   thrusts_.resize(pinocchio_robot_model_->getRotorNum());
 
   is_initialized_ = false;
@@ -90,8 +96,6 @@ void ManipulatorController::controlCore()
     curr_target_dq_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv);
     first_run_ = false;
   }
-  prev_target_q_ = curr_target_q_;
-  prev_target_dq_ = curr_target_dq_;
 
   // determine q to calculate inverse dynamics
   if (!is_initialized_)
@@ -109,8 +113,9 @@ void ManipulatorController::controlCore()
       target_ee_vel_ = vel;
 
       Eigen::VectorXd curr_q = dragon_arm_robot_model_->getCurrentJointPositions();
+      Eigen::VectorXd ik_initial_q = curr_target_q_;
       bool solved = motion_planning::solveIK(*pinocchio_model_, *pinocchio_data_,
-                                             pinocchio_model_->getFrameId(end_effector_name_), pos, curr_q,
+                                             pinocchio_model_->getFrameId(end_effector_name_), pos, ik_initial_q,
                                              curr_target_q_, false, 1000, 1e-4);
 
       if (!solved)
@@ -122,16 +127,17 @@ void ManipulatorController::controlCore()
 
       // calculate target dq
       Eigen::MatrixXd J6 = Eigen::MatrixXd::Zero(6, pinocchio_model_->nv);
-      pinocchio::computeFrameJacobian(*pinocchio_model_, *pinocchio_data_, curr_target_q_, frame_id, pinocchio::WORLD,
-                                      J6);  // world frame
+      pinocchio::computeFrameJacobian(*pinocchio_model_, *pinocchio_data_, curr_q, frame_id, pinocchio::WORLD,
+                                      J6);  // world frame. q is (target or current)
       Eigen::MatrixXd J = J6.topRows(3);    // position
       Eigen::MatrixXd JJt = J * J.transpose() + 1e-12 * Eigen::MatrixXd::Identity(3, 3);
       curr_target_dq_ = J.transpose() * JJt.ldlt().solve(vel);
 
       // calculate target ddq
-      pinocchio::forwardKinematics(*pinocchio_model_, *pinocchio_data_, curr_target_q_, curr_target_dq_);
-      pinocchio::computeJointJacobiansTimeVariation(*pinocchio_model_, *pinocchio_data_, curr_target_q_,
-                                                    curr_target_dq_);
+      pinocchio::forwardKinematics(*pinocchio_model_, *pinocchio_data_, curr_q,
+                                   curr_target_dq_);  // q is (target or current)
+      pinocchio::computeJointJacobiansTimeVariation(*pinocchio_model_, *pinocchio_data_, curr_q,
+                                                    curr_target_dq_);  // q is (target or current)
       Eigen::MatrixXd Jdot6 = Eigen::MatrixXd::Zero(6, pinocchio_model_->nv);
       pinocchio::getFrameJacobianTimeVariation(*pinocchio_model_, *pinocchio_data_, frame_id, pinocchio::WORLD, Jdot6);
       Eigen::MatrixXd Jdot = Jdot6.topRows(3);  // position
@@ -140,23 +146,10 @@ void ManipulatorController::controlCore()
   }
 
   // process gimbal angles
-  curr_target_q_ = dragon_arm_robot_model_->getGimbalNominalAngles(curr_target_q_);
+  Eigen::VectorXd id_q = dragon_arm_robot_model_->getGimbalNominalAngles(curr_q_);   // from (target or current) q
+  curr_target_q_ = dragon_arm_robot_model_->getGimbalNominalAngles(curr_target_q_);  // to (target or current) q
 
-  if (is_transforming_)
-  {
-    // generate from trajectory generator method (not working)
-    // double curr_time = ros::Time::now().toSec() - transform_start_time_;
-    // joint_trajectory_generator_.eval(curr_time, curr_target_q_, curr_target_dq_, curr_target_ddq_);
-
-    // numerical differential method
-    // pinocchio::difference(*pinocchio_model_, prev_target_q_, curr_target_q_, curr_target_dq_);
-    // curr_target_dq_ = curr_target_dq_ / ctrl_loop_du_;
-    // curr_target_ddq_ = (curr_target_dq_ - prev_target_dq_) / ctrl_loop_du_;
-
-    // std::cout << "[dragon_arm][control] current target dq: " << curr_target_dq_.transpose() << std::endl;
-    // std::cout << "[dragon_arm][control] current target ddq: " << curr_target_ddq_.transpose() << std::endl;
-  }
-  else
+  if (!is_transforming_)
   {
     // set target dq and ddq to zero
     curr_target_dq_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv);
@@ -166,8 +159,7 @@ void ManipulatorController::controlCore()
   // calculate inverse dynamics
   Eigen::VectorXd curr_target_full_tau =
       Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv + pinocchio_robot_model_->getRotorNum());
-  bool solved =
-      pinocchio_robot_model_->inverseDynamics(curr_target_q_, curr_target_dq_, curr_target_ddq_, curr_target_full_tau);
+  bool solved = pinocchio_robot_model_->inverseDynamics(id_q, curr_target_dq_, curr_target_ddq_, curr_target_full_tau);
 
   if (solved)
   {
@@ -177,7 +169,7 @@ void ManipulatorController::controlCore()
   else
   {
     ROS_ERROR_STREAM("[dragon_arm][control] Inverse dynamics failed to solve"
-                     << "\n Current target q: " << curr_target_q_.transpose() << "\n Current target dq: "
+                     << "\n Current target q: " << id_q.transpose() << "\n Current target dq: "
                      << curr_target_dq_.transpose() << "\n Current target ddq: " << curr_target_ddq_.transpose());
   }
 
@@ -231,29 +223,37 @@ void ManipulatorController::sendCmd()
 
   // for debug: send target torque
   sensor_msgs::JointState id_torque_msg;
+  id_torque_msg.header.stamp = ros::Time::now();
   sensor_msgs::JointState id_velocity_msg;
+  id_velocity_msg.header.stamp = ros::Time::now();
   sensor_msgs::JointState id_acc_msg;
+  id_acc_msg.header.stamp = ros::Time::now();
   for (int i = 0; i < pinocchio_model_->njoints; i++)
   {
     int joint_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(pinocchio_model_->names[i])].idx_q();
-    int joint_index_dq = pinocchio_model_->joints[pinocchio_model_->getJointId(pinocchio_model_->names[i])].idx_v();
+    int joint_index_v = pinocchio_model_->joints[pinocchio_model_->getJointId(pinocchio_model_->names[i])].idx_v();
 
-    if (joint_index_q < 0)
+    if (joint_index_q < 0 || joint_index_v < 0)
       continue;  // skip if joint index is invalid
 
     id_torque_msg.name.push_back(pinocchio_model_->names[i]);
     id_torque_msg.position.push_back(curr_target_q_(joint_index_q));
-    id_torque_msg.effort.push_back(curr_target_tau_(joint_index_q));
+    id_torque_msg.effort.push_back(curr_target_tau_(joint_index_v));
 
     id_velocity_msg.name.push_back(pinocchio_model_->names[i]);
-    id_velocity_msg.velocity.push_back(curr_target_dq_(joint_index_dq));
+    id_velocity_msg.velocity.push_back(curr_target_dq_(joint_index_v));
 
     id_acc_msg.name.push_back(pinocchio_model_->names[i]);
-    id_acc_msg.effort.push_back(curr_target_ddq_(joint_index_dq));
+    id_acc_msg.effort.push_back(curr_target_ddq_(joint_index_v));
   }
   id_torque_pub_.publish(id_torque_msg);
   id_velocity_pub_.publish(id_velocity_msg);
   id_acc_pub_.publish(id_acc_msg);
+
+  // for debug: send ID solve time
+  std_msgs::Float32 id_time_msg;
+  id_time_msg.data = pinocchio_robot_model_->getLatestIdSolveTime();  // microseconds
+  id_time_pub_.publish(id_time_msg);
 
   // for debug: send target end effector position and velocity
   geometry_msgs::Vector3 target_ee_pos_msg;
@@ -311,17 +311,17 @@ void ManipulatorController::sendJointCommand()
 
     int joint_pitch_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_pitch_name)].idx_q();
     int joint_yaw_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_yaw_name)].idx_q();
-    int joint_pitch_index_dq = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_pitch_name)].idx_v();
-    int joint_yaw_index_dq = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_yaw_name)].idx_v();
+    int joint_pitch_index_v = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_pitch_name)].idx_v();
+    int joint_yaw_index_v = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_yaw_name)].idx_v();
 
     joint_state_msg.name.push_back(joint_pitch_name);
     joint_state_msg.name.push_back(joint_yaw_name);
     joint_state_msg.position.push_back(curr_target_q_(joint_pitch_index_q));
     joint_state_msg.position.push_back(curr_target_q_(joint_yaw_index_q));
-    joint_state_msg.velocity.push_back(curr_target_dq_(joint_pitch_index_dq));
-    joint_state_msg.velocity.push_back(curr_target_dq_(joint_yaw_index_dq));
-    joint_state_msg.effort.push_back(curr_target_tau_(joint_pitch_index_q));
-    joint_state_msg.effort.push_back(curr_target_tau_(joint_yaw_index_q));
+    joint_state_msg.velocity.push_back(curr_target_dq_(joint_pitch_index_v));
+    joint_state_msg.velocity.push_back(curr_target_dq_(joint_yaw_index_v));
+    joint_state_msg.effort.push_back(curr_target_tau_(joint_pitch_index_v));
+    joint_state_msg.effort.push_back(curr_target_tau_(joint_yaw_index_v));
   }
 
   joints_control_pub_.publish(joint_state_msg);
@@ -350,6 +350,32 @@ void ManipulatorController::sendGimbalCommand()
     joint_state_msg.position.push_back(target_gimbal_angles_q(gimbal_pitch_index));
   }
   gimbals_control_pub_.publish(joint_state_msg);
+}
+
+void ManipulatorController::jointStateCallback(const sensor_msgs::JointState msg)
+{
+  for (int i = 0; i < msg.name.size(); i++)
+  {
+    std::string joint_name = msg.name[i];
+
+    // position
+    int joint_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_name)].idx_q();
+    if (joint_index_q < 0)
+      continue;  // skip if joint index is invalid
+    curr_q_(joint_index_q) = msg.position[i];
+
+    // velocity
+    int joint_index_dq = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_name)].idx_v();
+    if (joint_index_dq < 0)
+      continue;  // skip if joint index is invalid
+    curr_dq_(joint_index_dq) = msg.velocity[i];
+
+    // torque
+    int joint_index_tau = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_name)].idx_v();
+    if (joint_index_tau < 0)
+      continue;  // skip if joint index is invalid
+    curr_tau_(joint_index_tau) = msg.effort[i];
+  }
 }
 
 void ManipulatorController::targetEndEffectorPosCallback(const geometry_msgs::Vector3ConstPtr& msg)
