@@ -33,7 +33,7 @@
     <rosparam file="$(find dynarm)/config/ManipulatorModel.yaml" command="load"/>
 
     ###########  Motor Config  ###########
-    <rosparam file="$(find dragon)/config/MotorInfo.yaml" command="load" />
+    <rosparam file="$(find dynarm)/config/MotorInfo.yaml" command="load" />
 
     ###########  Servo Config  ###########
     <rosparam file="$(find dynarm)/config/Servo.yaml" command="load" />
@@ -43,20 +43,35 @@
 
     ###########  Sensor Fusion  ###########
     <rosparam file="$(find dynarm)/config/StateEstimation.yaml" command="load"/>
-    <rosparam file="$(arg config_dir)/Simulation.yaml" command="load" if="$(eval arg('simulation') and not arg('real_machine'))"/>
+    <rosparam file="$(find dynarm)config//Simulation.yaml" command="load" if="$(eval arg('simulation') and not arg('real_machine'))"/>
 
     ###########  Control  ###########
     <rosparam file="$(find dynarm)/config/ManipulatorControl.yaml" command="load"/>
 
     ###########  robot description for pinocchio ###########
     <param name="pinocchio_robot_description" command="$(find xacro)/xacro $(find dragon)/robots/$(arg type)/$(arg onboards_model).urdf.xacro rotor_fixed:=true"/>
+
+  </group>
+
+  ########### Desired robot state ###########
+  <group ns="$(arg robot_ns)_desired">
+    <param name="robot_description" command="$(find xacro)/xacro $(find dragon)/robots/$(arg type)/$(arg onboards_model).urdf.xacro" />
+    <node name="desired_robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+      <param name="tf_prefix" value="$(arg robot_ns)_desired" />
+      <remap from="joint_states" to="/$(arg robot_ns)/debug/id_debug/torque"/>
+    </node>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="static_tf_desired"
+          args="0 0 $(arg spawn_z) 0 0 0 world $(arg robot_ns)_desired/root" />
+    <node pkg="aerial_robot_model" type="rotor_tf_publisher" name="desired_rotor_tf_publisher">
+      <param name="tf_prefix" value="$(arg robot_ns)_desired"/>
+    </node>
   </group>
 
   ###########  Base Platform  ###########
   <node pkg="aerial_robot_base" type="aerial_robot_base_node" name="aerial_robot_base_node" ns="$(arg robot_ns)" output="screen">
     <param name="tf_prefix" value="$(arg robot_ns)"/>
     <param name="param_verbose" value="false"/>
-    <param name="main_rate" value="100"/>
+    <param name="main_rate" value="200"/>
   </node>
 
   ###########  Robot Model  ###########
@@ -66,7 +81,7 @@
     <arg name="headless" value="$(arg headless)" />
     <arg name="robot_model" value="$(find dragon)/robots/$(arg type)/$(arg onboards_model).$(arg description_mode).xacro" unless="$(arg direct_model)"/>
     <arg name="robot_ns" value="$(arg robot_ns)" />
-    <arg name="rviz_config" value="$(find dragon)/config/rviz_config" />
+    <arg name="rviz_config" value="$(find dynarm)/config/rviz_config" />
     <arg name="rviz_init_pose" value="$(arg config_dir)/RvizInit.yaml" />
     <arg name="need_joint_state" value="false" if ="$(eval arg('simulation') or arg('real_machine'))"/>
   </include >
