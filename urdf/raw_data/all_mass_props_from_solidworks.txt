@@ -1,0 +1,1502 @@
+link0_yawの質量特性: 
+     ｺﾝﾌｨｷﾞｭﾚｰｼｮﾝ: ﾃﾞﾌｫﾙﾄ
+     座標系: link0_yaw
+
+質量 = 0.96665594 kilograms
+
+体積 = 148274.08761868 cubic millimeters
+
+表面積 = 0.11846024 square meters
+
+重心: ( ﾒｰﾄﾙ )
+	X = 0.00005265
+	Y = 0.00001838
+	Z = 0.01946888
+
+慣性主要軸と慣性主ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心： 
+	 Ix = (-0.00401653,  0.99993071,  0.01106513)   	Px = 0.00099394
+	 Iy = (-0.99998856, -0.00404500,  0.00255225)   	Py = 0.00114772
+	 Iz = ( 0.00259683, -0.01105475,  0.99993552)   	Pz = 0.00151675
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心で計算、そして出力座標系と整列します。 (正のﾃﾝｿﾙ表記を使用。)
+	Lxx = 0.00114772	Lxy = -0.00000061	Lxz = -0.00000096
+	Lyx = -0.00000061	Lyy = 0.00099400	Lyz = 0.00000578
+	Lzx = -0.00000096	Lzy = 0.00000578	Lzz = 0.00151668
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+（出力座標系で計算） (正のﾃﾝｿﾙ表記を使用。)
+	Ixx = 0.00151412	Ixy = -0.00000061	Ixz = 0.00000003
+	Iyx = -0.00000061	Iyy = 0.00136040	Iyz = 0.00000613
+	Izx = 0.00000003	Izy = 0.00000613	Izz = 0.00151669
+
+一つ、または複数の構成部品に上書きされた質量特性が存在します:
+	RS03
+
+link0_pitchの質量特性: 
+     ｺﾝﾌｨｷﾞｭﾚｰｼｮﾝ: ﾃﾞﾌｫﾙﾄ
+     座標系: link0_pitch
+
+質量 = 1.00754403 kilograms
+
+体積 = 163417.82728849 cubic millimeters
+
+表面積 = 0.14352399 square meters
+
+重心: ( ﾒｰﾄﾙ )
+	X = 0.00005051
+	Y = -0.04842362
+	Z = 0.05119840
+
+慣性主要軸と慣性主ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心： 
+	 Ix = (-0.00237611,  0.86886215, -0.49504840)   	Px = 0.00138308
+	 Iy = (-0.00190251, -0.49505283, -0.86886079)   	Py = 0.00210114
+	 Iz = (-0.99999537, -0.00112268,  0.00282932)   	Pz = 0.00212119
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心で計算、そして出力座標系と整列します。 (正のﾃﾝｿﾙ表記を使用。)
+	Lxx = 0.00212118	Lxy = -0.00000150	Lxz = 0.00000090
+	Lyx = -0.00000150	Lyy = 0.00155906	Lyz = -0.00030886
+	Lzx = 0.00000090	Lzy = -0.00030886	Lzz = 0.00192516
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+（出力座標系で計算） (正のﾃﾝｿﾙ表記を使用。)
+	Ixx = 0.00712477	Ixy = -0.00000397	Ixz = 0.00000351
+	Iyx = -0.00000397	Iyy = 0.00420012	Iyz = -0.00280677
+	Izx = 0.00000351	Izy = -0.00280677	Izz = 0.00428770
+
+一つ、または複数の構成部品に上書きされた質量特性が存在します:
+	RS03
+
+
+link1の質量特性: 
+     ｺﾝﾌｨｷﾞｭﾚｰｼｮﾝ: ﾃﾞﾌｫﾙﾄ
+     座標系: link1
+
+* 隠された一つまたはそれ以上の構成部品/ﾎﾞﾃﾞｨの質量特性を含む。
+
+質量 = 0.09419227 kilograms
+
+体積 = 96831.13746857 cubic millimeters
+
+表面積 = 0.10800717 square meters
+
+重心: ( ﾒｰﾄﾙ )
+	X = 0.18500000
+	Y = 0.00000000
+	Z = 0.00000000
+
+慣性主要軸と慣性主ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心： 
+	 Ix = (-1.00000000,  0.00000000,  0.00000000)   	Px = 0.00001660
+	 Iy = ( 0.00000000, -1.00000000,  0.00000000)   	Py = 0.00110509
+	 Iz = ( 0.00000000,  0.00000000,  1.00000000)   	Pz = 0.00110516
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心で計算、そして出力座標系と整列します。 (正のﾃﾝｿﾙ表記を使用。)
+	Lxx = 0.00001660	Lxy = 0.00000000	Lxz = 0.00000000
+	Lyx = 0.00000000	Lyy = 0.00110509	Lyz = 0.00000000
+	Lzx = 0.00000000	Lzy = 0.00000000	Lzz = 0.00110516
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+（出力座標系で計算） (正のﾃﾝｿﾙ表記を使用。)
+	Ixx = 0.00001660	Ixy = 0.00000000	Ixz = 0.00000000
+	Iyx = 0.00000000	Iyy = 0.00432882	Iyz = 0.00000000
+	Izx = 0.00000000	Izy = 0.00000000	Izz = 0.00432889
+
+一つ、または複数の構成部品に上書きされた質量特性が存在します:
+	SLBNR3<1><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<5><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<6><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<7><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<8><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<1><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<5><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<6><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<7><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<8><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	6706_handmade<1><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotator<1><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotators<1><ﾃﾞﾌｫﾙﾄ>
+	square20_bearing_stopper_PLA<1><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotator<1><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotators<1><ﾃﾞﾌｫﾙﾄ>
+	6706_handmade<1><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotator<2><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotators<1><ﾃﾞﾌｫﾙﾄ>
+	square20_bearing_stopper_PLA<1><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotator<2><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotators<1><ﾃﾞﾌｫﾙﾄ>
+
+
+joint_junction1の質量特性: 
+     ｺﾝﾌｨｷﾞｭﾚｰｼｮﾝ: ﾃﾞﾌｫﾙﾄ
+     座標系: joint_junction1
+
+* 隠された一つまたはそれ以上の構成部品/ﾎﾞﾃﾞｨの質量特性を含む。
+
+質量 = 0.81269581 kilograms
+
+体積 = 192242.01022754 cubic millimeters
+
+表面積 = 0.22077958 square meters
+
+重心: ( ﾒｰﾄﾙ )
+	X = 0.08350021
+	Y = -0.00176907
+	Z = 0.00176907
+
+慣性主要軸と慣性主ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心： 
+	 Ix = (-0.99833439,  0.04079470,  0.04079513)   	Px = 0.00052854
+	 Iy = (-0.05769272, -0.70594907, -0.70590896)   	Py = 0.00192518
+	 Iz = ( 0.00000195, -0.70708677,  0.70712679)   	Pz = 0.00192606
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心で計算、そして出力座標系と整列します。 (正のﾃﾝｿﾙ表記を使用。)
+	Lxx = 0.00053319	Lxy = -0.00005688	Lxz = -0.00005688
+	Lyx = -0.00005688	Lyy = 0.00192329	Lyz = 0.00000277
+	Lzx = -0.00005688	Lzy = 0.00000277	Lzz = 0.00192329
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+（出力座標系で計算） (正のﾃﾝｿﾙ表記を使用。)
+	Ixx = 0.00053827	Ixy = -0.00017693	Ixz = 0.00006317
+	Iyx = -0.00017693	Iyy = 0.00759219	Iyz = 0.00000022
+	Izx = 0.00006317	Izy = 0.00000022	Izz = 0.00759219
+
+一つ、または複数の構成部品に上書きされた質量特性が存在します:
+	RS00@robstride00_with_separated_holder@robstride00_separated_holder_joint_module
+	CB3-5<1><CSH-STN-M3-5>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<2><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<3><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<4><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<5><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<6><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<7><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-5<2><CSH-STN-M3-5>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-5<3><CSH-STN-M3-5>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-5<4><CSH-STN-M3-5>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	6704_2027<1><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<1><CSH-STU-M3-6>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<2><CSH-STU-M3-6>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<3><CSH-STU-M3-6>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<4><CSH-STU-M3-6>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<1><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	6704_2027<1><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<1><CSH-STU-M3-6>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<2><CSH-STU-M3-6>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<3><CSH-STU-M3-6>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<4><CSH-STU-M3-6>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<1><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-22<1><CSH-ST-M3-22>@joint_link_gear_m1_z80_t5_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-22<2><CSH-ST-M3-22>@joint_link_gear_m1_z80_t5_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-22<3><CSH-ST-M3-22>@joint_link_gear_m1_z80_t5_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-22<4><CSH-ST-M3-22>@joint_link_gear_m1_z80_t5_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-14<1><CSH-STN-M3-14>@joint_link_bearing_cap_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-14<2><CSH-STN-M3-14>@joint_link_bearing_cap_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-14<3><CSH-STN-M3-14>@joint_link_bearing_cap_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-14<4><CSH-STN-M3-14>@joint_link_bearing_cap_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<7><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<8><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<9><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<10><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<11><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<12><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<1><Default>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<13><CSH-STN-M3-10>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<14><CSH-STN-M3-10>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<15><CSH-STN-M3-10>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<16><CSH-STN-M3-10>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	RS00@robstride00_with_separated_holder@robstride00_separated_holder_joint_module
+	CB3-5<1><CSH-STN-M3-5>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<2><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<3><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<4><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<5><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<6><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<7><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-5<2><CSH-STN-M3-5>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-5<3><CSH-STN-M3-5>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-5<4><CSH-STN-M3-5>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	6704_2027<1><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<1><CSH-STU-M3-6>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<2><CSH-STU-M3-6>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<3><CSH-STU-M3-6>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<4><CSH-STU-M3-6>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<1><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	6704_2027<1><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<1><CSH-STU-M3-6>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<2><CSH-STU-M3-6>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<3><CSH-STU-M3-6>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<4><CSH-STU-M3-6>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<1><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-22<1><CSH-ST-M3-22>@joint_link_gear_m1_z80_t5_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-22<2><CSH-ST-M3-22>@joint_link_gear_m1_z80_t5_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-22<3><CSH-ST-M3-22>@joint_link_gear_m1_z80_t5_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-22<4><CSH-ST-M3-22>@joint_link_gear_m1_z80_t5_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-14<1><CSH-STN-M3-14>@joint_link_bearing_cap_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-14<2><CSH-STN-M3-14>@joint_link_bearing_cap_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-14<3><CSH-STN-M3-14>@joint_link_bearing_cap_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-14<4><CSH-STN-M3-14>@joint_link_bearing_cap_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<7><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<8><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<9><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<10><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<11><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<12><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<1><Default>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<13><CSH-STN-M3-10>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<14><CSH-STN-M3-10>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<15><CSH-STN-M3-10>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<16><CSH-STN-M3-10>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<1><CSH-STU-M3-6>
+	SLBNR3<2><Default>
+	SLBNR3<4><Default>
+	SLBNR3<6><Default>
+	SLBNR3<8><Default>
+	CB3-6<3><CSH-STU-M3-6>
+	CB3-6<5><CSH-STU-M3-6>
+	CB3-6<7><CSH-STU-M3-6>
+
+
+link2の質量特性: 
+     ｺﾝﾌｨｷﾞｭﾚｰｼｮﾝ: ﾃﾞﾌｫﾙﾄ
+     座標系: link2
+
+質量 = 0.09419227 kilograms
+
+体積 = 96831.13746857 cubic millimeters
+
+表面積 = 0.10800717 square meters
+
+重心: ( ﾒｰﾄﾙ )
+	X = 0.18500000
+	Y = 0.00000000
+	Z = 0.00000000
+
+慣性主要軸と慣性主ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心： 
+	 Ix = (-1.00000000,  0.00000000,  0.00000000)   	Px = 0.00001660
+	 Iy = ( 0.00000000, -1.00000000,  0.00000000)   	Py = 0.00110509
+	 Iz = ( 0.00000000,  0.00000000,  1.00000000)   	Pz = 0.00110516
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心で計算、そして出力座標系と整列します。 (正のﾃﾝｿﾙ表記を使用。)
+	Lxx = 0.00001660	Lxy = 0.00000000	Lxz = 0.00000000
+	Lyx = 0.00000000	Lyy = 0.00110509	Lyz = 0.00000000
+	Lzx = 0.00000000	Lzy = 0.00000000	Lzz = 0.00110516
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+（出力座標系で計算） (正のﾃﾝｿﾙ表記を使用。)
+	Ixx = 0.00001660	Ixy = 0.00000000	Ixz = 0.00000000
+	Iyx = 0.00000000	Iyy = 0.00432882	Iyz = 0.00000000
+	Izx = 0.00000000	Izy = 0.00000000	Izz = 0.00432889
+
+一つ、または複数の構成部品に上書きされた質量特性が存在します:
+	SLBNR3<1><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<5><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<6><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<7><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<8><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<1><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<5><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<6><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<7><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<8><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	6706_handmade<1><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotator<1><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotators<1><ﾃﾞﾌｫﾙﾄ>
+	square20_bearing_stopper_PLA<1><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotator<1><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotators<1><ﾃﾞﾌｫﾙﾄ>
+	6706_handmade<1><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotator<2><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotators<1><ﾃﾞﾌｫﾙﾄ>
+	square20_bearing_stopper_PLA<1><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotator<2><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotators<1><ﾃﾞﾌｫﾙﾄ>
+
+
+joint_junction2の質量特性: 
+     ｺﾝﾌｨｷﾞｭﾚｰｼｮﾝ: ﾃﾞﾌｫﾙﾄ
+     座標系: joint_junction2
+
+* 隠された一つまたはそれ以上の構成部品/ﾎﾞﾃﾞｨの質量特性を含む。
+
+質量 = 0.81269581 kilograms
+
+体積 = 192242.01022754 cubic millimeters
+
+表面積 = 0.22077958 square meters
+
+重心: ( ﾒｰﾄﾙ )
+	X = 0.08350021
+	Y = -0.00176907
+	Z = 0.00176907
+
+慣性主要軸と慣性主ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心： 
+	 Ix = (-0.99833439,  0.04079470,  0.04079513)   	Px = 0.00052854
+	 Iy = (-0.05769272, -0.70594907, -0.70590896)   	Py = 0.00192518
+	 Iz = ( 0.00000195, -0.70708677,  0.70712679)   	Pz = 0.00192606
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心で計算、そして出力座標系と整列します。 (正のﾃﾝｿﾙ表記を使用。)
+	Lxx = 0.00053319	Lxy = -0.00005688	Lxz = -0.00005688
+	Lyx = -0.00005688	Lyy = 0.00192329	Lyz = 0.00000277
+	Lzx = -0.00005688	Lzy = 0.00000277	Lzz = 0.00192329
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+（出力座標系で計算） (正のﾃﾝｿﾙ表記を使用。)
+	Ixx = 0.00053827	Ixy = -0.00017693	Ixz = 0.00006317
+	Iyx = -0.00017693	Iyy = 0.00759219	Iyz = 0.00000022
+	Izx = 0.00006317	Izy = 0.00000022	Izz = 0.00759219
+
+一つ、または複数の構成部品に上書きされた質量特性が存在します:
+	RS00@robstride00_with_separated_holder@robstride00_separated_holder_joint_module
+	CB3-5<1><CSH-STN-M3-5>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<2><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<3><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<4><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<5><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<6><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<7><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-5<2><CSH-STN-M3-5>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-5<3><CSH-STN-M3-5>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-5<4><CSH-STN-M3-5>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	6704_2027<1><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<1><CSH-STU-M3-6>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<2><CSH-STU-M3-6>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<3><CSH-STU-M3-6>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<4><CSH-STU-M3-6>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<1><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	6704_2027<1><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<1><CSH-STU-M3-6>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<2><CSH-STU-M3-6>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<3><CSH-STU-M3-6>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<4><CSH-STU-M3-6>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<1><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-22<1><CSH-ST-M3-22>@joint_link_gear_m1_z80_t5_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-22<2><CSH-ST-M3-22>@joint_link_gear_m1_z80_t5_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-22<3><CSH-ST-M3-22>@joint_link_gear_m1_z80_t5_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-22<4><CSH-ST-M3-22>@joint_link_gear_m1_z80_t5_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-14<1><CSH-STN-M3-14>@joint_link_bearing_cap_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-14<2><CSH-STN-M3-14>@joint_link_bearing_cap_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-14<3><CSH-STN-M3-14>@joint_link_bearing_cap_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-14<4><CSH-STN-M3-14>@joint_link_bearing_cap_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<7><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<8><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<9><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<10><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<11><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<12><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<1><Default>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<13><CSH-STN-M3-10>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<14><CSH-STN-M3-10>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<15><CSH-STN-M3-10>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<16><CSH-STN-M3-10>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	RS00@robstride00_with_separated_holder@robstride00_separated_holder_joint_module
+	CB3-5<1><CSH-STN-M3-5>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<2><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<3><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<4><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<5><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<6><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<7><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-5<2><CSH-STN-M3-5>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-5<3><CSH-STN-M3-5>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-5<4><CSH-STN-M3-5>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	6704_2027<1><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<1><CSH-STU-M3-6>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<2><CSH-STU-M3-6>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<3><CSH-STU-M3-6>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<4><CSH-STU-M3-6>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<1><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	6704_2027<1><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<1><CSH-STU-M3-6>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<2><CSH-STU-M3-6>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<3><CSH-STU-M3-6>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<4><CSH-STU-M3-6>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<1><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-22<1><CSH-ST-M3-22>@joint_link_gear_m1_z80_t5_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-22<2><CSH-ST-M3-22>@joint_link_gear_m1_z80_t5_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-22<3><CSH-ST-M3-22>@joint_link_gear_m1_z80_t5_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-22<4><CSH-ST-M3-22>@joint_link_gear_m1_z80_t5_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-14<1><CSH-STN-M3-14>@joint_link_bearing_cap_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-14<2><CSH-STN-M3-14>@joint_link_bearing_cap_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-14<3><CSH-STN-M3-14>@joint_link_bearing_cap_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-14<4><CSH-STN-M3-14>@joint_link_bearing_cap_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<7><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<8><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<9><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<10><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<11><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<12><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<1><Default>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<13><CSH-STN-M3-10>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<14><CSH-STN-M3-10>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<15><CSH-STN-M3-10>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<16><CSH-STN-M3-10>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<1><CSH-STU-M3-6>
+	SLBNR3<2><Default>
+	SLBNR3<4><Default>
+	SLBNR3<6><Default>
+	SLBNR3<8><Default>
+	CB3-6<3><CSH-STU-M3-6>
+	CB3-6<5><CSH-STU-M3-6>
+	CB3-6<7><CSH-STU-M3-6>
+
+
+link3の質量特性: 
+     ｺﾝﾌｨｷﾞｭﾚｰｼｮﾝ: ﾃﾞﾌｫﾙﾄ
+     座標系: link3
+
+質量 = 0.09419227 kilograms
+
+体積 = 96831.13746857 cubic millimeters
+
+表面積 = 0.10800717 square meters
+
+重心: ( ﾒｰﾄﾙ )
+	X = 0.18500000
+	Y = 0.00000000
+	Z = 0.00000000
+
+慣性主要軸と慣性主ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心： 
+	 Ix = (-1.00000000,  0.00000000,  0.00000000)   	Px = 0.00001660
+	 Iy = ( 0.00000000, -1.00000000,  0.00000000)   	Py = 0.00110509
+	 Iz = ( 0.00000000,  0.00000000,  1.00000000)   	Pz = 0.00110516
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心で計算、そして出力座標系と整列します。 (正のﾃﾝｿﾙ表記を使用。)
+	Lxx = 0.00001660	Lxy = 0.00000000	Lxz = 0.00000000
+	Lyx = 0.00000000	Lyy = 0.00110509	Lyz = 0.00000000
+	Lzx = 0.00000000	Lzy = 0.00000000	Lzz = 0.00110516
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+（出力座標系で計算） (正のﾃﾝｿﾙ表記を使用。)
+	Ixx = 0.00001660	Ixy = 0.00000000	Ixz = 0.00000000
+	Iyx = 0.00000000	Iyy = 0.00432882	Iyz = 0.00000000
+	Izx = 0.00000000	Izy = 0.00000000	Izz = 0.00432889
+
+一つ、または複数の構成部品に上書きされた質量特性が存在します:
+	SLBNR3<1><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<5><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<6><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<7><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<8><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<1><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<5><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<6><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<7><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<8><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	6706_handmade<1><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotator<1><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotators<1><ﾃﾞﾌｫﾙﾄ>
+	square20_bearing_stopper_PLA<1><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotator<1><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotators<1><ﾃﾞﾌｫﾙﾄ>
+	6706_handmade<1><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotator<2><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotators<1><ﾃﾞﾌｫﾙﾄ>
+	square20_bearing_stopper_PLA<1><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotator<2><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotators<1><ﾃﾞﾌｫﾙﾄ>
+
+
+joint_junction3の質量特性: 
+     ｺﾝﾌｨｷﾞｭﾚｰｼｮﾝ: ﾃﾞﾌｫﾙﾄ
+     座標系: joint_junction3
+
+* 隠された一つまたはそれ以上の構成部品/ﾎﾞﾃﾞｨの質量特性を含む。
+
+質量 = 0.81269581 kilograms
+
+体積 = 192242.01022754 cubic millimeters
+
+表面積 = 0.22077958 square meters
+
+重心: ( ﾒｰﾄﾙ )
+	X = 0.08350021
+	Y = -0.00176907
+	Z = 0.00176907
+
+慣性主要軸と慣性主ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心： 
+	 Ix = (-0.99833439,  0.04079470,  0.04079513)   	Px = 0.00052854
+	 Iy = (-0.05769272, -0.70594907, -0.70590896)   	Py = 0.00192518
+	 Iz = ( 0.00000195, -0.70708677,  0.70712679)   	Pz = 0.00192606
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心で計算、そして出力座標系と整列します。 (正のﾃﾝｿﾙ表記を使用。)
+	Lxx = 0.00053319	Lxy = -0.00005688	Lxz = -0.00005688
+	Lyx = -0.00005688	Lyy = 0.00192329	Lyz = 0.00000277
+	Lzx = -0.00005688	Lzy = 0.00000277	Lzz = 0.00192329
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+（出力座標系で計算） (正のﾃﾝｿﾙ表記を使用。)
+	Ixx = 0.00053827	Ixy = -0.00017693	Ixz = 0.00006317
+	Iyx = -0.00017693	Iyy = 0.00759219	Iyz = 0.00000022
+	Izx = 0.00006317	Izy = 0.00000022	Izz = 0.00759219
+
+一つ、または複数の構成部品に上書きされた質量特性が存在します:
+	RS00@robstride00_with_separated_holder@robstride00_separated_holder_joint_module
+	CB3-5<1><CSH-STN-M3-5>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<2><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<3><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<4><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<5><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<6><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<7><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-5<2><CSH-STN-M3-5>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-5<3><CSH-STN-M3-5>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-5<4><CSH-STN-M3-5>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	6704_2027<1><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<1><CSH-STU-M3-6>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<2><CSH-STU-M3-6>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<3><CSH-STU-M3-6>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<4><CSH-STU-M3-6>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<1><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	6704_2027<1><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<1><CSH-STU-M3-6>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<2><CSH-STU-M3-6>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<3><CSH-STU-M3-6>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<4><CSH-STU-M3-6>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<1><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-22<1><CSH-ST-M3-22>@joint_link_gear_m1_z80_t5_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-22<2><CSH-ST-M3-22>@joint_link_gear_m1_z80_t5_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-22<3><CSH-ST-M3-22>@joint_link_gear_m1_z80_t5_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-22<4><CSH-ST-M3-22>@joint_link_gear_m1_z80_t5_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-14<1><CSH-STN-M3-14>@joint_link_bearing_cap_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-14<2><CSH-STN-M3-14>@joint_link_bearing_cap_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-14<3><CSH-STN-M3-14>@joint_link_bearing_cap_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-14<4><CSH-STN-M3-14>@joint_link_bearing_cap_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<7><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<8><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<9><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<10><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<11><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<12><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<1><Default>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<13><CSH-STN-M3-10>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<14><CSH-STN-M3-10>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<15><CSH-STN-M3-10>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<16><CSH-STN-M3-10>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<1><ﾃﾞﾌｫﾙﾄ>
+	RS00@robstride00_with_separated_holder@robstride00_separated_holder_joint_module
+	CB3-5<1><CSH-STN-M3-5>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<2><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<3><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<4><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<5><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<6><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<7><CSH-STU-M3-6>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-5<2><CSH-STN-M3-5>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-5<3><CSH-STN-M3-5>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-5<4><CSH-STN-M3-5>@robstride00_with_separated_holder<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	6704_2027<1><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<1><CSH-STU-M3-6>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<2><CSH-STU-M3-6>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<3><CSH-STU-M3-6>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<4><CSH-STU-M3-6>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<1><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@joint_bearing_holder_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	6704_2027<1><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<1><CSH-STU-M3-6>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<2><CSH-STU-M3-6>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<3><CSH-STU-M3-6>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<4><CSH-STU-M3-6>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<1><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@joint_bearing_holder_module<2><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-22<1><CSH-ST-M3-22>@joint_link_gear_m1_z80_t5_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-22<2><CSH-ST-M3-22>@joint_link_gear_m1_z80_t5_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-22<3><CSH-ST-M3-22>@joint_link_gear_m1_z80_t5_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-22<4><CSH-ST-M3-22>@joint_link_gear_m1_z80_t5_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-14<1><CSH-STN-M3-14>@joint_link_bearing_cap_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-14<2><CSH-STN-M3-14>@joint_link_bearing_cap_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-14<3><CSH-STN-M3-14>@joint_link_bearing_cap_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-14<4><CSH-STN-M3-14>@joint_link_bearing_cap_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<7><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<8><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<9><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<10><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<11><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<12><CSH-STU-M3-6>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<1><Default>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<13><CSH-STN-M3-10>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<14><CSH-STN-M3-10>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<15><CSH-STN-M3-10>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<16><CSH-STN-M3-10>@robstride00_output_module<1><ﾃﾞﾌｫﾙﾄ>@robstride00_separated_holder_joint_module<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<1><CSH-STU-M3-6>
+	SLBNR3<2><Default>
+	SLBNR3<4><Default>
+	SLBNR3<6><Default>
+	SLBNR3<8><Default>
+	CB3-6<3><CSH-STU-M3-6>
+	CB3-6<5><CSH-STU-M3-6>
+	CB3-6<7><CSH-STU-M3-6>
+
+
+link4の質量特性: 
+     ｺﾝﾌｨｷﾞｭﾚｰｼｮﾝ: ﾃﾞﾌｫﾙﾄ
+     座標系: link4
+
+質量 = 0.09419227 kilograms
+
+体積 = 96831.13746857 cubic millimeters
+
+表面積 = 0.10800717 square meters
+
+重心: ( ﾒｰﾄﾙ )
+	X = 0.18500000
+	Y = 0.00000000
+	Z = 0.00000000
+
+慣性主要軸と慣性主ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心： 
+	 Ix = (-1.00000000,  0.00000000,  0.00000000)   	Px = 0.00001660
+	 Iy = ( 0.00000000, -1.00000000,  0.00000000)   	Py = 0.00110509
+	 Iz = ( 0.00000000,  0.00000000,  1.00000000)   	Pz = 0.00110516
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心で計算、そして出力座標系と整列します。 (正のﾃﾝｿﾙ表記を使用。)
+	Lxx = 0.00001660	Lxy = 0.00000000	Lxz = 0.00000000
+	Lyx = 0.00000000	Lyy = 0.00110509	Lyz = 0.00000000
+	Lzx = 0.00000000	Lzy = 0.00000000	Lzz = 0.00110516
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+（出力座標系で計算） (正のﾃﾝｿﾙ表記を使用。)
+	Ixx = 0.00001660	Ixy = 0.00000000	Ixz = 0.00000000
+	Iyx = 0.00000000	Iyy = 0.00432882	Iyz = 0.00000000
+	Izx = 0.00000000	Izy = 0.00000000	Izz = 0.00432889
+
+一つ、または複数の構成部品に上書きされた質量特性が存在します:
+	SLBNR3<1><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<5><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<6><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<7><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<8><Default>@joint_link_holders<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<1><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<5><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<6><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<7><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<8><Default>@joint_link_holders<3><ﾃﾞﾌｫﾙﾄ>
+	6706_handmade<1><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotator<1><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotators<1><ﾃﾞﾌｫﾙﾄ>
+	square20_bearing_stopper_PLA<1><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotator<1><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotators<1><ﾃﾞﾌｫﾙﾄ>
+	6706_handmade<1><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotator<2><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotators<1><ﾃﾞﾌｫﾙﾄ>
+	square20_bearing_stopper_PLA<1><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotator<2><ﾃﾞﾌｫﾙﾄ>@gimbal_shaft_rotators<1><ﾃﾞﾌｫﾙﾄ>
+
+
+gimbal1_roll_linkの質量特性: 
+     ｺﾝﾌｨｷﾞｭﾚｰｼｮﾝ: ﾃﾞﾌｫﾙﾄ
+     座標系: gimbal1_roll_link
+
+質量 = 0.21960888 kilograms
+
+体積 = 166876.92548993 cubic millimeters
+
+表面積 = 0.09046474 square meters
+
+重心: ( ﾒｰﾄﾙ )
+	X = 0.00163578
+	Y = 0.00012928
+	Z = -0.01013979
+
+慣性主要軸と慣性主ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心： 
+	 Ix = (-0.58642966,  0.00384239,  0.80999104)   	Px = 0.00009758
+	 Iy = ( 0.80998642, -0.00304139,  0.58644074)   	Py = 0.00062762
+	 Iz = ( 0.00471683,  0.99998799, -0.00132873)   	Pz = 0.00065544
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心で計算、そして出力座標系と整列します。 (正のﾃﾝｿﾙ表記を使用。)
+	Lxx = 0.00044534	Lxy = -0.00000133	Lxz = -0.00025177
+	Lyx = -0.00000133	Lyy = 0.00065543	Lyz = 0.00000169
+	Lzx = -0.00025177	Lzy = 0.00000169	Lzz = 0.00027987
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+（出力座標系で計算） (正のﾃﾝｿﾙ表記を使用。)
+	Ixx = 0.00046792	Ixy = -0.00000128	Ixz = -0.00025542
+	Iyx = -0.00000128	Iyy = 0.00067860	Iyz = 0.00000140
+	Izx = -0.00025542	Izy = 0.00000140	Izz = 0.00028046
+
+一つ、または複数の構成部品に上書きされた質量特性が存在します:
+	gimbal_upper_plate<1><ﾃﾞﾌｫﾙﾄ>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	gimbal_roll_holder_PLA_v2<1><version2>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	gimbal_roll_holder_PLA_v2<2><version2>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	gimbal_upper_plate<2><ﾃﾞﾌｫﾙﾄ>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	XL-430_new<2><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB2-18<1><CSH-ST-M2-18>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB2-18<2><CSH-ST-M2-18>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB2-18<3><CSH-ST-M2-18>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB2-18<4><CSH-ST-M2-18>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SCB2_5_10<1><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SCB2_5_10<3><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SCB2_5_10<4><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SCB2_5_10<5><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<1><CSH-STN-M3-8>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<1><CSH-STN-M3-10>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<3><CSH-STN-M3-8>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<3><CSH-STN-M3-10>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-25<1><CSH-STN-M3-25>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<1><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-25<2><CSH-STN-M3-25>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<4><CSH-STN-M3-10>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<5><CSH-STN-M3-10>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<6><CSH-STN-M3-10>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<7><CSH-STN-M3-10>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	XL-430_new<1><Default>
+
+
+gimbal1_pitch_linkの質量特性: 
+     ｺﾝﾌｨｷﾞｭﾚｰｼｮﾝ: ﾃﾞﾌｫﾙﾄ
+     座標系: gimbal1_pitch_link
+
+質量 = 0.29793910 kilograms
+
+体積 = 93097.81314560 cubic millimeters
+
+表面積 = 0.04816715 square meters
+
+重心: ( ﾒｰﾄﾙ )
+	X = 0.00000000
+	Y = 0.00000000
+	Z = 0.01764073
+
+慣性主要軸と慣性主ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心： 
+	 Ix = ( 0.00000000,  1.00000000,  0.00000000)   	Px = 0.00007623
+	 Iy = ( 0.00000000,  0.00000000, -1.00000000)   	Py = 0.00773263
+	 Iz = (-1.00000000,  0.00000000,  0.00000000)   	Pz = 0.00776954
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心で計算、そして出力座標系と整列します。 (正のﾃﾝｿﾙ表記を使用。)
+	Lxx = 0.00776954	Lxy = 0.00000000	Lxz = 0.00000000
+	Lyx = 0.00000000	Lyy = 0.00007623	Lyz = 0.00000000
+	Lzx = 0.00000000	Lzy = 0.00000000	Lzz = 0.00773263
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+（出力座標系で計算） (正のﾃﾝｿﾙ表記を使用。)
+	Ixx = 0.00786226	Ixy = 0.00000000	Ixz = 0.00000000
+	Iyx = 0.00000000	Iyy = 0.00016895	Iyz = 0.00000000
+	Izx = 0.00000000	Izy = 0.00000000	Izz = 0.00773263
+
+一つ、または複数の構成部品に上書きされた質量特性が存在します:
+	t_motor_at2814<1><Default>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	t_motor_at2814_shaft<1><Default>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<1><CSH-STU-M3-6>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<2><CSH-STU-M3-6>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<3><CSH-STU-M3-6>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<4><CSH-STU-M3-6>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<5><CSH-STN-M3-8>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<6><CSH-STN-M3-8>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<7><CSH-STN-M3-8>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<8><CSH-STN-M3-8>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	t_motor_at2814<1><Default>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	t_motor_at2814_shaft<1><Default>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<1><CSH-STU-M3-6>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<2><CSH-STU-M3-6>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<3><CSH-STU-M3-6>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<4><CSH-STU-M3-6>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<5><CSH-STN-M3-8>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<6><CSH-STN-M3-8>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<7><CSH-STN-M3-8>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<8><CSH-STN-M3-8>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+
+
+gimbal2_roll_linkの質量特性: 
+     ｺﾝﾌｨｷﾞｭﾚｰｼｮﾝ: ﾃﾞﾌｫﾙﾄ
+     座標系: gimbal2_roll_link
+
+質量 = 0.21960888 kilograms
+
+体積 = 166876.92548993 cubic millimeters
+
+表面積 = 0.09046474 square meters
+
+重心: ( ﾒｰﾄﾙ )
+	X = 0.00163578
+	Y = 0.00012928
+	Z = -0.01013979
+
+慣性主要軸と慣性主ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心： 
+	 Ix = (-0.58642966,  0.00384239,  0.80999104)   	Px = 0.00009758
+	 Iy = ( 0.80998642, -0.00304139,  0.58644074)   	Py = 0.00062762
+	 Iz = ( 0.00471683,  0.99998799, -0.00132873)   	Pz = 0.00065544
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心で計算、そして出力座標系と整列します。 (正のﾃﾝｿﾙ表記を使用。)
+	Lxx = 0.00044534	Lxy = -0.00000133	Lxz = -0.00025177
+	Lyx = -0.00000133	Lyy = 0.00065543	Lyz = 0.00000169
+	Lzx = -0.00025177	Lzy = 0.00000169	Lzz = 0.00027987
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+（出力座標系で計算） (正のﾃﾝｿﾙ表記を使用。)
+	Ixx = 0.00046792	Ixy = -0.00000128	Ixz = -0.00025542
+	Iyx = -0.00000128	Iyy = 0.00067860	Iyz = 0.00000140
+	Izx = -0.00025542	Izy = 0.00000140	Izz = 0.00028046
+
+一つ、または複数の構成部品に上書きされた質量特性が存在します:
+	gimbal_upper_plate<1><ﾃﾞﾌｫﾙﾄ>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	gimbal_roll_holder_PLA_v2<1><version2>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	gimbal_roll_holder_PLA_v2<2><version2>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	gimbal_upper_plate<2><ﾃﾞﾌｫﾙﾄ>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	XL-430_new<2><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB2-18<1><CSH-ST-M2-18>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB2-18<2><CSH-ST-M2-18>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB2-18<3><CSH-ST-M2-18>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB2-18<4><CSH-ST-M2-18>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SCB2_5_10<1><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SCB2_5_10<3><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SCB2_5_10<4><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SCB2_5_10<5><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<1><CSH-STN-M3-8>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<1><CSH-STN-M3-10>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<3><CSH-STN-M3-8>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<3><CSH-STN-M3-10>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-25<1><CSH-STN-M3-25>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<1><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-25<2><CSH-STN-M3-25>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<4><CSH-STN-M3-10>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<5><CSH-STN-M3-10>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<6><CSH-STN-M3-10>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<7><CSH-STN-M3-10>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	XL-430_new<1><Default>
+
+
+gimbal2_pitch_linkの質量特性: 
+     ｺﾝﾌｨｷﾞｭﾚｰｼｮﾝ: ﾃﾞﾌｫﾙﾄ
+     座標系: gimbal2_pitch_link
+
+質量 = 0.29793910 kilograms
+
+体積 = 93097.81314560 cubic millimeters
+
+表面積 = 0.04816715 square meters
+
+重心: ( ﾒｰﾄﾙ )
+	X = 0.00000000
+	Y = 0.00000000
+	Z = 0.01764073
+
+慣性主要軸と慣性主ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心： 
+	 Ix = ( 0.00000000,  1.00000000,  0.00000000)   	Px = 0.00007623
+	 Iy = ( 0.00000000,  0.00000000, -1.00000000)   	Py = 0.00773263
+	 Iz = (-1.00000000,  0.00000000,  0.00000000)   	Pz = 0.00776954
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心で計算、そして出力座標系と整列します。 (正のﾃﾝｿﾙ表記を使用。)
+	Lxx = 0.00776954	Lxy = 0.00000000	Lxz = 0.00000000
+	Lyx = 0.00000000	Lyy = 0.00007623	Lyz = 0.00000000
+	Lzx = 0.00000000	Lzy = 0.00000000	Lzz = 0.00773263
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+（出力座標系で計算） (正のﾃﾝｿﾙ表記を使用。)
+	Ixx = 0.00786226	Ixy = 0.00000000	Ixz = 0.00000000
+	Iyx = 0.00000000	Iyy = 0.00016895	Iyz = 0.00000000
+	Izx = 0.00000000	Izy = 0.00000000	Izz = 0.00773263
+
+一つ、または複数の構成部品に上書きされた質量特性が存在します:
+	t_motor_at2814<1><Default>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	t_motor_at2814_shaft<1><Default>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<1><CSH-STU-M3-6>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<2><CSH-STU-M3-6>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<3><CSH-STU-M3-6>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<4><CSH-STU-M3-6>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<5><CSH-STN-M3-8>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<6><CSH-STN-M3-8>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<7><CSH-STN-M3-8>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<8><CSH-STN-M3-8>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	t_motor_at2814<1><Default>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	t_motor_at2814_shaft<1><Default>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<1><CSH-STU-M3-6>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<2><CSH-STU-M3-6>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<3><CSH-STU-M3-6>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<4><CSH-STU-M3-6>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<5><CSH-STN-M3-8>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<6><CSH-STN-M3-8>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<7><CSH-STN-M3-8>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<8><CSH-STN-M3-8>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+
+
+gimbal3_roll_linkの質量特性: 
+     ｺﾝﾌｨｷﾞｭﾚｰｼｮﾝ: ﾃﾞﾌｫﾙﾄ
+     座標系: gimbal3_roll_link
+
+質量 = 0.21960888 kilograms
+
+体積 = 166876.92548993 cubic millimeters
+
+表面積 = 0.09046474 square meters
+
+重心: ( ﾒｰﾄﾙ )
+	X = 0.00163578
+	Y = 0.00012928
+	Z = -0.01013979
+
+慣性主要軸と慣性主ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心： 
+	 Ix = (-0.58642966,  0.00384239,  0.80999104)   	Px = 0.00009758
+	 Iy = ( 0.80998642, -0.00304139,  0.58644074)   	Py = 0.00062762
+	 Iz = ( 0.00471683,  0.99998799, -0.00132873)   	Pz = 0.00065544
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心で計算、そして出力座標系と整列します。 (正のﾃﾝｿﾙ表記を使用。)
+	Lxx = 0.00044534	Lxy = -0.00000133	Lxz = -0.00025177
+	Lyx = -0.00000133	Lyy = 0.00065543	Lyz = 0.00000169
+	Lzx = -0.00025177	Lzy = 0.00000169	Lzz = 0.00027987
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+（出力座標系で計算） (正のﾃﾝｿﾙ表記を使用。)
+	Ixx = 0.00046792	Ixy = -0.00000128	Ixz = -0.00025542
+	Iyx = -0.00000128	Iyy = 0.00067860	Iyz = 0.00000140
+	Izx = -0.00025542	Izy = 0.00000140	Izz = 0.00028046
+
+一つ、または複数の構成部品に上書きされた質量特性が存在します:
+	gimbal_upper_plate<1><ﾃﾞﾌｫﾙﾄ>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	gimbal_roll_holder_PLA_v2<1><version2>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	gimbal_roll_holder_PLA_v2<2><version2>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	gimbal_upper_plate<2><ﾃﾞﾌｫﾙﾄ>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	XL-430_new<2><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB2-18<1><CSH-ST-M2-18>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB2-18<2><CSH-ST-M2-18>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB2-18<3><CSH-ST-M2-18>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB2-18<4><CSH-ST-M2-18>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SCB2_5_10<1><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SCB2_5_10<3><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SCB2_5_10<4><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SCB2_5_10<5><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<1><CSH-STN-M3-8>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<1><CSH-STN-M3-10>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<3><CSH-STN-M3-8>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<3><CSH-STN-M3-10>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-25<1><CSH-STN-M3-25>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<1><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-25<2><CSH-STN-M3-25>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<4><CSH-STN-M3-10>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<5><CSH-STN-M3-10>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<6><CSH-STN-M3-10>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<7><CSH-STN-M3-10>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	XL-430_new<1><Default>
+
+
+gimbal3_pitch_linkの質量特性: 
+     ｺﾝﾌｨｷﾞｭﾚｰｼｮﾝ: ﾃﾞﾌｫﾙﾄ
+     座標系: gimbal3_pitch_link
+
+質量 = 0.29793910 kilograms
+
+体積 = 93097.81314560 cubic millimeters
+
+表面積 = 0.04816715 square meters
+
+重心: ( ﾒｰﾄﾙ )
+	X = 0.00000000
+	Y = 0.00000000
+	Z = 0.01764073
+
+慣性主要軸と慣性主ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心： 
+	 Ix = ( 0.00000000,  1.00000000,  0.00000000)   	Px = 0.00007623
+	 Iy = ( 0.00000000,  0.00000000, -1.00000000)   	Py = 0.00773263
+	 Iz = (-1.00000000,  0.00000000,  0.00000000)   	Pz = 0.00776954
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心で計算、そして出力座標系と整列します。 (正のﾃﾝｿﾙ表記を使用。)
+	Lxx = 0.00776954	Lxy = 0.00000000	Lxz = 0.00000000
+	Lyx = 0.00000000	Lyy = 0.00007623	Lyz = 0.00000000
+	Lzx = 0.00000000	Lzy = 0.00000000	Lzz = 0.00773263
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+（出力座標系で計算） (正のﾃﾝｿﾙ表記を使用。)
+	Ixx = 0.00786226	Ixy = 0.00000000	Ixz = 0.00000000
+	Iyx = 0.00000000	Iyy = 0.00016895	Iyz = 0.00000000
+	Izx = 0.00000000	Izy = 0.00000000	Izz = 0.00773263
+
+一つ、または複数の構成部品に上書きされた質量特性が存在します:
+	t_motor_at2814<1><Default>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	t_motor_at2814_shaft<1><Default>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<1><CSH-STU-M3-6>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<2><CSH-STU-M3-6>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<3><CSH-STU-M3-6>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<4><CSH-STU-M3-6>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<5><CSH-STN-M3-8>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<6><CSH-STN-M3-8>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<7><CSH-STN-M3-8>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<8><CSH-STN-M3-8>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	t_motor_at2814<1><Default>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	t_motor_at2814_shaft<1><Default>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<1><CSH-STU-M3-6>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<2><CSH-STU-M3-6>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<3><CSH-STU-M3-6>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<4><CSH-STU-M3-6>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<5><CSH-STN-M3-8>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<6><CSH-STN-M3-8>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<7><CSH-STN-M3-8>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<8><CSH-STN-M3-8>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+
+
+gimbal4_roll_linkの質量特性: 
+     ｺﾝﾌｨｷﾞｭﾚｰｼｮﾝ: ﾃﾞﾌｫﾙﾄ
+     座標系: gimbal4_roll_link
+
+質量 = 0.21960888 kilograms
+
+体積 = 166876.92548993 cubic millimeters
+
+表面積 = 0.09046474 square meters
+
+重心: ( ﾒｰﾄﾙ )
+	X = 0.00163578
+	Y = 0.00012928
+	Z = -0.01013979
+
+慣性主要軸と慣性主ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心： 
+	 Ix = (-0.58642966,  0.00384239,  0.80999104)   	Px = 0.00009758
+	 Iy = ( 0.80998642, -0.00304139,  0.58644074)   	Py = 0.00062762
+	 Iz = ( 0.00471683,  0.99998799, -0.00132873)   	Pz = 0.00065544
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心で計算、そして出力座標系と整列します。 (正のﾃﾝｿﾙ表記を使用。)
+	Lxx = 0.00044534	Lxy = -0.00000133	Lxz = -0.00025177
+	Lyx = -0.00000133	Lyy = 0.00065543	Lyz = 0.00000169
+	Lzx = -0.00025177	Lzy = 0.00000169	Lzz = 0.00027987
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+（出力座標系で計算） (正のﾃﾝｿﾙ表記を使用。)
+	Ixx = 0.00046792	Ixy = -0.00000128	Ixz = -0.00025542
+	Iyx = -0.00000128	Iyy = 0.00067860	Iyz = 0.00000140
+	Izx = -0.00025542	Izy = 0.00000140	Izz = 0.00028046
+
+一つ、または複数の構成部品に上書きされた質量特性が存在します:
+	gimbal_upper_plate<1><ﾃﾞﾌｫﾙﾄ>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	gimbal_roll_holder_PLA_v2<1><version2>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	gimbal_roll_holder_PLA_v2<2><version2>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	gimbal_upper_plate<2><ﾃﾞﾌｫﾙﾄ>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	XL-430_new<2><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB2-18<1><CSH-ST-M2-18>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB2-18<2><CSH-ST-M2-18>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB2-18<3><CSH-ST-M2-18>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB2-18<4><CSH-ST-M2-18>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SCB2_5_10<1><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SCB2_5_10<3><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SCB2_5_10<4><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SCB2_5_10<5><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<1><CSH-STN-M3-8>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<1><CSH-STN-M3-10>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<3><CSH-STN-M3-8>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<3><CSH-STN-M3-10>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-25<1><CSH-STN-M3-25>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<1><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<2><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-25<2><CSH-STN-M3-25>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<3><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	SLBNR3<4><Default>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<4><CSH-STN-M3-10>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<5><CSH-STN-M3-10>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<6><CSH-STN-M3-10>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-10<7><CSH-STN-M3-10>@gimbal_v2_rotation_base<1><ﾃﾞﾌｫﾙﾄ>
+	XL-430_new<1><Default>
+
+
+gimbal4_pitch_linkの質量特性: 
+     ｺﾝﾌｨｷﾞｭﾚｰｼｮﾝ: ﾃﾞﾌｫﾙﾄ
+     座標系: gimbal4_pitch_link
+
+質量 = 0.29793910 kilograms
+
+体積 = 93097.81314560 cubic millimeters
+
+表面積 = 0.04816715 square meters
+
+重心: ( ﾒｰﾄﾙ )
+	X = 0.00000000
+	Y = 0.00000000
+	Z = 0.01764073
+
+慣性主要軸と慣性主ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心： 
+	 Ix = ( 0.00000000,  1.00000000,  0.00000000)   	Px = 0.00007623
+	 Iy = ( 0.00000000,  0.00000000, -1.00000000)   	Py = 0.00773263
+	 Iz = (-1.00000000,  0.00000000,  0.00000000)   	Pz = 0.00776954
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心で計算、そして出力座標系と整列します。 (正のﾃﾝｿﾙ表記を使用。)
+	Lxx = 0.00776954	Lxy = 0.00000000	Lxz = 0.00000000
+	Lyx = 0.00000000	Lyy = 0.00007623	Lyz = 0.00000000
+	Lzx = 0.00000000	Lzy = 0.00000000	Lzz = 0.00773263
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+（出力座標系で計算） (正のﾃﾝｿﾙ表記を使用。)
+	Ixx = 0.00786226	Ixy = 0.00000000	Ixz = 0.00000000
+	Iyx = 0.00000000	Iyy = 0.00016895	Iyz = 0.00000000
+	Izx = 0.00000000	Izy = 0.00000000	Izz = 0.00773263
+
+一つ、または複数の構成部品に上書きされた質量特性が存在します:
+	t_motor_at2814<1><Default>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	t_motor_at2814_shaft<1><Default>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<1><CSH-STU-M3-6>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<2><CSH-STU-M3-6>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<3><CSH-STU-M3-6>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<4><CSH-STU-M3-6>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<5><CSH-STN-M3-8>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<6><CSH-STN-M3-8>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<7><CSH-STN-M3-8>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<8><CSH-STN-M3-8>@t_motor_at2814_with_shaft<1><ﾃﾞﾌｫﾙﾄ>
+	t_motor_at2814<1><Default>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	t_motor_at2814_shaft<1><Default>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<1><CSH-STU-M3-6>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<2><CSH-STU-M3-6>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<3><CSH-STU-M3-6>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-6<4><CSH-STU-M3-6>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<5><CSH-STN-M3-8>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<6><CSH-STN-M3-8>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<7><CSH-STN-M3-8>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+	CB3-8<8><CSH-STN-M3-8>@t_motor_at2814_with_shaft<2><ﾃﾞﾌｫﾙﾄ>
+
+thrust1の質量特性: 
+     ｺﾝﾌｨｷﾞｭﾚｰｼｮﾝ: Default
+     座標系: thrust1
+
+密度 = 0.00000133 kilograms per cubic millimeter
+
+質量 (ﾕｰｻﾞｰによる上書き済み) = 0.01400000 kilograms
+
+体積 = 10512.92309719 cubic millimeters
+
+表面積 = 0.01217857 square meters
+
+重心: ( ﾒｰﾄﾙ )
+	X = 0.00000000
+	Y = 0.00000000
+	Z = 0.04395854
+
+慣性主要軸と慣性主ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心： 
+	 Ix = (-0.73986366, -0.67275684,  0.00000000)   	Px = 0.00002162
+	 Iy = ( 0.67275684, -0.73986366, -0.00000383)   	Py = 0.00002162
+	 Iz = ( 0.00000185, -0.00000349,  1.00000000)   	Pz = 0.00004319
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心で計算、そして出力座標系と整列します。 (正のﾃﾝｿﾙ表記を使用。)
+	Lxx = 0.00002162	Lxy = 0.00000000	Lxz = 0.00000000
+	Lyx = 0.00000000	Lyy = 0.00002162	Lyz = 0.00000000
+	Lzx = 0.00000000	Lzy = 0.00000000	Lzz = 0.00004319
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+（出力座標系で計算） (正のﾃﾝｿﾙ表記を使用。)
+	Ixx = 0.00004867	Ixy = 0.00000000	Ixz = 0.00000000
+	Iyx = 0.00000000	Iyy = 0.00004867	Iyz = 0.00000000
+	Izx = 0.00000000	Izy = 0.00000000	Izz = 0.00004319
+
+
+thrust2の質量特性: 
+     ｺﾝﾌｨｷﾞｭﾚｰｼｮﾝ: Default
+     座標系: thrust2
+
+密度 = 0.00000133 kilograms per cubic millimeter
+
+質量 (ﾕｰｻﾞｰによる上書き済み) = 0.01400000 kilograms
+
+体積 = 10512.92309719 cubic millimeters
+
+表面積 = 0.01217857 square meters
+
+重心: ( ﾒｰﾄﾙ )
+	X = 0.00000000
+	Y = 0.00000000
+	Z = 0.04395854
+
+慣性主要軸と慣性主ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心： 
+	 Ix = (-0.99801923,  0.06290959,  0.00000000)   	Px = 0.00002162
+	 Iy = (-0.06290959, -0.99801923, -0.00000383)   	Py = 0.00002162
+	 Iz = (-0.00000122, -0.00000376,  1.00000000)   	Pz = 0.00004319
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心で計算、そして出力座標系と整列します。 (正のﾃﾝｿﾙ表記を使用。)
+	Lxx = 0.00002162	Lxy = 0.00000000	Lxz = 0.00000000
+	Lyx = 0.00000000	Lyy = 0.00002162	Lyz = 0.00000000
+	Lzx = 0.00000000	Lzy = 0.00000000	Lzz = 0.00004319
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+（出力座標系で計算） (正のﾃﾝｿﾙ表記を使用。)
+	Ixx = 0.00004867	Ixy = 0.00000000	Ixz = 0.00000000
+	Iyx = 0.00000000	Iyy = 0.00004867	Iyz = 0.00000000
+	Izx = 0.00000000	Izy = 0.00000000	Izz = 0.00004319
+
+thrust3の質量特性: 
+     ｺﾝﾌｨｷﾞｭﾚｰｼｮﾝ: Default
+     座標系: thrust3
+
+密度 = 0.00000133 kilograms per cubic millimeter
+
+質量 (ﾕｰｻﾞｰによる上書き済み) = 0.01400000 kilograms
+
+体積 = 10512.92309719 cubic millimeters
+
+表面積 = 0.01217857 square meters
+
+重心: ( ﾒｰﾄﾙ )
+	X = 0.00000000
+	Y = 0.00000000
+	Z = 0.04395854
+
+慣性主要軸と慣性主ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心： 
+	 Ix = (-0.99742728,  0.07168550,  0.00000000)   	Px = 0.00002162
+	 Iy = (-0.07168550, -0.99742728, -0.00000383)   	Py = 0.00002162
+	 Iz = (-0.00000125, -0.00000375,  1.00000000)   	Pz = 0.00004319
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心で計算、そして出力座標系と整列します。 (正のﾃﾝｿﾙ表記を使用。)
+	Lxx = 0.00002162	Lxy = 0.00000000	Lxz = 0.00000000
+	Lyx = 0.00000000	Lyy = 0.00002162	Lyz = 0.00000000
+	Lzx = 0.00000000	Lzy = 0.00000000	Lzz = 0.00004319
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+（出力座標系で計算） (正のﾃﾝｿﾙ表記を使用。)
+	Ixx = 0.00004867	Ixy = 0.00000000	Ixz = 0.00000000
+	Iyx = 0.00000000	Iyy = 0.00004867	Iyz = 0.00000000
+	Izx = 0.00000000	Izy = 0.00000000	Izz = 0.00004319
+
+thrust4の質量特性: 
+     ｺﾝﾌｨｷﾞｭﾚｰｼｮﾝ: Default
+     座標系: thrust4
+
+密度 = 0.00000133 kilograms per cubic millimeter
+
+質量 (ﾕｰｻﾞｰによる上書き済み) = 0.01400000 kilograms
+
+体積 = 10512.92309719 cubic millimeters
+
+表面積 = 0.01217857 square meters
+
+重心: ( ﾒｰﾄﾙ )
+	X = 0.00000000
+	Y = 0.00000000
+	Z = 0.04395854
+
+慣性主要軸と慣性主ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心： 
+	 Ix = (-0.99742728,  0.07168552,  0.00000000)   	Px = 0.00002162
+	 Iy = (-0.07168552, -0.99742728, -0.00000383)   	Py = 0.00002162
+	 Iz = (-0.00000125, -0.00000375,  1.00000000)   	Pz = 0.00004319
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心で計算、そして出力座標系と整列します。 (正のﾃﾝｿﾙ表記を使用。)
+	Lxx = 0.00002162	Lxy = 0.00000000	Lxz = 0.00000000
+	Lyx = 0.00000000	Lyy = 0.00002162	Lyz = 0.00000000
+	Lzx = 0.00000000	Lzy = 0.00000000	Lzz = 0.00004319
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+（出力座標系で計算） (正のﾃﾝｿﾙ表記を使用。)
+	Ixx = 0.00004867	Ixy = 0.00000000	Ixz = 0.00000000
+	Iyx = 0.00000000	Iyy = 0.00004867	Iyz = 0.00000000
+	Izx = 0.00000000	Izy = 0.00000000	Izz = 0.00004319
+
+thrust5の質量特性: 
+     ｺﾝﾌｨｷﾞｭﾚｰｼｮﾝ: Default
+     座標系: thrust5
+
+密度 = 0.00000133 kilograms per cubic millimeter
+
+質量 (ﾕｰｻﾞｰによる上書き済み) = 0.01400000 kilograms
+
+体積 = 10512.92309719 cubic millimeters
+
+表面積 = 0.01217857 square meters
+
+重心: ( ﾒｰﾄﾙ )
+	X = 0.00000000
+	Y = 0.00000000
+	Z = 0.04395854
+
+慣性主要軸と慣性主ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心： 
+	 Ix = (-0.99742728,  0.07168550,  0.00000000)   	Px = 0.00002162
+	 Iy = (-0.07168550, -0.99742728, -0.00000383)   	Py = 0.00002162
+	 Iz = (-0.00000125, -0.00000375,  1.00000000)   	Pz = 0.00004319
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心で計算、そして出力座標系と整列します。 (正のﾃﾝｿﾙ表記を使用。)
+	Lxx = 0.00002162	Lxy = 0.00000000	Lxz = 0.00000000
+	Lyx = 0.00000000	Lyy = 0.00002162	Lyz = 0.00000000
+	Lzx = 0.00000000	Lzy = 0.00000000	Lzz = 0.00004319
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+（出力座標系で計算） (正のﾃﾝｿﾙ表記を使用。)
+	Ixx = 0.00004867	Ixy = 0.00000000	Ixz = 0.00000000
+	Iyx = 0.00000000	Iyy = 0.00004867	Iyz = 0.00000000
+	Izx = 0.00000000	Izy = 0.00000000	Izz = 0.00004319
+
+thrust6の質量特性: 
+     ｺﾝﾌｨｷﾞｭﾚｰｼｮﾝ: Default
+     座標系: thrust6
+
+密度 = 0.00000133 kilograms per cubic millimeter
+
+質量 (ﾕｰｻﾞｰによる上書き済み) = 0.01400000 kilograms
+
+体積 = 10512.92309719 cubic millimeters
+
+表面積 = 0.01217857 square meters
+
+重心: ( ﾒｰﾄﾙ )
+	X = 0.00000000
+	Y = 0.00000000
+	Z = 0.04395854
+
+慣性主要軸と慣性主ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心： 
+	 Ix = (-0.99742728,  0.07168552,  0.00000000)   	Px = 0.00002162
+	 Iy = (-0.07168552, -0.99742728, -0.00000383)   	Py = 0.00002162
+	 Iz = (-0.00000125, -0.00000375,  1.00000000)   	Pz = 0.00004319
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心で計算、そして出力座標系と整列します。 (正のﾃﾝｿﾙ表記を使用。)
+	Lxx = 0.00002162	Lxy = 0.00000000	Lxz = 0.00000000
+	Lyx = 0.00000000	Lyy = 0.00002162	Lyz = 0.00000000
+	Lzx = 0.00000000	Lzy = 0.00000000	Lzz = 0.00004319
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+（出力座標系で計算） (正のﾃﾝｿﾙ表記を使用。)
+	Ixx = 0.00004867	Ixy = 0.00000000	Ixz = 0.00000000
+	Iyx = 0.00000000	Iyy = 0.00004867	Iyz = 0.00000000
+	Izx = 0.00000000	Izy = 0.00000000	Izz = 0.00004319
+
+thrust7の質量特性: 
+     ｺﾝﾌｨｷﾞｭﾚｰｼｮﾝ: Default
+     座標系: thrust7
+
+密度 = 0.00000133 kilograms per cubic millimeter
+
+質量 (ﾕｰｻﾞｰによる上書き済み) = 0.01400000 kilograms
+
+体積 = 10512.92309719 cubic millimeters
+
+表面積 = 0.01217857 square meters
+
+重心: ( ﾒｰﾄﾙ )
+	X = 0.00000000
+	Y = 0.00000000
+	Z = 0.04395854
+
+慣性主要軸と慣性主ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心： 
+	 Ix = (-0.99742728,  0.07168550,  0.00000000)   	Px = 0.00002162
+	 Iy = (-0.07168550, -0.99742728, -0.00000383)   	Py = 0.00002162
+	 Iz = (-0.00000125, -0.00000375,  1.00000000)   	Pz = 0.00004319
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心で計算、そして出力座標系と整列します。 (正のﾃﾝｿﾙ表記を使用。)
+	Lxx = 0.00002162	Lxy = 0.00000000	Lxz = 0.00000000
+	Lyx = 0.00000000	Lyy = 0.00002162	Lyz = 0.00000000
+	Lzx = 0.00000000	Lzy = 0.00000000	Lzz = 0.00004319
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+（出力座標系で計算） (正のﾃﾝｿﾙ表記を使用。)
+	Ixx = 0.00004867	Ixy = 0.00000000	Ixz = 0.00000000
+	Iyx = 0.00000000	Iyy = 0.00004867	Iyz = 0.00000000
+	Izx = 0.00000000	Izy = 0.00000000	Izz = 0.00004319
+
+thrust8の質量特性: 
+     ｺﾝﾌｨｷﾞｭﾚｰｼｮﾝ: Default
+     座標系: thrust8
+
+密度 = 0.00000133 kilograms per cubic millimeter
+
+質量 (ﾕｰｻﾞｰによる上書き済み) = 0.01400000 kilograms
+
+体積 = 10512.92309719 cubic millimeters
+
+表面積 = 0.01217857 square meters
+
+重心: ( ﾒｰﾄﾙ )
+	X = 0.00000000
+	Y = 0.00000000
+	Z = 0.04395854
+
+慣性主要軸と慣性主ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心： 
+	 Ix = (-0.99742728,  0.07168558,  0.00000000)   	Px = 0.00002162
+	 Iy = (-0.07168558, -0.99742728, -0.00000383)   	Py = 0.00002162
+	 Iz = (-0.00000125, -0.00000375,  1.00000000)   	Pz = 0.00004319
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+重心で計算、そして出力座標系と整列します。 (正のﾃﾝｿﾙ表記を使用。)
+	Lxx = 0.00002162	Lxy = 0.00000000	Lxz = 0.00000000
+	Lyx = 0.00000000	Lyy = 0.00002162	Lyz = 0.00000000
+	Lzx = 0.00000000	Lzy = 0.00000000	Lzz = 0.00004319
+
+慣性ﾓｰﾒﾝﾄ: ( kilograms * square meters )
+（出力座標系で計算） (正のﾃﾝｿﾙ表記を使用。)
+	Ixx = 0.00004867	Ixy = 0.00000000	Ixz = 0.00000000
+	Iyx = 0.00000000	Iyy = 0.00004867	Iyz = 0.00000000
+	Izx = 0.00000000	Izy = 0.00000000	Izz = 0.00004319
