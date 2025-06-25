@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<robot
+    xmlns:xacro="http://www.ros.org/wiki/xacro" name="dynarm" >
+
+  <xacro:include filename="$(find dynarm)/urdf/common.xacro" />
+  <xacro:include filename="$(find dynarm)/urdf/dynarm_all.xacro" />
+  <xacro:include filename="$(find dynarm)/urdf/gazebo.xacro" />
+
+  <!-- root joint -->
+  <link name="root">
+    <xacro:virtual_inertial/>
+  </link>
+  <joint name="root_joint" type="fixed">
+    <parent link="root"/>
+    <child link="link0_yaw"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <!-- set the fcu frame -->
+  <link name="fc">
+    <xacro:virtual_inertial/>
+  </link>
+  <joint name="fc_joint" type="fixed">
+    <child link="fc"/>
+    <parent link="link0_yaw"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <!-- end effector link -->
+  <joint name="end_effector_joint" type="fixed">
+    <parent link="link4"/>
+    <child link="link4_tip"/>
+    <origin xyz="0.4 0 0" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <link name="link4_tip">
+    <xacro:virtual_inertial/>
+  </link>
+</robot>
