@@ -56,7 +56,19 @@ void ManipulatorController::initialize(ros::NodeHandle nh, ros::NodeHandle nhp,
   is_initialized_ = false;
   init_target_q_.resize(pinocchio_robot_model_->getModel()->nq);
 
-  init_target_q_ << 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, -1.3, 0.0, 0.0, 0.0;
+  std::vector<double> init_target_q;
+  ros::NodeHandle control_nh(nh_, "controller");
+  control_nh.getParam("init_target_q", init_target_q);
+  if (init_target_q.size() != pinocchio_model_->nq)
+  {
+    ROS_ERROR_STREAM("[dragon_arm] nq: " << pinocchio_model_->nq << " and initial joint angle size: "
+                                         << init_target_q.size() << " in ros parameter is not same");
+  }
+  for (int i = 0; i < pinocchio_model_->nq; i++)
+  {
+    init_target_q_(i) = init_target_q.at(i);
+  }
+  ROS_INFO_STREAM("[dragon_arm][control] initial target joint angle: " << init_target_q_.transpose());
 }
 
 void ManipulatorController::rosParamInit()
@@ -179,10 +191,10 @@ void ManipulatorController::controlCore()
     // check joint angle convergence
     bool is_converged = true;
     Eigen::VectorXd curr_q = dragon_arm_robot_model_->getCurrentJointPositions();
-    for (int i = 0; i < robot_model_->getRotorNum() - 1; i++)
+    for (int i = 0; i < robot_model_->getRotorNum() / 2; i++)
     {
-      std::string joint_pitch_name = "joint" + std::to_string(i + 1) + "_pitch";
-      std::string joint_yaw_name = "joint" + std::to_string(i + 1) + "_yaw";
+      std::string joint_pitch_name = "joint" + std::to_string(i) + "_pitch";
+      std::string joint_yaw_name = "joint" + std::to_string(i) + "_yaw";
 
       int joint_pitch_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_pitch_name)].idx_q();
       int joint_yaw_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_yaw_name)].idx_q();
@@ -271,10 +283,13 @@ void ManipulatorController::sendCmd()
 void ManipulatorController::sendFourAxisCommand()
 {
   // send target thrust
+  Eigen::VectorXd thrust_upper_limits = pinocchio_robot_model_->getThrustUpperLimits();
+  Eigen::VectorXd thrust_lower_limits = pinocchio_robot_model_->getThrustLowerLimits();
   spinal::FourAxisCommand four_axis_command_msg;
   for (int i = 0; i < robot_model_->getRotorNum(); i++)
   {
-    four_axis_command_msg.base_thrust.push_back(thrusts_(i));
+    four_axis_command_msg.base_thrust.push_back(
+        std::min(std::max(thrust_lower_limits(i), thrusts_(i)), thrust_upper_limits(i)));
   }
   four_axis_command_pub_.publish(four_axis_command_msg);
 
@@ -287,7 +302,8 @@ void ManipulatorController::sendFourAxisCommand()
   rotor_wrench_msg.wrench.force.z = thrusts_(rotor_wrench_pub_index_);
   rotor_wrench_msg.wrench.torque.x = 0.0;
   rotor_wrench_msg.wrench.torque.y = 0.0;
-  rotor_wrench_msg.wrench.torque.z = pinocchio_robot_model_->getMFRate() * thrusts_(rotor_wrench_pub_index_);
+  rotor_wrench_msg.wrench.torque.z = pinocchio_robot_model_->getRotorDirection(rotor_wrench_pub_index_) *
+                                     pinocchio_robot_model_->getMFRate() * thrusts_(rotor_wrench_pub_index_);
   rotor_wrench_pub_.publish(rotor_wrench_msg);
   rotor_wrench_pub_index_ = (rotor_wrench_pub_index_ + 1) % pinocchio_robot_model_->getRotorNum();
 }
@@ -304,10 +320,10 @@ void ManipulatorController::sendJointCommand()
     curr_target_q_ = init_target_q_;
   }
 
-  for (int i = 0; i < robot_model_->getRotorNum() - 1; i++)
+  for (int i = 0; i < robot_model_->getRotorNum() / 2; i++)
   {
-    std::string joint_pitch_name = "joint" + std::to_string(i + 1) + "_pitch";
-    std::string joint_yaw_name = "joint" + std::to_string(i + 1) + "_yaw";
+    std::string joint_pitch_name = "joint" + std::to_string(i) + "_pitch";
+    std::string joint_yaw_name = "joint" + std::to_string(i) + "_yaw";
 
     int joint_pitch_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_pitch_name)].idx_q();
     int joint_yaw_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_yaw_name)].idx_q();
@@ -336,7 +352,7 @@ void ManipulatorController::sendGimbalCommand()
 
   sensor_msgs::JointState joint_state_msg;
   joint_state_msg.header.stamp = ros::Time::now();
-  for (int i = 0; i < robot_model_->getRotorNum(); i++)
+  for (int i = 0; i < robot_model_->getRotorNum() / 2; i++)
   {
     std::string gimbal_roll_name = "gimbal" + std::to_string(i + 1) + "_roll";
     std::string gimbal_pitch_name = "gimbal" + std::to_string(i + 1) + "_pitch";
