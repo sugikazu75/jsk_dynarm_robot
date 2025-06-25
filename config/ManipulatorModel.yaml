@@ -1,4 +1,4 @@
 robot_model_plugin_name: aerial_robot_model/manipulator_robot_model
 
 dynamics:
-  thrust_hessian_weight: 0.1 # the larger, there smaller thrust is exerted and joint torque become larger
+  thrust_hessian_weight: 0.01 # the larger, there smaller thrust is exerted and joint torque become larger

@@ -3,3 +3,4 @@ aerial_robot_control_name: aerial_robot_control/manipulator_controller
 controller:
   end_effector_name: link4_tip
   transform_duration: 1.0
+  init_target_q: [0.0, -1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0]

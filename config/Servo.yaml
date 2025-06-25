@@ -13,30 +13,36 @@ servo_controller:
 
     # for simulation
     simulation:
-      pid: {p: 75.0, i: 0.0, d: 5.0}
+      pid: {p: 100.0, i: 0.0, d: 2.5}
       init_value: 0.0
       type: effort_controllers/JointComputeTorqueController
 
     # should be in order in terms of kinematics model
     # e.g. joint1 -> jointN; gimbal1_roll -> gimbal1_pitch
     controller1:
+      id: 0
+      name: joint0_yaw
+    controller2:
       id: 1
+      name: joint0_pitch
+    controller3:
+      id: 4
       name: joint1_pitch
       # angle_max: 1.58 # you can specify for each controller
-    controller2:
-      id: 0
-      name: joint1_yaw
-    controller3:
-      id: 5
-      name: joint2_pitch
     controller4:
-      id: 4
-      name: joint2_yaw
+      id: 5
+      name: joint1_yaw
     controller5:
-      id: 9
-      name: joint3_pitch
-    controller6:
       id: 8
+      name: joint2_pitch
+    controller6:
+      id: 9
+      name: joint2_yaw
+    controller7:
+      id: 12
+      name: joint3_pitch
+    controller8:
+      id: 13
       name: joint3_yaw
 
   gimbals:
@@ -71,8 +77,8 @@ servo_controller:
       id: 10
       name: gimbal3_pitch
     controller7:
-      id: 13
+      id: 15
       name: gimbal4_roll
     controller8:
-      id: 12
+      id: 14
       name: gimbal4_pitch

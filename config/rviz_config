@@ -7,7 +7,7 @@ Panels:
         - /Global Options1
         - /Status1
         - /TF1/Frames1
-        - /RobotModel1
+        - /WrenchStamped1
       Splitter Ratio: 0.5361111164093018
     Tree Height: 1575
   - Class: rviz/Selection
@@ -63,127 +63,119 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: true
-        dragon/cog:
+        dynarm/cog:
           Value: true
-        dragon/edf1_left:
+        dynarm/fc:
           Value: true
-        dragon/edf1_right:
+        dynarm/gimbal1_pitch_link:
           Value: true
-        dragon/edf2_left:
+        dynarm/gimbal1_roll_link:
           Value: true
-        dragon/edf2_right:
+        dynarm/gimbal2_pitch_link:
           Value: true
-        dragon/edf3_left:
+        dynarm/gimbal2_roll_link:
           Value: true
-        dragon/edf3_right:
+        dynarm/gimbal3_pitch_link:
           Value: true
-        dragon/edf4_left:
+        dynarm/gimbal3_roll_link:
           Value: true
-        dragon/edf4_right:
+        dynarm/gimbal4_pitch_link:
           Value: true
-        dragon/fc:
+        dynarm/gimbal4_roll_link:
           Value: true
-        dragon/gimbal1_pitch_module:
+        dynarm/joint_junction1:
           Value: true
-        dragon/gimbal1_roll_module:
+        dynarm/joint_junction2:
           Value: true
-        dragon/gimbal2_pitch_module:
+        dynarm/joint_junction3:
           Value: true
-        dragon/gimbal2_roll_module:
+        dynarm/link0_pitch:
           Value: true
-        dragon/gimbal3_pitch_module:
+        dynarm/link0_yaw:
           Value: true
-        dragon/gimbal3_roll_module:
+        dynarm/link1:
           Value: true
-        dragon/gimbal4_pitch_module:
+        dynarm/link2:
           Value: true
-        dragon/gimbal4_roll_module:
+        dynarm/link3:
           Value: true
-        dragon/inter_joint1:
+        dynarm/link4:
           Value: true
-        dragon/inter_joint2:
+        dynarm/link4_tip:
           Value: true
-        dragon/inter_joint3:
+        dynarm/root:
           Value: true
-        dragon/link1:
+        dynarm/thrust1:
           Value: true
-        dragon/link2:
+        dynarm/thrust2:
           Value: true
-        dragon/link3:
+        dynarm/thrust3:
           Value: true
-        dragon/link4:
+        dynarm/thrust4:
           Value: true
-        dragon/link4_tip:
+        dynarm/thrust5:
           Value: true
-        dragon/root:
+        dynarm/thrust6:
           Value: true
-        dragon/thrust1:
+        dynarm/thrust7:
           Value: true
-        dragon/thrust2:
+        dynarm/thrust8:
           Value: true
-        dragon/thrust3:
+        dynarm_desired/fc:
           Value: true
-        dragon/thrust4:
+        dynarm_desired/gimbal1_pitch_link:
           Value: true
-        dragon_desired/edf1_left:
+        dynarm_desired/gimbal1_roll_link:
           Value: true
-        dragon_desired/edf1_right:
+        dynarm_desired/gimbal2_pitch_link:
           Value: true
-        dragon_desired/edf2_left:
+        dynarm_desired/gimbal2_roll_link:
           Value: true
-        dragon_desired/edf2_right:
+        dynarm_desired/gimbal3_pitch_link:
           Value: true
-        dragon_desired/edf3_left:
+        dynarm_desired/gimbal3_roll_link:
           Value: true
-        dragon_desired/edf3_right:
+        dynarm_desired/gimbal4_pitch_link:
           Value: true
-        dragon_desired/edf4_left:
+        dynarm_desired/gimbal4_roll_link:
           Value: true
-        dragon_desired/edf4_right:
+        dynarm_desired/joint_junction1:
           Value: true
-        dragon_desired/fc:
+        dynarm_desired/joint_junction2:
           Value: true
-        dragon_desired/gimbal1_pitch_module:
+        dynarm_desired/joint_junction3:
           Value: true
-        dragon_desired/gimbal1_roll_module:
+        dynarm_desired/link0_pitch:
           Value: true
-        dragon_desired/gimbal2_pitch_module:
+        dynarm_desired/link0_yaw:
           Value: true
-        dragon_desired/gimbal2_roll_module:
+        dynarm_desired/link1:
           Value: true
-        dragon_desired/gimbal3_pitch_module:
+        dynarm_desired/link2:
           Value: true
-        dragon_desired/gimbal3_roll_module:
+        dynarm_desired/link3:
           Value: true
-        dragon_desired/gimbal4_pitch_module:
+        dynarm_desired/link4:
           Value: true
-        dragon_desired/gimbal4_roll_module:
+        dynarm_desired/link4_tip:
           Value: true
-        dragon_desired/inter_joint1:
+        dynarm_desired/root:
           Value: true
-        dragon_desired/inter_joint2:
+        dynarm_desired/thrust1:
           Value: true
-        dragon_desired/inter_joint3:
+        dynarm_desired/thrust2:
           Value: true
-        dragon_desired/link1:
+        dynarm_desired/thrust3:
           Value: true
-        dragon_desired/link2:
+        dynarm_desired/thrust4:
           Value: true
-        dragon_desired/link3:
+        dynarm_desired/thrust5:
           Value: true
-        dragon_desired/link4:
+        dynarm_desired/thrust6:
           Value: true
-        dragon_desired/link4_tip:
+        dynarm_desired/thrust7:
           Value: true
-        dragon_desired/root:
-          Value: true
-        dragon_desired/thrust1:
-          Value: true
-        dragon_desired/thrust2:
-          Value: true
-        dragon_desired/thrust3:
-          Value: true
-        dragon_desired/thrust4:
+        dynarm_desired/thrust8:
           Value: true
         world:
           Value: true
@@ -195,96 +187,84 @@ Visualization Manager:
       Show Names: true
       Tree:
         world:
-          dragon/root:
-            dragon/cog:
+          dynarm/root:
+            dynarm/cog:
               {}
-            dragon/link1:
-              dragon/fc:
+            dynarm/link0_yaw:
+              dynarm/fc:
                 {}
-              dragon/gimbal1_roll_module:
-                dragon/gimbal1_pitch_module:
-                  dragon/edf1_left:
-                    {}
-                  dragon/edf1_right:
-                    {}
-                  dragon/thrust1:
-                    {}
-              dragon/inter_joint1:
-                dragon/link2:
-                  dragon/gimbal2_roll_module:
-                    dragon/gimbal2_pitch_module:
-                      dragon/edf2_left:
+              dynarm/link0_pitch:
+                dynarm/link1:
+                  dynarm/gimbal1_roll_link:
+                    dynarm/gimbal1_pitch_link:
+                      dynarm/thrust1:
                         {}
-                      dragon/edf2_right:
+                      dynarm/thrust2:
                         {}
-                      dragon/thrust2:
-                        {}
-                  dragon/inter_joint2:
-                    dragon/link3:
-                      dragon/gimbal3_roll_module:
-                        dragon/gimbal3_pitch_module:
-                          dragon/edf3_left:
+                  dynarm/joint_junction1:
+                    dynarm/link2:
+                      dynarm/gimbal2_roll_link:
+                        dynarm/gimbal2_pitch_link:
+                          dynarm/thrust3:
                             {}
-                          dragon/edf3_right:
+                          dynarm/thrust4:
                             {}
-                          dragon/thrust3:
-                            {}
-                      dragon/inter_joint3:
-                        dragon/link4:
-                          dragon/gimbal4_roll_module:
-                            dragon/gimbal4_pitch_module:
-                              dragon/edf4_left:
+                      dynarm/joint_junction2:
+                        dynarm/link3:
+                          dynarm/gimbal3_roll_link:
+                            dynarm/gimbal3_pitch_link:
+                              dynarm/thrust5:
                                 {}
-                              dragon/edf4_right:
+                              dynarm/thrust6:
                                 {}
-                              dragon/thrust4:
+                          dynarm/joint_junction3:
+                            dynarm/link4:
+                              dynarm/gimbal4_roll_link:
+                                dynarm/gimbal4_pitch_link:
+                                  dynarm/thrust7:
+                                    {}
+                                  dynarm/thrust8:
+                                    {}
+                              dynarm/link4_tip:
                                 {}
-                          dragon/link4_tip:
-                            {}
-          dragon_desired/root:
-            dragon_desired/link1:
-              dragon_desired/fc:
+          dynarm_desired/root:
+            dynarm_desired/link0_yaw:
+              dynarm_desired/fc:
                 {}
-              dragon_desired/gimbal1_roll_module:
-                dragon_desired/gimbal1_pitch_module:
-                  dragon_desired/edf1_left:
-                    {}
-                  dragon_desired/edf1_right:
-                    {}
-                  dragon_desired/thrust1:
-                    {}
-              dragon_desired/inter_joint1:
-                dragon_desired/link2:
-                  dragon_desired/gimbal2_roll_module:
-                    dragon_desired/gimbal2_pitch_module:
-                      dragon_desired/edf2_left:
+              dynarm_desired/link0_pitch:
+                dynarm_desired/link1:
+                  dynarm_desired/gimbal1_roll_link:
+                    dynarm_desired/gimbal1_pitch_link:
+                      dynarm_desired/thrust1:
                         {}
-                      dragon_desired/edf2_right:
+                      dynarm_desired/thrust2:
                         {}
-                      dragon_desired/thrust2:
-                        {}
-                  dragon_desired/inter_joint2:
-                    dragon_desired/link3:
-                      dragon_desired/gimbal3_roll_module:
-                        dragon_desired/gimbal3_pitch_module:
-                          dragon_desired/edf3_left:
+                  dynarm_desired/joint_junction1:
+                    dynarm_desired/link2:
+                      dynarm_desired/gimbal2_roll_link:
+                        dynarm_desired/gimbal2_pitch_link:
+                          dynarm_desired/thrust3:
                             {}
-                          dragon_desired/edf3_right:
+                          dynarm_desired/thrust4:
                             {}
-                          dragon_desired/thrust3:
-                            {}
-                      dragon_desired/inter_joint3:
-                        dragon_desired/link4:
-                          dragon_desired/gimbal4_roll_module:
-                            dragon_desired/gimbal4_pitch_module:
-                              dragon_desired/edf4_left:
+                      dynarm_desired/joint_junction2:
+                        dynarm_desired/link3:
+                          dynarm_desired/gimbal3_roll_link:
+                            dynarm_desired/gimbal3_pitch_link:
+                              dynarm_desired/thrust5:
                                 {}
-                              dragon_desired/edf4_right:
+                              dynarm_desired/thrust6:
                                 {}
-                              dragon_desired/thrust4:
+                          dynarm_desired/joint_junction3:
+                            dynarm_desired/link4:
+                              dynarm_desired/gimbal4_roll_link:
+                                dynarm_desired/gimbal4_pitch_link:
+                                  dynarm_desired/thrust7:
+                                    {}
+                                  dynarm_desired/thrust8:
+                                    {}
+                              dynarm_desired/link4_tip:
                                 {}
-                          dragon_desired/link4_tip:
-                            {}
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -297,93 +277,71 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        edf1_left:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        edf1_right:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        edf2_left:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        edf2_right:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        edf3_left:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        edf3_right:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        edf4_left:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        edf4_right:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
         fc:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        gimbal1_pitch_module:
+        gimbal1_pitch_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        gimbal1_roll_module:
+        gimbal1_roll_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        gimbal2_pitch_module:
+        gimbal2_pitch_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        gimbal2_roll_module:
+        gimbal2_roll_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        gimbal3_pitch_module:
+        gimbal3_pitch_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        gimbal3_roll_module:
+        gimbal3_roll_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        gimbal4_pitch_module:
+        gimbal4_pitch_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        gimbal4_roll_module:
+        gimbal4_roll_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        inter_joint1:
+        joint_junction1:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        inter_joint2:
+        joint_junction2:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        inter_joint3:
+        joint_junction3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link0_pitch:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link0_yaw:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -432,9 +390,25 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
+        thrust5:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        thrust6:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        thrust7:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        thrust8:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
       Name: RobotModel
-      Robot Description: dragon/robot_description
-      TF Prefix: dragon
+      Robot Description: dynarm/robot_description
+      TF Prefix: dynarm
       Update Interval: 0
       Value: true
       Visual Enabled: true
@@ -459,13 +433,13 @@ Visualization Manager:
       Radius: 0.029999999329447746
       Shaft Diameter: 0.10000000149011612
       Shaft Length: 0.10000000149011612
-      Topic: /dragon/trajectory
+      Topic: /dynarm/trajectory
       Unreliable: false
       Value: true
     - Class: jsk_rviz_plugin/PieChart
       Enabled: true
       Name: Bat Volt
-      Topic: /dragon/battery_voltage_status
+      Topic: /dynarm/battery_voltage_status
       Value: true
       auto color change: false
       background color: 0; 0; 0
@@ -506,6 +480,10 @@ Visualization Manager:
           Value: true
         gimbal4_roll:
           Value: true
+        joint0_pitch:
+          Value: true
+        joint0_yaw:
+          Value: true
         joint1_pitch:
           Value: true
         joint1_yaw:
@@ -520,24 +498,24 @@ Visualization Manager:
           Value: true
       Name: Effort
       Queue Size: 10
-      Robot Description: dragon/robot_description
+      Robot Description: dynarm/robot_description
       Scale: 0.10000000149011612
-      TF Prefix: dragon
-      Topic: /dragon/joint_states
+      TF Prefix: dynarm
+      Topic: /dynarm/joint_states
       Unreliable: false
       Value: true
       Width: 0.009999999776482582
     - Alpha: 1
-      Arrow Width: 0.25
+      Arrow Width: 0.20000000298023224
       Class: rviz/WrenchStamped
       Enabled: true
-      Force Arrow Scale: 0.009999999776482582
+      Force Arrow Scale: 0.02500000037252903
       Force Color: 245; 121; 0
       Hide Small Values: false
-      History Length: 4
+      History Length: 8
       Name: WrenchStamped
       Queue Size: 10
-      Topic: /dragon/rotor_wrench
+      Topic: /dynarm/rotor_wrench
       Torque Arrow Scale: 0.10000000149011612
       Torque Color: 204; 204; 51
       Unreliable: true
@@ -552,93 +530,71 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        edf1_left:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        edf1_right:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        edf2_left:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        edf2_right:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        edf3_left:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        edf3_right:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        edf4_left:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        edf4_right:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
         fc:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        gimbal1_pitch_module:
+        gimbal1_pitch_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        gimbal1_roll_module:
+        gimbal1_roll_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        gimbal2_pitch_module:
+        gimbal2_pitch_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        gimbal2_roll_module:
+        gimbal2_roll_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        gimbal3_pitch_module:
+        gimbal3_pitch_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        gimbal3_roll_module:
+        gimbal3_roll_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        gimbal4_pitch_module:
+        gimbal4_pitch_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        gimbal4_roll_module:
+        gimbal4_roll_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        inter_joint1:
+        joint_junction1:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        inter_joint2:
+        joint_junction2:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        inter_joint3:
+        joint_junction3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link0_pitch:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link0_yaw:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -687,9 +643,25 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
+        thrust5:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        thrust6:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        thrust7:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        thrust8:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
       Name: RobotModel
-      Robot Description: dragon_desired/robot_description
-      TF Prefix: dragon_desired
+      Robot Description: dynarm_desired/robot_description
+      TF Prefix: dynarm_desired
       Update Interval: 0
       Value: true
       Visual Enabled: true
@@ -697,7 +669,7 @@ Visualization Manager:
   Global Options:
     Background Color: 255; 255; 255
     Default Light: true
-    Fixed Frame: dragon/root
+    Fixed Frame: world
     Frame Rate: 30
   Name: root
   Tools:
@@ -721,7 +693,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 3.3069381713867188
+      Distance: 4.461207866668701
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -729,17 +701,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 0.5145352482795715
-        Y: 0.2499459832906723
-        Z: 0.20042385160923004
+        X: 0.48788097500801086
+        Y: -0.311222106218338
+        Z: 0.8162841796875
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5147958397865295
+      Pitch: 0.7847957611083984
       Target Frame: <Fixed Frame>
-      Yaw: 2.1999995708465576
+      Yaw: 1.299999475479126
     Saved: ~
 Window Geometry:
   Displays:
