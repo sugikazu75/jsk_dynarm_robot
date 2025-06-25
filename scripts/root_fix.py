@@ -14,7 +14,7 @@ time.sleep(5.0)
 
 attach_service = rospy.ServiceProxy("link_attacher_node/attach", Attach)
 req = AttachRequest()
-req.model_name_1 = "dragon"
+req.model_name_1 = "dynarm"
 req.link_name_1 = "root"
 req.model_name_2 = "ground_plane"
 req.link_name_2 = "link"
