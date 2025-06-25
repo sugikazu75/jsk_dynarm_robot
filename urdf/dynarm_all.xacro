@@ -1,0 +1,587 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="dynarm">
+  <link name="link0_yaw">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/link0_yaw.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.96665594"/>
+      <origin xyz="5.265e-05 1.838e-05 0.01946888" rpy="0 0 0"/>
+      <inertia ixx="0.00114772" ixy="-6.1e-07" ixz="-9.6e-07" iyy="0.000994" iyz="5.78e-06" izz="0.00151668"/>
+    </inertial>
+  </link>
+  <link name="link0_pitch">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/link0_pitch.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="1.00754403"/>
+      <origin xyz="5.051e-05 -0.04842362 0.0511984" rpy="0 0 0"/>
+      <inertia ixx="0.00212118" ixy="-1.5e-06" ixz="9e-07" iyy="0.00155906" iyz="-0.00030886" izz="0.00192516"/>
+    </inertial>
+  </link>
+  <joint name="joint0_yaw" type="revolute">
+    <origin xyz="0 0 0.045" rpy="0 0 0"/>
+    <parent link="link0_yaw"/>
+    <child link="link0_pitch"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.57" upper="1.57" effort="60" velocity="18.0"/>
+    <dynamics damping="0.9" friction="0.7"/>
+  </joint>
+  <link name="link1">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/link1.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.09419227"/>
+      <origin xyz="0.185 0.0 0.0" rpy="0 0 0"/>
+      <inertia ixx="1.66e-05" ixy="0.0" ixz="0.0" iyy="0.00110509" iyz="0.0" izz="0.00110516"/>
+    </inertial>
+  </link>
+  <joint name="joint0_pitch" type="revolute">
+    <origin xyz="0 0 0.057" rpy="0 0 0"/>
+    <parent link="link0_pitch"/>
+    <child link="link1"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.57" upper="0.0" effort="60" velocity="18.0"/>
+    <dynamics damping="0.9" friction="0.7"/>
+  </joint>
+  <link name="joint_junction1">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/joint_junction1.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.81269581"/>
+      <origin xyz="0.08350021 -0.00176907 0.00176907" rpy="0 0 0"/>
+      <inertia ixx="0.00053319" ixy="-5.688e-05" ixz="-5.688e-05" iyy="0.00192329" iyz="2.77e-06" izz="0.00192329"/>
+    </inertial>
+  </link>
+  <joint name="joint1_yaw" type="revolute">
+    <origin xyz="0.37 0 0" rpy="0 0 0"/>
+    <parent link="link1"/>
+    <child link="joint_junction1"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.57" upper="1.57" effort="20" velocity="7.0"/>
+    <dynamics damping="0.9" friction="0.7"/>
+  </joint>
+  <link name="link2">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/link2.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.09419227"/>
+      <origin xyz="0.185 0.0 0.0" rpy="0 0 0"/>
+      <inertia ixx="1.66e-05" ixy="0.0" ixz="0.0" iyy="0.00110509" iyz="0.0" izz="0.00110516"/>
+    </inertial>
+  </link>
+  <joint name="joint1_pitch" type="revolute">
+    <origin xyz="0.167 0 0" rpy="0 0 0"/>
+    <parent link="joint_junction1"/>
+    <child link="link2"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.57" upper="1.57" effort="20" velocity="7.0"/>
+    <dynamics damping="0.9" friction="0.7"/>
+  </joint>
+  <link name="joint_junction2">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/joint_junction2.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.81269581"/>
+      <origin xyz="0.08350021 -0.00176907 0.00176907" rpy="0 0 0"/>
+      <inertia ixx="0.00053319" ixy="-5.688e-05" ixz="-5.688e-05" iyy="0.00192329" iyz="2.77e-06" izz="0.00192329"/>
+    </inertial>
+  </link>
+  <joint name="joint2_yaw" type="revolute">
+    <origin xyz="0.37 0 0" rpy="0 0 0"/>
+    <parent link="link2"/>
+    <child link="joint_junction2"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.57" upper="1.57" effort="20" velocity="7.0"/>
+    <dynamics damping="0.9" friction="0.7"/>
+  </joint>
+  <link name="link3">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/link3.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.09419227"/>
+      <origin xyz="0.185 0.0 0.0" rpy="0 0 0"/>
+      <inertia ixx="1.66e-05" ixy="0.0" ixz="0.0" iyy="0.00110509" iyz="0.0" izz="0.00110516"/>
+    </inertial>
+  </link>
+  <joint name="joint2_pitch" type="revolute">
+    <origin xyz="0.167 0 0" rpy="0 0 0"/>
+    <parent link="joint_junction2"/>
+    <child link="link3"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.57" upper="1.57" effort="20" velocity="7.0"/>
+    <dynamics damping="0.9" friction="0.7"/>
+  </joint>
+  <link name="joint_junction3">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/joint_junction3.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.81269581"/>
+      <origin xyz="0.08350021 -0.00176907 0.00176907" rpy="0 0 0"/>
+      <inertia ixx="0.00053319" ixy="-5.688e-05" ixz="-5.688e-05" iyy="0.00192329" iyz="2.77e-06" izz="0.00192329"/>
+    </inertial>
+  </link>
+  <joint name="joint3_yaw" type="revolute">
+    <origin xyz="0.37 0 0" rpy="0 0 0"/>
+    <parent link="link3"/>
+    <child link="joint_junction3"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.57" upper="1.57" effort="20" velocity="7.0"/>
+    <dynamics damping="0.9" friction="0.7"/>
+  </joint>
+  <link name="link4">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/link4.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.09419227"/>
+      <origin xyz="0.185 0.0 0.0" rpy="0 0 0"/>
+      <inertia ixx="1.66e-05" ixy="0.0" ixz="0.0" iyy="0.00110509" iyz="0.0" izz="0.00110516"/>
+    </inertial>
+  </link>
+  <joint name="joint3_pitch" type="revolute">
+    <origin xyz="0.167 0 0" rpy="0 0 0"/>
+    <parent link="joint_junction3"/>
+    <child link="link4"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.57" upper="1.57" effort="20" velocity="7.0"/>
+    <dynamics damping="0.9" friction="0.7"/>
+  </joint>
+  <link name="gimbal4_roll_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/gimbal4_roll_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.21960888"/>
+      <origin xyz="0.00163578 0.00012928 -0.01013979" rpy="0 0 0"/>
+      <inertia ixx="0.00044534" ixy="-1.33e-06" ixz="-0.00025177" iyy="0.00065543" iyz="1.69e-06" izz="0.00027987"/>
+    </inertial>
+  </link>
+  <joint name="gimbal4_roll" type="revolute">
+    <origin xyz="0.185 0 0" rpy="0 0 0"/>
+    <parent link="link4"/>
+    <child link="gimbal4_roll_link"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-3.14" upper="3.14" effort="3" velocity="10.0"/>
+    <dynamics damping="0.1" friction="0.0"/>
+  </joint>
+  <link name="gimbal4_pitch_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/gimbal4_pitch_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.2979391"/>
+      <origin xyz="0.0 0.0 0.01764073" rpy="0 0 0"/>
+      <inertia ixx="0.00776954" ixy="0.0" ixz="0.0" iyy="7.623e-05" iyz="0.0" izz="0.00773263"/>
+    </inertial>
+  </link>
+  <joint name="gimbal4_pitch" type="revolute">
+    <origin xyz="0 0 0.0375" rpy="0 0 0"/>
+    <parent link="gimbal4_roll_link"/>
+    <child link="gimbal4_pitch_link"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-3.14" upper="3.14" effort="3" velocity="10.0"/>
+    <dynamics damping="0.1" friction="0.0"/>
+  </joint>
+  <link name="thrust7">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/thrust7.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.014"/>
+      <origin xyz="0.0 0.0 0.04395854" rpy="0 0 0"/>
+      <inertia ixx="2.162e-05" ixy="0.0" ixz="0.0" iyy="2.162e-05" iyz="0.0" izz="4.319e-05"/>
+    </inertial>
+  </link>
+  <joint name="rotor7" type="continuous">
+    <origin xyz="0 0.1708 0.001457" rpy="0.34907 0 0"/>
+    <parent link="gimbal4_pitch_link"/>
+    <child link="thrust7"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="0.0" upper="25.0" effort="100" velocity="0.5"/>
+  </joint>
+  <link name="thrust8">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/thrust8.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.014"/>
+      <origin xyz="0.0 0.0 0.04395854" rpy="0 0 0"/>
+      <inertia ixx="2.162e-05" ixy="0.0" ixz="0.0" iyy="2.162e-05" iyz="0.0" izz="4.319e-05"/>
+    </inertial>
+  </link>
+  <joint name="rotor8" type="continuous">
+    <origin xyz="0 -0.1708 0.001457" rpy="-0.34907 0 0"/>
+    <parent link="gimbal4_pitch_link"/>
+    <child link="thrust8"/>
+    <axis xyz="0 0 -1"/>
+    <limit lower="0.0" upper="25.0" effort="100" velocity="0.5"/>
+  </joint>
+  <link name="gimbal3_roll_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/gimbal3_roll_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.21960888"/>
+      <origin xyz="0.00163578 0.00012928 -0.01013979" rpy="0 0 0"/>
+      <inertia ixx="0.00044534" ixy="-1.33e-06" ixz="-0.00025177" iyy="0.00065543" iyz="1.69e-06" izz="0.00027987"/>
+    </inertial>
+  </link>
+  <joint name="gimbal3_roll" type="revolute">
+    <origin xyz="0.185 0 0" rpy="0 0 0"/>
+    <parent link="link3"/>
+    <child link="gimbal3_roll_link"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-3.14" upper="3.14" effort="3" velocity="10.0"/>
+    <dynamics damping="0.1" friction="0.0"/>
+  </joint>
+  <link name="gimbal3_pitch_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/gimbal3_pitch_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.2979391"/>
+      <origin xyz="0.0 0.0 0.01764073" rpy="0 0 0"/>
+      <inertia ixx="0.00776954" ixy="0.0" ixz="0.0" iyy="7.623e-05" iyz="0.0" izz="0.00773263"/>
+    </inertial>
+  </link>
+  <joint name="gimbal3_pitch" type="revolute">
+    <origin xyz="0 0 0.0375" rpy="0 0 0"/>
+    <parent link="gimbal3_roll_link"/>
+    <child link="gimbal3_pitch_link"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-3.14" upper="3.14" effort="3" velocity="10.0"/>
+    <dynamics damping="0.1" friction="0.0"/>
+  </joint>
+  <link name="thrust5">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/thrust5.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.014"/>
+      <origin xyz="0.0 0.0 0.04395854" rpy="0 0 0"/>
+      <inertia ixx="2.162e-05" ixy="0.0" ixz="0.0" iyy="2.162e-05" iyz="0.0" izz="4.319e-05"/>
+    </inertial>
+  </link>
+  <joint name="rotor5" type="continuous">
+    <origin xyz="0 0.1708 0.001457" rpy="0.34907 0 0"/>
+    <parent link="gimbal3_pitch_link"/>
+    <child link="thrust5"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="0.0" upper="25.0" effort="100" velocity="0.5"/>
+  </joint>
+  <link name="thrust6">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/thrust6.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.014"/>
+      <origin xyz="0.0 0.0 0.04395854" rpy="0 0 0"/>
+      <inertia ixx="2.162e-05" ixy="0.0" ixz="0.0" iyy="2.162e-05" iyz="0.0" izz="4.319e-05"/>
+    </inertial>
+  </link>
+  <joint name="rotor6" type="continuous">
+    <origin xyz="0 -0.1708 0.001457" rpy="-0.34907 0 0"/>
+    <parent link="gimbal3_pitch_link"/>
+    <child link="thrust6"/>
+    <axis xyz="0 0 -1"/>
+    <limit lower="0.0" upper="25.0" effort="100" velocity="0.5"/>
+  </joint>
+  <link name="gimbal2_roll_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/gimbal2_roll_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.21960888"/>
+      <origin xyz="0.00163578 0.00012928 -0.01013979" rpy="0 0 0"/>
+      <inertia ixx="0.00044534" ixy="-1.33e-06" ixz="-0.00025177" iyy="0.00065543" iyz="1.69e-06" izz="0.00027987"/>
+    </inertial>
+  </link>
+  <joint name="gimbal2_roll" type="revolute">
+    <origin xyz="0.185 0 0" rpy="0 0 0"/>
+    <parent link="link2"/>
+    <child link="gimbal2_roll_link"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-3.14" upper="3.14" effort="3" velocity="10.0"/>
+    <dynamics damping="0.1" friction="0.0"/>
+  </joint>
+  <link name="gimbal2_pitch_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/gimbal2_pitch_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.2979391"/>
+      <origin xyz="0.0 0.0 0.01764073" rpy="0 0 0"/>
+      <inertia ixx="0.00776954" ixy="0.0" ixz="0.0" iyy="7.623e-05" iyz="0.0" izz="0.00773263"/>
+    </inertial>
+  </link>
+  <joint name="gimbal2_pitch" type="revolute">
+    <origin xyz="0 0 0.0375" rpy="0 0 0"/>
+    <parent link="gimbal2_roll_link"/>
+    <child link="gimbal2_pitch_link"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-3.14" upper="3.14" effort="3" velocity="10.0"/>
+    <dynamics damping="0.1" friction="0.0"/>
+  </joint>
+  <link name="thrust3">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/thrust3.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.014"/>
+      <origin xyz="0.0 0.0 0.04395854" rpy="0 0 0"/>
+      <inertia ixx="2.162e-05" ixy="0.0" ixz="0.0" iyy="2.162e-05" iyz="0.0" izz="4.319e-05"/>
+    </inertial>
+  </link>
+  <joint name="rotor3" type="continuous">
+    <origin xyz="0 0.1708 0.001457" rpy="0.34907 0 0"/>
+    <parent link="gimbal2_pitch_link"/>
+    <child link="thrust3"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="0.0" upper="25.0" effort="100" velocity="0.5"/>
+  </joint>
+  <link name="thrust4">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/thrust4.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.014"/>
+      <origin xyz="0.0 0.0 0.04395854" rpy="0 0 0"/>
+      <inertia ixx="2.162e-05" ixy="0.0" ixz="0.0" iyy="2.162e-05" iyz="0.0" izz="4.319e-05"/>
+    </inertial>
+  </link>
+  <joint name="rotor4" type="continuous">
+    <origin xyz="0 -0.1708 0.001457" rpy="-0.34907 0 0"/>
+    <parent link="gimbal2_pitch_link"/>
+    <child link="thrust4"/>
+    <axis xyz="0 0 -1"/>
+    <limit lower="0.0" upper="25.0" effort="100" velocity="0.5"/>
+  </joint>
+  <link name="gimbal1_roll_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/gimbal1_roll_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.21960888"/>
+      <origin xyz="0.00163578 0.00012928 -0.01013979" rpy="0 0 0"/>
+      <inertia ixx="0.00044534" ixy="-1.33e-06" ixz="-0.00025177" iyy="0.00065543" iyz="1.69e-06" izz="0.00027987"/>
+    </inertial>
+  </link>
+  <joint name="gimbal1_roll" type="revolute">
+    <origin xyz="0.185 0 0" rpy="0 0 0"/>
+    <parent link="link1"/>
+    <child link="gimbal1_roll_link"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-3.14" upper="3.14" effort="3" velocity="10.0"/>
+    <dynamics damping="0.1" friction="0.0"/>
+  </joint>
+  <link name="gimbal1_pitch_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/gimbal1_pitch_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.2979391"/>
+      <origin xyz="0.0 0.0 0.01764073" rpy="0 0 0"/>
+      <inertia ixx="0.00776954" ixy="0.0" ixz="0.0" iyy="7.623e-05" iyz="0.0" izz="0.00773263"/>
+    </inertial>
+  </link>
+  <joint name="gimbal1_pitch" type="revolute">
+    <origin xyz="0 0 0.0375" rpy="0 0 0"/>
+    <parent link="gimbal1_roll_link"/>
+    <child link="gimbal1_pitch_link"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-3.14" upper="3.14" effort="3" velocity="10.0"/>
+    <dynamics damping="0.1" friction="0.0"/>
+  </joint>
+  <link name="thrust1">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/thrust1.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.014"/>
+      <origin xyz="0.0 0.0 0.04395854" rpy="0 0 0"/>
+      <inertia ixx="2.162e-05" ixy="0.0" ixz="0.0" iyy="2.162e-05" iyz="0.0" izz="4.319e-05"/>
+    </inertial>
+  </link>
+  <joint name="rotor1" type="continuous">
+    <origin xyz="0 0.1708 0.001457" rpy="0.34907 0 0"/>
+    <parent link="gimbal1_pitch_link"/>
+    <child link="thrust1"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="0.0" upper="25.0" effort="100" velocity="0.5"/>
+  </joint>
+  <link name="thrust2">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/thrust2.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.014"/>
+      <origin xyz="0.0 0.0 0.04395854" rpy="0 0 0"/>
+      <inertia ixx="2.162e-05" ixy="0.0" ixz="0.0" iyy="2.162e-05" iyz="0.0" izz="4.319e-05"/>
+    </inertial>
+  </link>
+  <joint name="rotor2" type="continuous">
+    <origin xyz="0 -0.1708 0.001457" rpy="-0.34907 0 0"/>
+    <parent link="gimbal1_pitch_link"/>
+    <child link="thrust2"/>
+    <axis xyz="0 0 -1"/>
+    <limit lower="0.0" upper="25.0" effort="100" velocity="0.5"/>
+  </joint>
+</robot>

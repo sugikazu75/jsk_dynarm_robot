@@ -1,0 +1,279 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="dynarm" >
+  <transmission name="joint0_yaw_tran">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint0_yaw">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="joint0_yaw_servo">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="joint0_pitch_tran">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint0_pitch">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="joint0_pitch_servo">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="joint1_yaw_tran">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint1_yaw">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="joint1_yaw_servo">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="joint1_pitch_tran">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint1_pitch">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="joint1_pitch_servo">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="joint2_yaw_tran">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint2_yaw">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="joint2_yaw_servo">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="joint2_pitch_tran">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint2_pitch">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="joint2_pitch_servo">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="joint3_yaw_tran">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint3_yaw">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="joint3_yaw_servo">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="joint3_pitch_tran">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint3_pitch">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="joint3_pitch_servo">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="gimbal1_roll_tran">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="gimbal1_roll">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="gimbal1_roll_servo">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="gimbal1_pitch_tran">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="gimbal1_pitch">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="gimbal1_pitch_servo">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="gimbal2_roll_tran">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="gimbal2_roll">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="gimbal2_roll_servo">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="gimbal2_pitch_tran">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="gimbal2_pitch">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="gimbal2_pitch_servo">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="gimbal3_roll_tran">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="gimbal3_roll">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="gimbal3_roll_servo">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="gimbal3_pitch_tran">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="gimbal3_pitch">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="gimbal3_pitch_servo">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="gimbal4_roll_tran">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="gimbal4_roll">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="gimbal4_roll_servo">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="gimbal4_pitch_tran">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="gimbal4_pitch">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="gimbal4_pitch_servo">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="rotor1_tran">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="rotor1">
+      <hardwareInterface>RotorInterface</hardwareInterface>
+    </joint>
+    <actuator name="rotor1">
+      <hardwareInterface>RotorInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="rotor2_tran">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="rotor2">
+      <hardwareInterface>RotorInterface</hardwareInterface>
+    </joint>
+    <actuator name="rotor2">
+      <hardwareInterface>RotorInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="rotor3_tran">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="rotor3">
+      <hardwareInterface>RotorInterface</hardwareInterface>
+    </joint>
+    <actuator name="rotor3">
+      <hardwareInterface>RotorInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="rotor4_tran">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="rotor4">
+      <hardwareInterface>RotorInterface</hardwareInterface>
+    </joint>
+    <actuator name="rotor4">
+      <hardwareInterface>RotorInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="rotor5_tran">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="rotor5">
+      <hardwareInterface>RotorInterface</hardwareInterface>
+    </joint>
+    <actuator name="rotor5">
+      <hardwareInterface>RotorInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="rotor6_tran">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="rotor6">
+      <hardwareInterface>RotorInterface</hardwareInterface>
+    </joint>
+    <actuator name="rotor6">
+      <hardwareInterface>RotorInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="rotor7_tran">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="rotor7">
+      <hardwareInterface>RotorInterface</hardwareInterface>
+    </joint>
+    <actuator name="rotor7">
+      <hardwareInterface>RotorInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="rotor8_tran">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="rotor8">
+      <hardwareInterface>RotorInterface</hardwareInterface>
+    </joint>
+    <actuator name="rotor8">
+      <hardwareInterface>RotorInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <gazebo reference="link0_yaw">
+    <mu1>0.4</mu1>
+    <mu2>0.4</mu2>
+  </gazebo>
+  <gazebo reference="link0_pitch">
+    <mu1>0.4</mu1>
+    <mu2>0.4</mu2>
+  </gazebo>
+  <gazebo reference="link1">
+    <mu1>0.4</mu1>
+    <mu2>0.4</mu2>
+  </gazebo>
+  <gazebo reference="link2">
+    <mu1>0.4</mu1>
+    <mu2>0.4</mu2>
+  </gazebo>
+  <gazebo reference="link3">
+    <mu1>0.4</mu1>
+    <mu2>0.4</mu2>
+  </gazebo>
+  <gazebo reference="link4">
+    <mu1>0.4</mu1>
+    <mu2>0.4</mu2>
+  </gazebo>
+  <gazebo reference="joint_junction1">
+    <mu1>0.4</mu1>
+    <mu2>0.4</mu2>
+  </gazebo>
+  <gazebo reference="joint_junction2">
+    <mu1>0.4</mu1>
+    <mu2>0.4</mu2>
+  </gazebo>
+  <gazebo reference="joint_junction3">
+    <mu1>0.4</mu1>
+    <mu2>0.4</mu2>
+  </gazebo>
+</robot>
