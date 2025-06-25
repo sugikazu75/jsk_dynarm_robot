@@ -17,8 +17,8 @@
   <arg name="spawn_z" default="1.5"/>
   <arg name="spawn_yaw" default="0.0"/>
   <arg name="robot_id" default="" />
-  <arg name="robot_ns" value="dragon$(arg robot_id)" />
-  <arg name="config_dir" default="$(find dragon)/config/$(arg type)" />
+  <arg name="robot_ns" value="dynarm$(arg robot_id)" />
+  <arg name="config_dir" default="$(find dynarm)/config" />
   <arg name="mujoco" default="False" />
 
   ###########  UAV Config  ###########
@@ -29,7 +29,6 @@
     <param name="estimation/mode" value= "$(arg estimate_mode)" if="$(arg real_machine)"/>
 
     # DRAGON = 32 # 0x20, for dual rotor
-    <param name="uav_model" value= "32" />
     <rosparam file="$(find dynarm)/config/ManipulatorModel.yaml" command="load"/>
 
     ###########  Motor Config  ###########
@@ -39,23 +38,23 @@
     <rosparam file="$(find dynarm)/config/Servo.yaml" command="load" />
 
     ###########  Battery Config  ###########
-    <rosparam file="$(arg config_dir)/Battery.yaml" command="load" />
+    <rosparam file="$(find dynarm)/config/Battery.yaml" command="load" />
 
     ###########  Sensor Fusion  ###########
     <rosparam file="$(find dynarm)/config/StateEstimation.yaml" command="load"/>
-    <rosparam file="$(find dynarm)config//Simulation.yaml" command="load" if="$(eval arg('simulation') and not arg('real_machine'))"/>
+    <rosparam file="$(find dynarm)/config//Simulation.yaml" command="load" if="$(eval arg('simulation') and not arg('real_machine'))"/>
 
     ###########  Control  ###########
     <rosparam file="$(find dynarm)/config/ManipulatorControl.yaml" command="load"/>
 
     ###########  robot description for pinocchio ###########
-    <param name="pinocchio_robot_description" command="$(find xacro)/xacro $(find dragon)/robots/$(arg type)/$(arg onboards_model).urdf.xacro rotor_fixed:=true"/>
+    <node name="pinocchio_robot_description_generator" pkg="dynarm" type="pinocchio_robot_description_generator.py" output="screen"/>
 
   </group>
 
   ########### Desired robot state ###########
   <group ns="$(arg robot_ns)_desired">
-    <param name="robot_description" command="$(find xacro)/xacro $(find dragon)/robots/$(arg type)/$(arg onboards_model).urdf.xacro" />
+    <param name="robot_description" command="$(find xacro)/xacro $(find dynarm)/robots/dynarm.urdf.xacro" />
     <node name="desired_robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
       <param name="tf_prefix" value="$(arg robot_ns)_desired" />
       <remap from="joint_states" to="/$(arg robot_ns)/debug/id_debug/torque"/>
@@ -79,19 +78,19 @@
   <arg name="description_mode" value="gazebo" if="$(arg simulation)" />
   <include file="$(find aerial_robot_model)/launch/aerial_robot_model.launch" >
     <arg name="headless" value="$(arg headless)" />
-    <arg name="robot_model" value="$(find dragon)/robots/$(arg type)/$(arg onboards_model).$(arg description_mode).xacro" unless="$(arg direct_model)"/>
+    <arg name="robot_model" value="$(find dynarm)/robots/dynarm.$(arg description_mode).xacro" unless="$(arg direct_model)"/>
     <arg name="robot_ns" value="$(arg robot_ns)" />
     <arg name="rviz_config" value="$(find dynarm)/config/rviz_config" />
-    <arg name="rviz_init_pose" value="$(arg config_dir)/RvizInit.yaml" />
+    <arg name="rviz_init_pose" value="$(find dynarm)/config/RvizInit.yaml" />
     <arg name="need_joint_state" value="false" if ="$(eval arg('simulation') or arg('real_machine'))"/>
   </include >
 
   ###########  Sensors  ###########
-  <include file="$(find dragon)/launch/includes/$(arg onboards_model)/sensors.launch.xml" >
-    <arg name="real_machine" value="$(arg real_machine)" />
-    <arg name="simulation" value="$(arg simulation)" />
-    <arg name="robot_ns" value="$(arg robot_ns)" />
-  </include >
+  <!-- <include file="$(find dynarm)/launch/includes/sensors.launch.xml" > -->
+  <!--   <arg name="real_machine" value="$(arg real_machine)" /> -->
+  <!--   <arg name="simulation" value="$(arg simulation)" /> -->
+  <!--   <arg name="robot_ns" value="$(arg robot_ns)" /> -->
+  <!-- </include > -->
 
   ###########  Servo Bridge  ###########
   <node pkg="aerial_robot_model" type="servo_bridge_node" name="servo_bridge"  output="screen" ns="$(arg robot_ns)">
