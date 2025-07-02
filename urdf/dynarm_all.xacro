@@ -37,7 +37,7 @@
     <parent link="link0_yaw"/>
     <child link="link0_pitch"/>
     <axis xyz="0 0 1"/>
-    <limit lower="-1.57" upper="1.57" effort="60" velocity="18.0"/>
+    <limit lower="-1.57" upper="1.57" effort="20" velocity="18.0"/>
     <dynamics damping="0.9" friction="0.7"/>
   </joint>
   <link name="link1">
@@ -61,7 +61,7 @@
     <parent link="link0_pitch"/>
     <child link="link1"/>
     <axis xyz="0 1 0"/>
-    <limit lower="-1.57" upper="0.0" effort="60" velocity="18.0"/>
+    <limit lower="-1.57" upper="1.57" effort="20" velocity="18.0"/>
     <dynamics damping="0.9" friction="0.7"/>
   </joint>
   <link name="joint_junction1">
