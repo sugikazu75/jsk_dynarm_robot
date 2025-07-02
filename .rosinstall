@@ -1,19 +1,19 @@
 - git:
     local-name: jsk_aerial_robot
     uri: https://github.com/sugikazu75/jsk_aerial_robot.git
-    version: develop/dragon_arm
+    version: 4f79e9a
 
 - git:
     local-name: gazebo_ros_link_attacher
     uri: https://github.com/sugikazu75/gazebo_ros_link_attacher
-    version: noetic-devel
+    version: 06221d1
 
 - git:
     local-name: motion_planning
     uri: https://github.com/sugikazu75/motion_planning
-    version: master
+    version: 0c3d92e
 
 - git:
     local-name: ros_controllers
     uri: https://github.com/sugikazu75/ros_controllers
-    version: develop/computed_torque_control
+    version: 2a8a7b0
