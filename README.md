@@ -7,6 +7,10 @@ sudo rosdep init
 rosdep update --include-eol-distros
 wstool init src
 wstool set -u -t src jsk_dynarm_robot http://github.com/sugikazu75/jsk_dynarm_robot --git
+cd ~/ros/catkin_ws/src/jsk_dynarm_robot
+git fetch --all
+git checkout -b RSJ2025 origin/RSJ2025
+cd ~/ros/catkin_ws
 wstool merge -t src src/jsk_dynarm_robot/.rosinstall
 wstool update -t src
 wstool merge -t src src/jsk_aerial_robot/aerial_robot_${ROS_DISTRO}.rosinstall
