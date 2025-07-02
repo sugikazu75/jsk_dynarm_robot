@@ -9,10 +9,12 @@
 #include <ros/ros.h>
 #include <Eigen/Core>
 
-#include <geometry_msgs/Vector3.h>
+#include <geometry_msgs/Vector3Stamped.h>
 #include <sensor_msgs/JointState.h>
 #include <spinal/FourAxisCommand.h>
+#include <std_msgs/Bool.h>
 #include <std_msgs/Float32.h>
+#include <std_msgs/Float32MultiArray.h>
 
 namespace aerial_robot_control
 {
@@ -31,10 +33,13 @@ private:
   ros::Publisher four_axis_command_pub_;
   ros::Publisher joints_control_pub_;
   ros::Publisher gimbals_control_pub_;
+  ros::Publisher is_transforming_pub_;
   ros::Publisher id_torque_pub_;
   ros::Publisher id_velocity_pub_;
   ros::Publisher id_acc_pub_;
   ros::Publisher id_time_pub_;
+  ros::Publisher tau_by_thrust_pub_;
+  ros::Publisher rnea_solution_pub_;
   ros::Publisher rotor_wrench_pub_;
   ros::Publisher target_end_effector_pos_pub_;
   ros::Publisher target_end_effector_vel_pub_;
@@ -55,6 +60,7 @@ private:
   Eigen::VectorXd curr_tau_;
   Eigen::VectorXd curr_target_tau_;
   Eigen::VectorXd thrusts_;
+  Eigen::VectorXd rnea_solution_;
 
   // debug
   int rotor_wrench_pub_index_;
@@ -87,6 +93,6 @@ private:
   void sendGimbalCommand();
 
   void jointStateCallback(const sensor_msgs::JointState msg);
-  void targetEndEffectorPosCallback(const geometry_msgs::Vector3ConstPtr& msg);
+  void targetEndEffectorPosCallback(const geometry_msgs::Vector3StampedConstPtr& msg);
 };
 }  // namespace aerial_robot_control

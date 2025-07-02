@@ -18,10 +18,13 @@ void ManipulatorController::initialize(ros::NodeHandle nh, ros::NodeHandle nhp,
   four_axis_command_pub_ = nh_.advertise<spinal::FourAxisCommand>("four_axes/command", 1);
   joints_control_pub_ = nh_.advertise<sensor_msgs::JointState>("joints_ctrl", 1);
   gimbals_control_pub_ = nh_.advertise<sensor_msgs::JointState>("gimbals_ctrl", 1);
+  is_transforming_pub_ = nh_.advertise<std_msgs::Bool>("is_transforming", 1);
   id_torque_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/id_debug/torque", 1);
   id_velocity_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/id_debug/velocity", 1);
   id_acc_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/id_debug/acceleration", 1);
   id_time_pub_ = nh_.advertise<std_msgs::Float32>("debug/id_debug/solve_time", 1);
+  tau_by_thrust_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/id_debug/tau_by_thrust", 1);
+  rnea_solution_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/id_debug/rnea_solution", 1);
   rotor_wrench_pub_ = nh_.advertise<geometry_msgs::WrenchStamped>("rotor_wrench", 1);
   target_end_effector_pos_pub_ = nh_.advertise<geometry_msgs::Vector3>("debug/target_ee_pos", 1);
   target_end_effector_vel_pub_ = nh_.advertise<geometry_msgs::Vector3>("debug/target_ee_vel", 1);
@@ -173,6 +176,8 @@ void ManipulatorController::controlCore()
       Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv + pinocchio_robot_model_->getRotorNum());
   bool solved = pinocchio_robot_model_->inverseDynamics(id_q, curr_target_dq_, curr_target_ddq_, curr_target_full_tau);
 
+  rnea_solution_ = pinocchio::rnea(*pinocchio_model_, *pinocchio_data_, id_q, curr_target_dq_, curr_target_ddq_);
+
   if (solved)
   {
     curr_target_tau_ = curr_target_full_tau.head(pinocchio_robot_model_->getModel()->nv);
@@ -240,6 +245,11 @@ void ManipulatorController::sendCmd()
   id_velocity_msg.header.stamp = ros::Time::now();
   sensor_msgs::JointState id_acc_msg;
   id_acc_msg.header.stamp = ros::Time::now();
+  Eigen::VectorXd tau_by_thrust = pinocchio_robot_model_->computeTauExtByThrustDerivative(curr_q_) * thrusts_;
+  sensor_msgs::JointState tau_by_thrust_msg;
+  tau_by_thrust_msg.header.stamp = ros::Time::now();
+  sensor_msgs::JointState rnea_solution_msg;
+  rnea_solution_msg.header.stamp = ros::Time::now();
   for (int i = 0; i < pinocchio_model_->njoints; i++)
   {
     int joint_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(pinocchio_model_->names[i])].idx_q();
@@ -257,10 +267,23 @@ void ManipulatorController::sendCmd()
 
     id_acc_msg.name.push_back(pinocchio_model_->names[i]);
     id_acc_msg.effort.push_back(curr_target_ddq_(joint_index_v));
+
+    tau_by_thrust_msg.name.push_back(pinocchio_model_->names[i]);
+    tau_by_thrust_msg.effort.push_back(tau_by_thrust(joint_index_v));
+
+    rnea_solution_msg.name.push_back(pinocchio_model_->names[i]);
+    rnea_solution_msg.effort.push_back(rnea_solution_(joint_index_v));
   }
   id_torque_pub_.publish(id_torque_msg);
   id_velocity_pub_.publish(id_velocity_msg);
   id_acc_pub_.publish(id_acc_msg);
+  tau_by_thrust_pub_.publish(tau_by_thrust_msg);
+  rnea_solution_pub_.publish(rnea_solution_msg);
+
+  // for motion planner: is transforming or not
+  std_msgs::Bool is_transforming_msg;
+  is_transforming_msg.data = is_transforming_;
+  is_transforming_pub_.publish(is_transforming_msg);
 
   // for debug: send ID solve time
   std_msgs::Float32 id_time_msg;
@@ -394,13 +417,19 @@ void ManipulatorController::jointStateCallback(const sensor_msgs::JointState msg
   }
 }
 
-void ManipulatorController::targetEndEffectorPosCallback(const geometry_msgs::Vector3ConstPtr& msg)
+void ManipulatorController::targetEndEffectorPosCallback(const geometry_msgs::Vector3StampedConstPtr& msg)
 {
   pinocchio::FrameIndex frame_id = pinocchio_model_->getFrameId(end_effector_name_);
   Eigen::Vector3d x_curr = pinocchio_data_->oMf[frame_id].translation();
-  Eigen::Vector3d x_des(msg->x, msg->y, msg->z);
+  Eigen::Vector3d x_des(msg->vector.x, msg->vector.y, msg->vector.z);
 
-  ROS_INFO_STREAM("[dragon_arm][control] target end effector position received: " << x_des.transpose());
+  if (msg->header.stamp.sec != 0 || msg->header.stamp.nsec != 0)
+  {
+    transform_duration_ = msg->header.stamp.sec + msg->header.stamp.nsec / 1000000000.0;
+  }
+
+  ROS_INFO_STREAM("[dragon_arm][control] target end effector position: " << x_des.transpose() << " with "
+                                                                         << transform_duration_ << "s");
   ROS_INFO_STREAM("[dragon_arm][control] current end effector position: " << x_curr.transpose());
 
   pos_trajectory_generator_.reset();
