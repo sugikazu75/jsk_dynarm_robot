@@ -1,3 +1,5 @@
+Prerequisites: Ubuntu20.04 with ROS noetic
+
 ```bash
 source /opt/ros/${ROS_DISTRO}/setup.bash
 sudo apt install -y python3-wstool python3-catkin-tools
@@ -18,4 +20,10 @@ wstool update -t src
 rosdep install -y -r --from-paths src --ignore-src --rosdistro $ROS_DISTRO
 catkin config  --cmake-args -DCMAKE_BUILD_TYPE=Release  -DBUILD_TESTING=OFF -DBUILD_PYTHON_INTERFACE=OFF -DBUILD_BENCHMARK=OFF -DBUILD_WITH_COLLISION_SUPPORT=OFF
 catkin build
+```
+
+# demo
+```
+roslaunch dynarm bringup.launch real_machine:=false simulation:=true headless:=false
+roslaunch dynarm demo.launch
 ```
