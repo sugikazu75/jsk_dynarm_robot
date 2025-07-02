@@ -139,16 +139,16 @@ void ManipulatorController::controlCore()
 
       // calculate target dq
       Eigen::MatrixXd J6 = Eigen::MatrixXd::Zero(6, pinocchio_model_->nv);
-      pinocchio::computeFrameJacobian(*pinocchio_model_, *pinocchio_data_, curr_q, frame_id, pinocchio::WORLD,
+      pinocchio::computeFrameJacobian(*pinocchio_model_, *pinocchio_data_, curr_target_q_, frame_id, pinocchio::WORLD,
                                       J6);  // world frame. q is (target or current)
       Eigen::MatrixXd J = J6.topRows(3);    // position
       Eigen::MatrixXd JJt = J * J.transpose() + 1e-12 * Eigen::MatrixXd::Identity(3, 3);
       curr_target_dq_ = J.transpose() * JJt.ldlt().solve(vel);
 
       // calculate target ddq
-      pinocchio::forwardKinematics(*pinocchio_model_, *pinocchio_data_, curr_q,
+      pinocchio::forwardKinematics(*pinocchio_model_, *pinocchio_data_, curr_target_q_,
                                    curr_target_dq_);  // q is (target or current)
-      pinocchio::computeJointJacobiansTimeVariation(*pinocchio_model_, *pinocchio_data_, curr_q,
+      pinocchio::computeJointJacobiansTimeVariation(*pinocchio_model_, *pinocchio_data_, curr_target_q_,
                                                     curr_target_dq_);  // q is (target or current)
       Eigen::MatrixXd Jdot6 = Eigen::MatrixXd::Zero(6, pinocchio_model_->nv);
       pinocchio::getFrameJacobianTimeVariation(*pinocchio_model_, *pinocchio_data_, frame_id, pinocchio::WORLD, Jdot6);
@@ -158,8 +158,8 @@ void ManipulatorController::controlCore()
   }
 
   // process gimbal angles
-  Eigen::VectorXd id_q = dragon_arm_robot_model_->getGimbalNominalAngles(curr_q_);   // from (target or current) q
-  curr_target_q_ = dragon_arm_robot_model_->getGimbalNominalAngles(curr_target_q_);  // to (target or current) q
+  Eigen::VectorXd id_q = dragon_arm_robot_model_->getGimbalNominalAngles(curr_target_q_);  // from (target or current) q
+  curr_target_q_ = dragon_arm_robot_model_->getGimbalNominalAngles(curr_target_q_);        // to (target or current) q
 
   if (!is_transforming_)
   {
