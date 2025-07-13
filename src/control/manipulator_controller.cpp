@@ -55,6 +55,7 @@ void ManipulatorController::initialize(ros::NodeHandle nh, ros::NodeHandle nhp,
   curr_tau_.resize(pinocchio_robot_model_->getModel()->nv);
   curr_target_tau_.resize(pinocchio_robot_model_->getModel()->nv);
   thrusts_.resize(pinocchio_robot_model_->getRotorNum());
+  target_gimbal_angles_.resize(pinocchio_robot_model_->getRotorNum());
 
   is_initialized_ = false;
   init_target_q_.resize(pinocchio_robot_model_->getModel()->nq);
@@ -86,6 +87,7 @@ void ManipulatorController::reset()
   ControlBase::reset();
 
   first_run_ = true;
+  nlp_first_run_ = true;
   is_transforming_ = false;
   is_initialized_ = false;
 
@@ -189,6 +191,11 @@ void ManipulatorController::controlCore()
                      << "\n Current target q: " << id_q.transpose() << "\n Current target dq: "
                      << curr_target_dq_.transpose() << "\n Current target ddq: " << curr_target_ddq_.transpose());
   }
+
+  nlp_curr_target_q_ = curr_target_q_;
+  nlp_curr_target_dq_ = curr_target_dq_;
+  nlp_curr_target_ddq_ = curr_target_ddq_;
+  nonlinearInverseDynamics();
 
   // state transition
   if (!is_initialized_)
@@ -387,6 +394,8 @@ void ManipulatorController::sendGimbalCommand()
     joint_state_msg.name.push_back(gimbal_pitch_name);
     joint_state_msg.position.push_back(target_gimbal_angles_q(gimbal_roll_index));
     joint_state_msg.position.push_back(target_gimbal_angles_q(gimbal_pitch_index));
+    // joint_state_msg.position.push_back(target_gimbal_angles_.at(2 * i));  // roll
+    // joint_state_msg.position.push_back(target_gimbal_angles_.at(2 * i + 1));  // pitch
   }
   gimbals_control_pub_.publish(joint_state_msg);
 }

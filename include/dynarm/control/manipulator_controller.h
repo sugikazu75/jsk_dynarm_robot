@@ -8,6 +8,7 @@
 
 #include <ros/ros.h>
 #include <Eigen/Core>
+#include <nlopt.hpp>
 
 #include <geometry_msgs/Vector3Stamped.h>
 #include <sensor_msgs/JointState.h>
@@ -28,6 +29,36 @@ public:
                           boost::shared_ptr<aerial_robot_model::RobotModel> robot_model,
                           boost::shared_ptr<aerial_robot_estimation::StateEstimator> estimator,
                           boost::shared_ptr<aerial_robot_navigation::BaseNavigator> navigator, double ctrl_loop_du);
+
+  std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> getPinocchioRobotModel()
+  {
+    return pinocchio_robot_model_;
+  }
+  std::shared_ptr<pinocchio::Model> getPinocchioModel()
+  {
+    return pinocchio_model_;
+  }
+  std::shared_ptr<pinocchio::Data> getPinocchioData()
+  {
+    return pinocchio_data_;
+  }
+
+  const int getGimbalNumForOpt()
+  {
+    return gimbal_num_;
+  }
+  const Eigen::VectorXd getCurrentTargetQForOpt()
+  {
+    return nlp_curr_target_q_;
+  }
+  const Eigen::VectorXd getCurrentTargetDqForOpt()
+  {
+    return nlp_curr_target_dq_;
+  }
+  const Eigen::VectorXd getCurrentTargetDdqForOpt()
+  {
+    return nlp_curr_target_ddq_;
+  }
 
 private:
   ros::Publisher four_axis_command_pub_;
@@ -61,6 +92,7 @@ private:
   Eigen::VectorXd curr_target_tau_;
   Eigen::VectorXd thrusts_;
   Eigen::VectorXd rnea_solution_;
+  std::vector<double> target_gimbal_angles_;
 
   // debug
   int rotor_wrench_pub_index_;
@@ -78,6 +110,15 @@ private:
   std::string end_effector_name_;
   bool is_transforming_;
 
+  // nlp param
+  int gimbal_num_;
+  std::vector<int> gimbal_q_indices_;
+  std::vector<int> gimbal_v_indices_;
+  bool nlp_first_run_ = true;
+  Eigen::VectorXd nlp_curr_target_q_;
+  Eigen::VectorXd nlp_curr_target_dq_;
+  Eigen::VectorXd nlp_curr_target_ddq_;
+
   boost::shared_ptr<aerial_robot_model::ManipulatorRobotModel> dragon_arm_robot_model_;
   std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model_;
   std::shared_ptr<pinocchio::Model> pinocchio_model_;
@@ -91,6 +132,8 @@ private:
   void sendFourAxisCommand();
   void sendJointCommand();
   void sendGimbalCommand();
+
+  void nonlinearInverseDynamics();
 
   void jointStateCallback(const sensor_msgs::JointState msg);
   void targetEndEffectorPosCallback(const geometry_msgs::Vector3StampedConstPtr& msg);
