@@ -7,7 +7,6 @@ find_package(catkin REQUIRED COMPONENTS
   aerial_robot_estimation
   aerial_robot_model
   aerial_robot_msgs
-  dragon
   motion_planning
   pluginlib
   roscpp
@@ -18,11 +17,12 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Eigen3 REQUIRED)
 find_package(pinocchio REQUIRED)
 find_package(OsqpEigen REQUIRED)
+find_package(NLopt REQUIRED)
 
 catkin_package(
  INCLUDE_DIRS include
  LIBRARIES manipulator_controller manipulator_model
- CATKIN_DEPENDS aerial_robot_control aerial_robot_dynamics aerial_robot_estimation aerial_robot_model aerial_robot_msgs dragon motion_planning pluginlib roscpp sensor_msgs
+ CATKIN_DEPENDS aerial_robot_control aerial_robot_dynamics aerial_robot_estimation aerial_robot_model aerial_robot_msgs motion_planning pluginlib roscpp sensor_msgs
 )
 
 include_directories(
@@ -31,6 +31,7 @@ include_directories(
   ${EIGEN3_INCLUDE_DIRS}
   ${OsqpEigen_INCLUDE_DIRS}
   ${pinocchio_INCLUDE_DIRS}
+  ${NLOPT_INCLUDE_DIRS}
 )
 
 add_library(manipulator_model src/model/manipulator_model.cpp)
