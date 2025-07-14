@@ -80,6 +80,9 @@ void ManipulatorController::rosParamInit()
   ros::NodeHandle control_nh(nh_, "controller");
   getParam<std::string>(control_nh, "end_effector_name", end_effector_name_, "");
   getParam<double>(control_nh, "transform_duration", transform_duration_, 1.0);
+
+  ros::NodeHandle model_nh(nh_, "model");
+  getParam<int>(model_nh, "rotor_devider", rotor_devider_, 1);
 }
 
 void ManipulatorController::reset()
@@ -203,7 +206,7 @@ void ManipulatorController::controlCore()
     // check joint angle convergence
     bool is_converged = true;
     Eigen::VectorXd curr_q = dragon_arm_robot_model_->getCurrentJointPositions();
-    for (int i = 0; i < robot_model_->getRotorNum() / 2; i++)
+    for (int i = 0; i < robot_model_->getRotorNum() / rotor_devider_; i++)
     {
       std::string joint_pitch_name = "joint" + std::to_string(i) + "_pitch";
       std::string joint_yaw_name = "joint" + std::to_string(i) + "_yaw";
@@ -350,7 +353,7 @@ void ManipulatorController::sendJointCommand()
     curr_target_q_ = init_target_q_;
   }
 
-  for (int i = 0; i < robot_model_->getRotorNum() / 2; i++)
+  for (int i = 0; i < robot_model_->getRotorNum() / rotor_devider_; i++)
   {
     std::string joint_pitch_name = "joint" + std::to_string(i) + "_pitch";
     std::string joint_yaw_name = "joint" + std::to_string(i) + "_yaw";
@@ -382,7 +385,7 @@ void ManipulatorController::sendGimbalCommand()
 
   sensor_msgs::JointState joint_state_msg;
   joint_state_msg.header.stamp = ros::Time::now();
-  for (int i = 0; i < robot_model_->getRotorNum() / 2; i++)
+  for (int i = 0; i < robot_model_->getRotorNum() / rotor_devider_; i++)
   {
     std::string gimbal_roll_name = "gimbal" + std::to_string(i + 1) + "_roll";
     std::string gimbal_pitch_name = "gimbal" + std::to_string(i + 1) + "_pitch";

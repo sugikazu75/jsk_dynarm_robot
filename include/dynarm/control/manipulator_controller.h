@@ -43,6 +43,10 @@ public:
     return pinocchio_data_;
   }
 
+  const int getRotorDevider()
+  {
+    return rotor_devider_;
+  }
   const int getGimbalNumForOpt()
   {
     return gimbal_num_;
@@ -80,6 +84,9 @@ private:
 
   std::string robot_ns_;
 
+  // robot parameter
+  int rotor_devider_;
+
   sensor_msgs::JointState joint_state_;
   Eigen::Vector3d target_ee_pos_;
   Eigen::Vector3d target_ee_vel_;
@@ -102,7 +109,7 @@ private:
   bool is_initialized_;
   Eigen::VectorXd init_target_q_;
 
-  // manipulator param
+  // manipulation param
   motion_planning::PositionTrajectoryGenerator pos_trajectory_generator_;
   double transform_duration_;
   double transform_start_time_;

@@ -71,7 +71,7 @@ void rneaConstraint(unsigned m, double* result, unsigned n, const double* x, dou
   int gimbal_num = controller->getGimbalNumForOpt();
   std::vector<int> gimbal_q_indices(0);
   std::vector<int> gimbal_v_indices(0);
-  for (int i = 0; i < pinocchio_robot_model->getRotorNum() / 2; i++)
+  for (int i = 0; i < pinocchio_robot_model->getRotorNum() / controller->getRotorDevider(); i++)
   {
     // assume gimbal_num = 2*rotor_num and their names are gimbal*_roll and gimbal*_pitch in this order
     std::string gimbal_roll_name = "gimbal" + std::to_string(i + 1) + "_roll";
@@ -167,7 +167,7 @@ void ManipulatorController::nonlinearInverseDynamics()
     gimbal_num_ = 0;
     gimbal_q_indices_.clear();
     gimbal_v_indices_.clear();
-    for (int i = 0; i < pinocchio_robot_model_->getRotorNum() / 2; i++)
+    for (int i = 0; i < pinocchio_robot_model_->getRotorNum() / rotor_devider_; i++)
     {
       // assume gimbal_num = rotor_num and their names are gimbal*_roll and gimbal*_pitch in this order
       std::string gimbal_roll_name = "gimbal" + std::to_string(i + 1) + "_roll";
