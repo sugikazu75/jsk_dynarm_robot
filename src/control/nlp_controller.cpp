@@ -255,7 +255,6 @@ void ManipulatorController::nonlinearInverseDynamics()
     ROS_ERROR_STREAM_THROTTLE(1.0, "[nlopt] failed to solve. result is " << result);
 
   // print
-  std::cout << "[nlopt] tau";
   for (int i = 0; i < pinocchio_model_->nv; ++i)
   {
     // curr_target_tau_(i) = x[i];
