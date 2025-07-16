@@ -118,10 +118,12 @@ private:
   bool is_transforming_;
 
   // nlp param
+  bool nonlinear_mode_;
   int gimbal_num_;
   std::vector<int> gimbal_q_indices_;
   std::vector<int> gimbal_v_indices_;
   bool nlp_first_run_ = true;
+  double nlp_solve_time_ = 0.0;
   Eigen::VectorXd nlp_curr_target_q_;
   Eigen::VectorXd nlp_curr_target_dq_;
   Eigen::VectorXd nlp_curr_target_ddq_;

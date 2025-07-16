@@ -185,9 +185,7 @@ void ManipulatorController::nonlinearInverseDynamics()
       gimbal_v_indices_.push_back(gimbal_roll_index_v);
       gimbal_v_indices_.push_back(gimbal_pitch_index_v);
     }
-
-    std::cout << "[dynarm][control][nlopt] gibmal num is " << gimbal_num_ << std::endl;
-    ;
+    ROS_INFO_STREAM("[dynarm][control][nlopt] gibmal num is " << gimbal_num_);
     nlp_first_run_ = false;
   }
 
@@ -238,15 +236,19 @@ void ManipulatorController::nonlinearInverseDynamics()
   opt.add_equality_mconstraint(rneaConstraint, this, std::vector<double>(n_constrints, 1e-4));  // rnea constraints
   opt.set_lower_bounds(lb);
   opt.set_upper_bounds(ub);
-  opt.set_ftol_rel(1e-4);
-  opt.set_xtol_rel(1e-4);
+  opt.set_ftol_rel(1e-6);
+  opt.set_xtol_rel(1e-6);
   opt.set_maxeval(1000);
 
   double minf;
   nlopt::result result;
   try
   {
+    auto start = std::chrono::high_resolution_clock::now();
     result = opt.optimize(x, minf);
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    nlp_solve_time_ = duration.count();  // microseconds
   }
   catch (std::runtime_error error)
   {
@@ -257,12 +259,14 @@ void ManipulatorController::nonlinearInverseDynamics()
   // print
   for (int i = 0; i < pinocchio_model_->nv; ++i)
   {
-    // curr_target_tau_(i) = x[i];
+    if (nonlinear_mode_)
+      curr_target_tau_(i) = x[i];
   }
 
   for (int i = 0; i < pinocchio_robot_model_->getRotorNum(); ++i)
   {
-    // thrusts_(i) = x[pinocchio_model_->nv + i];
+    if (nonlinear_mode_)
+      thrusts_(i) = std::clamp(x[pinocchio_model_->nv + i], thrust_lower_limits(i), thrust_upper_limits(i));
   }
 
   for (int i = 0; i < gimbal_num_; ++i)

@@ -78,6 +78,7 @@ void ManipulatorController::initialize(ros::NodeHandle nh, ros::NodeHandle nhp,
 void ManipulatorController::rosParamInit()
 {
   ros::NodeHandle control_nh(nh_, "controller");
+  getParam<bool>(control_nh, "nonlinear_mode", nonlinear_mode_, true);
   getParam<std::string>(control_nh, "end_effector_name", end_effector_name_, "");
   getParam<double>(control_nh, "transform_duration", transform_duration_, 1.0);
 
@@ -297,7 +298,10 @@ void ManipulatorController::sendCmd()
 
   // for debug: send ID solve time
   std_msgs::Float32 id_time_msg;
-  id_time_msg.data = pinocchio_robot_model_->getLatestIdSolveTime();  // microseconds
+  if (nonlinear_mode_)
+    id_time_msg.data = nlp_solve_time_;
+  else
+    id_time_msg.data = pinocchio_robot_model_->getLatestIdSolveTime();
   id_time_pub_.publish(id_time_msg);
 
   // for debug: send target end effector position and velocity
@@ -395,10 +399,16 @@ void ManipulatorController::sendGimbalCommand()
 
     joint_state_msg.name.push_back(gimbal_roll_name);
     joint_state_msg.name.push_back(gimbal_pitch_name);
-    joint_state_msg.position.push_back(target_gimbal_angles_q(gimbal_roll_index));
-    joint_state_msg.position.push_back(target_gimbal_angles_q(gimbal_pitch_index));
-    // joint_state_msg.position.push_back(target_gimbal_angles_.at(2 * i));  // roll
-    // joint_state_msg.position.push_back(target_gimbal_angles_.at(2 * i + 1));  // pitch
+    if (nonlinear_mode_)
+    {
+      joint_state_msg.position.push_back(target_gimbal_angles_.at(2 * i));      // roll
+      joint_state_msg.position.push_back(target_gimbal_angles_.at(2 * i + 1));  // pitch
+    }
+    else
+    {
+      joint_state_msg.position.push_back(target_gimbal_angles_q(gimbal_roll_index));
+      joint_state_msg.position.push_back(target_gimbal_angles_q(gimbal_pitch_index));
+    }
   }
   gimbals_control_pub_.publish(joint_state_msg);
 }

@@ -4,3 +4,4 @@ controller:
   end_effector_name: link4_tip
   transform_duration: 1.0
   init_target_q: [0.0, -1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0]
+  nonlinear_mode: true
