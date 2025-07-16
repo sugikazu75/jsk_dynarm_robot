@@ -81,6 +81,7 @@ void ManipulatorController::rosParamInit()
   getParam<bool>(control_nh, "nonlinear_mode", nonlinear_mode_, true);
   getParam<std::string>(control_nh, "end_effector_name", end_effector_name_, "");
   getParam<double>(control_nh, "transform_duration", transform_duration_, 1.0);
+  getParam<double>(control_nh, "gimbal_delta_max", gimbal_delta_max_, M_PI);
 
   ros::NodeHandle model_nh(nh_, "model");
   getParam<int>(model_nh, "rotor_devider", rotor_devider_, 1);

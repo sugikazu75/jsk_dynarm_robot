@@ -210,6 +210,15 @@ void ManipulatorController::nonlinearInverseDynamics()
     lb[pinocchio_model_->nv + i] = thrust_lower_limits(i);
     ub[pinocchio_model_->nv + i] = thrust_upper_limits(i);
   }
+  for (int i = 0; i < gimbal_num_; i++)
+  {
+    lb[pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i] = std::clamp(
+        curr_q_(gimbal_q_indices_[i]) - gimbal_delta_max_, pinocchio_model_->lowerPositionLimit(gimbal_q_indices_[i]),
+        pinocchio_model_->upperPositionLimit(gimbal_q_indices_[i]));  // gimbal angles lower bound
+    ub[pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i] = std::clamp(
+        curr_q_(gimbal_q_indices_[i]) + gimbal_delta_max_, pinocchio_model_->lowerPositionLimit(gimbal_q_indices_[i]),
+        pinocchio_model_->upperPositionLimit(gimbal_q_indices_[i]));  // gimbal angles upper bound
+  }
 
   // // Set initial guess
   std::vector<double> x(n_variables);

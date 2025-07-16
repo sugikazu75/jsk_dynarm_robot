@@ -5,3 +5,4 @@ controller:
   transform_duration: 1.0
   init_target_q: [0.0, -1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0]
   nonlinear_mode: true
+  gimbal_delta_max: 0.5  # Maximum change in gimbal angles (radians)
