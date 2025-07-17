@@ -55,7 +55,7 @@ void ManipulatorController::initialize(ros::NodeHandle nh, ros::NodeHandle nhp,
   curr_tau_.resize(pinocchio_robot_model_->getModel()->nv);
   curr_target_tau_.resize(pinocchio_robot_model_->getModel()->nv);
   thrusts_.resize(pinocchio_robot_model_->getRotorNum());
-  target_gimbal_angles_.resize(pinocchio_robot_model_->getRotorNum());
+  target_gimbal_angles_.resize(pinocchio_robot_model_->getRotorNum() / rotor_devider_ * 2);
 
   is_initialized_ = false;
   init_target_q_.resize(pinocchio_robot_model_->getModel()->nq);
