@@ -1,0 +1,73 @@
+motor_info:
+        min_pwm: 0.575 # 1150 [ms]
+        max_pwm: 0.775 # 1550 [ms]
+        min_thrust: 4.9 #  [N]
+        force_landing_thrust: 5.0 #[N]
+        m_f_rate: -0.0151
+        speed_rate: 0.5
+        pwm_conversion_mode: 1 # Polynominal Mode
+        vel_ref_num: 8
+        ref1:
+                voltage: 50.2
+                max_thrust: 38.3289 # N
+                polynomial4: -0.22372197  # x10^4
+                polynomial3: 1.96228092  # x10^3
+                polynomial2: -6.27834030  # x10^2
+                polynomial1: 14.56614759  # x10^1
+                polynomial0: 51.65652198  # x10^0
+        ref2:
+                voltage: 49.2
+                max_thrust: 35.6304 # N
+                polynomial4: -0.17960235  # x10^4
+                polynomial3: 1.62609366  # x10^3
+                polynomial2: -5.36468130  # x10^2
+                polynomial1: 13.70602707  # x10^1
+                polynomial0: 52.11658474  # x10^0
+        ref3:
+                voltage: 48.2
+                max_thrust: 34.6133 # N
+                polynomial4: -0.19812430  # x10^4
+                polynomial3: 1.74305917  # x10^3
+                polynomial2: -5.61716631  # x10^2
+                polynomial1: 14.02736523  # x10^1
+                polynomial0: 52.28439827  # x10^0
+        ref4:
+                voltage: 47.2
+                max_thrust: 32.7044 # N
+                polynomial4: -0.22759229  # x10^4
+                polynomial3: 1.94096717  # x10^3
+                polynomial2: -6.00553244  # x10^2
+                polynomial1: 14.45320793  # x10^1
+                polynomial0: 52.36654653  # x10^0
+        ref5:
+                voltage: 46.2
+                max_thrust: 32.0885 # N
+                polynomial4: -0.45543672  # x10^4
+                polynomial3: 3.62593425  # x10^3
+                polynomial2: -10.27400354  # x10^2
+                polynomial1: 18.77839733  # x10^1
+                polynomial0: 51.35860555  # x10^0
+        ref6:
+                voltage: 45.2
+                max_thrust: 30.9060 # N
+                polynomial4: -0.58818378  # x10^4
+                polynomial3: 4.42780044  # x10^3
+                polynomial2: -11.82390112  # x10^2
+                polynomial1: 20.09119061  # x10^1
+                polynomial0: 51.22816484  # x10^0
+        ref7:
+                voltage: 44.2
+                max_thrust: 29.6975 # N
+                polynomial4: -0.36062974  # x10^4
+                polynomial3: 2.78218282  # x10^3
+                polynomial2: -7.95963993  # x10^2
+                polynomial1: 17.01185545  # x10^1
+                polynomial0: 52.27294658  # x10^0
+        ref8:
+                voltage: 43.2
+                max_thrust: 28.2721 # N
+                polynomial4: -0.73371255  # x10^4
+                polynomial3: 5.45177415  # x10^3
+                polynomial2: -14.36381889  # x10^2
+                polynomial1: 23.02659128  # x10^1
+                polynomial0: 50.82634267  # x10^0
