@@ -1,0 +1,8 @@
+aerial_robot_control_name: aerial_robot_control/manipulator_controller
+
+controller:
+  end_effector_name: link3_tip
+  transform_duration: 1.0
+  init_target_q: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  nonlinear_mode: true
+  gimbal_delta_max: 0.5  # Maximum change in gimbal angles (radians)

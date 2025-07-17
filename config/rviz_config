@@ -4,10 +4,12 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
+        - /RobotModel1
         - /Effort1/Joints1
+        - /RobotModel2
         - /RobotModel2/Links1
-      Splitter Ratio: 0.7250000238418579
-    Tree Height: 641
+      Splitter Ratio: 0.4936440587043762
+    Tree Height: 647
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -61,120 +63,8 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        dynarm/cog:
-          Value: true
-        dynarm/fc:
-          Value: false
-        dynarm/gimbal1_pitch_link:
-          Value: false
-        dynarm/gimbal1_roll_link:
-          Value: false
-        dynarm/gimbal2_pitch_link:
-          Value: false
-        dynarm/gimbal2_roll_link:
-          Value: false
-        dynarm/gimbal3_pitch_link:
-          Value: false
-        dynarm/gimbal3_roll_link:
-          Value: false
-        dynarm/gimbal4_pitch_link:
-          Value: false
-        dynarm/gimbal4_roll_link:
-          Value: false
-        dynarm/joint_junction1:
-          Value: true
-        dynarm/joint_junction2:
-          Value: true
-        dynarm/joint_junction3:
-          Value: true
-        dynarm/link0_pitch:
-          Value: true
-        dynarm/link0_yaw:
-          Value: true
-        dynarm/link1:
-          Value: true
-        dynarm/link2:
-          Value: true
-        dynarm/link3:
-          Value: true
-        dynarm/link4:
-          Value: true
-        dynarm/link4_tip:
-          Value: true
-        dynarm/root:
-          Value: true
-        dynarm/thrust1:
-          Value: false
-        dynarm/thrust2:
-          Value: false
-        dynarm/thrust3:
-          Value: false
-        dynarm/thrust4:
-          Value: false
-        dynarm/thrust5:
-          Value: false
-        dynarm/thrust6:
-          Value: false
-        dynarm/thrust7:
-          Value: false
-        dynarm/thrust8:
-          Value: false
-        dynarm_desired/fc:
-          Value: false
-        dynarm_desired/gimbal1_pitch_link:
-          Value: false
-        dynarm_desired/gimbal1_roll_link:
-          Value: false
-        dynarm_desired/gimbal2_pitch_link:
-          Value: false
-        dynarm_desired/gimbal2_roll_link:
-          Value: false
-        dynarm_desired/gimbal3_pitch_link:
-          Value: false
-        dynarm_desired/gimbal3_roll_link:
-          Value: false
-        dynarm_desired/gimbal4_pitch_link:
-          Value: false
-        dynarm_desired/gimbal4_roll_link:
-          Value: false
-        dynarm_desired/joint_junction1:
-          Value: true
-        dynarm_desired/joint_junction2:
-          Value: true
-        dynarm_desired/joint_junction3:
-          Value: true
-        dynarm_desired/link0_pitch:
-          Value: true
-        dynarm_desired/link0_yaw:
-          Value: true
-        dynarm_desired/link1:
-          Value: true
-        dynarm_desired/link2:
-          Value: true
-        dynarm_desired/link3:
-          Value: true
-        dynarm_desired/link4:
-          Value: true
-        dynarm_desired/link4_tip:
-          Value: true
         dynarm_desired/root:
           Value: true
-        dynarm_desired/thrust1:
-          Value: false
-        dynarm_desired/thrust2:
-          Value: false
-        dynarm_desired/thrust3:
-          Value: false
-        dynarm_desired/thrust4:
-          Value: false
-        dynarm_desired/thrust5:
-          Value: false
-        dynarm_desired/thrust6:
-          Value: false
-        dynarm_desired/thrust7:
-          Value: false
-        dynarm_desired/thrust8:
-          Value: false
         world:
           Value: false
       Marker Alpha: 1
@@ -185,84 +75,8 @@ Visualization Manager:
       Show Names: false
       Tree:
         world:
-          dynarm/root:
-            dynarm/cog:
-              {}
-            dynarm/link0_yaw:
-              dynarm/fc:
-                {}
-              dynarm/link0_pitch:
-                dynarm/link1:
-                  dynarm/gimbal1_roll_link:
-                    dynarm/gimbal1_pitch_link:
-                      dynarm/thrust1:
-                        {}
-                      dynarm/thrust2:
-                        {}
-                  dynarm/joint_junction1:
-                    dynarm/link2:
-                      dynarm/gimbal2_roll_link:
-                        dynarm/gimbal2_pitch_link:
-                          dynarm/thrust3:
-                            {}
-                          dynarm/thrust4:
-                            {}
-                      dynarm/joint_junction2:
-                        dynarm/link3:
-                          dynarm/gimbal3_roll_link:
-                            dynarm/gimbal3_pitch_link:
-                              dynarm/thrust5:
-                                {}
-                              dynarm/thrust6:
-                                {}
-                          dynarm/joint_junction3:
-                            dynarm/link4:
-                              dynarm/gimbal4_roll_link:
-                                dynarm/gimbal4_pitch_link:
-                                  dynarm/thrust7:
-                                    {}
-                                  dynarm/thrust8:
-                                    {}
-                              dynarm/link4_tip:
-                                {}
           dynarm_desired/root:
-            dynarm_desired/link0_yaw:
-              dynarm_desired/fc:
-                {}
-              dynarm_desired/link0_pitch:
-                dynarm_desired/link1:
-                  dynarm_desired/gimbal1_roll_link:
-                    dynarm_desired/gimbal1_pitch_link:
-                      dynarm_desired/thrust1:
-                        {}
-                      dynarm_desired/thrust2:
-                        {}
-                  dynarm_desired/joint_junction1:
-                    dynarm_desired/link2:
-                      dynarm_desired/gimbal2_roll_link:
-                        dynarm_desired/gimbal2_pitch_link:
-                          dynarm_desired/thrust3:
-                            {}
-                          dynarm_desired/thrust4:
-                            {}
-                      dynarm_desired/joint_junction2:
-                        dynarm_desired/link3:
-                          dynarm_desired/gimbal3_roll_link:
-                            dynarm_desired/gimbal3_pitch_link:
-                              dynarm_desired/thrust5:
-                                {}
-                              dynarm_desired/thrust6:
-                                {}
-                          dynarm_desired/joint_junction3:
-                            dynarm_desired/link4:
-                              dynarm_desired/gimbal4_roll_link:
-                                dynarm_desired/gimbal4_pitch_link:
-                                  dynarm_desired/thrust7:
-                                    {}
-                                  dynarm_desired/thrust8:
-                                    {}
-                              dynarm_desired/link4_tip:
-                                {}
+            {}
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -309,16 +123,6 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        gimbal4_pitch_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        gimbal4_roll_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
         joint_junction1:
           Alpha: 1
           Show Axes: false
@@ -329,17 +133,12 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        joint_junction3:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
         link0_pitch:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        link0_yaw:
+        link0_roll:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -359,12 +158,7 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        link4:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        link4_tip:
+        link3_tip:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -383,31 +177,6 @@ Visualization Manager:
           Show Trail: false
           Value: true
         thrust3:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        thrust4:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        thrust5:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        thrust6:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        thrust7:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        thrust8:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -435,13 +204,9 @@ Visualization Manager:
           Value: false
         gimbal3_roll:
           Value: false
-        gimbal4_pitch:
-          Value: false
-        gimbal4_roll:
-          Value: false
         joint0_pitch:
           Value: true
-        joint0_yaw:
+        joint0_roll:
           Value: true
         joint1_pitch:
           Value: true
@@ -450,10 +215,6 @@ Visualization Manager:
         joint2_pitch:
           Value: true
         joint2_yaw:
-          Value: true
-        joint3_pitch:
-          Value: true
-        joint3_yaw:
           Value: true
       Name: Effort
       Queue Size: 10
@@ -482,155 +243,18 @@ Visualization Manager:
     - Alpha: 0.30000001192092896
       Class: rviz/RobotModel
       Collision Enabled: false
-      Enabled: true
+      Enabled: false
       Links:
         All Links Enabled: true
         Expand Joint Details: false
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        fc:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gimbal1_pitch_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        gimbal1_roll_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        gimbal2_pitch_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        gimbal2_roll_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        gimbal3_pitch_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        gimbal3_roll_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        gimbal4_pitch_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        gimbal4_roll_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        joint_junction1:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        joint_junction2:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        joint_junction3:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        link0_pitch:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        link0_yaw:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        link1:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        link2:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        link3:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        link4:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        link4_tip:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        root:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        thrust1:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        thrust2:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        thrust3:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        thrust4:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        thrust5:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        thrust6:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        thrust7:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        thrust8:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
       Name: RobotModel
       Robot Description: dynarm_desired/robot_description
       TF Prefix: dynarm_desired
       Update Interval: 0
-      Value: true
+      Value: false
       Visual Enabled: true
   Enabled: true
   Global Options:
@@ -660,7 +284,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 3.5782690048217773
+      Distance: 2.1832454204559326
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -668,17 +292,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 0.9250807166099548
-        Y: 0.18501460552215576
-        Z: 0.3770082890987396
+        X: 0.726879358291626
+        Y: 0.07684184610843658
+        Z: -0.0009697203058749437
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.3997955322265625
+      Pitch: 0.40979549288749695
       Target Frame: <Fixed Frame>
-      Yaw: 4.388184070587158
+      Yaw: 4.483185291290283
     Saved: ~
 Window Geometry:
   Displays:
@@ -688,7 +312,7 @@ Window Geometry:
   Hide Right Dock: true
   PublishTopic:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd00000004000000000000016a00000375fc0200000009fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003d0000030c000000c900fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb00000018005000750062006c0069007300680054006f007000690063010000034f000000630000006000ffffff000000010000010f0000035efc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000003b0000035e000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000007800000003efc0100000002fb0000000800540069006d0065010000000000000780000003bc00fffffffb0000000800540069006d00650100000000000004500000000000000000000006100000037500000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000400000000000001da00000379fc0200000009fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003b00000310000000c700fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb00000018005000750062006c0069007300680054006f0070006900630100000351000000630000005c00ffffff000000010000010f0000035efc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000003b0000035e000000a000fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000007800000003efc0100000002fb0000000800540069006d00650100000000000007800000031600fffffffb0000000800540069006d00650100000000000004500000000000000000000005a00000037900000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
@@ -698,5 +322,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1920
-  X: 0
-  Y: 0
+  X: 3840
+  Y: 174
