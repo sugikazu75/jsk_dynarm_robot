@@ -17,6 +17,7 @@
   <arg name="spawn_z" default="1.5"/>
   <arg name="spawn_yaw" default="0.0"/>
   <arg name="robot_id" default="" />
+  <arg name="version" value="v0"/>
   <arg name="robot_ns" value="dynarm$(arg robot_id)" />
   <arg name="config_dir" default="$(find dynarm)/config" />
   <arg name="mujoco" default="False" />
@@ -29,16 +30,16 @@
     <param name="estimation/mode" value= "$(arg estimate_mode)" if="$(arg real_machine)"/>
 
     # DRAGON = 32 # 0x20, for dual rotor
-    <rosparam file="$(find dynarm)/config/ManipulatorModel.yaml" command="load"/>
+    <rosparam file="$(find dynarm)/config/$(arg version)/ManipulatorModel.yaml" command="load"/>
 
     ###########  Motor Config  ###########
-    <rosparam file="$(find dynarm)/config/MotorInfo.yaml" command="load" />
+    <rosparam file="$(find dynarm)/config/$(arg version)/MotorInfo.yaml" command="load" />
 
     ###########  Servo Config  ###########
-    <rosparam file="$(find dynarm)/config/Servo.yaml" command="load" />
+    <rosparam file="$(find dynarm)/config/$(arg version)/Servo.yaml" command="load" />
 
     ###########  Battery Config  ###########
-    <rosparam file="$(find dynarm)/config/Battery.yaml" command="load" />
+    <rosparam file="$(find dynarm)/config/$(arg version)/Battery.yaml" command="load" />
 
     ###########  Sensor Fusion  ###########
     <rosparam file="$(find dynarm)/config/StateEstimation.yaml" command="load"/>
@@ -54,7 +55,7 @@
 
   ########### Desired robot state ###########
   <group ns="$(arg robot_ns)_desired">
-    <param name="robot_description" command="$(find xacro)/xacro $(find dynarm)/robots/dynarm.urdf.xacro" />
+    <param name="robot_description" command="$(find xacro)/xacro $(find dynarm)/robots/$(arg version)/dynarm.urdf.xacro" />
     <node name="desired_robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
       <param name="tf_prefix" value="$(arg robot_ns)_desired" />
       <remap from="joint_states" to="/$(arg robot_ns)/debug/id_debug/torque"/>
@@ -78,7 +79,7 @@
   <arg name="description_mode" value="gazebo" if="$(arg simulation)" />
   <include file="$(find aerial_robot_model)/launch/aerial_robot_model.launch" >
     <arg name="headless" value="$(arg headless)" />
-    <arg name="robot_model" value="$(find dynarm)/robots/dynarm.$(arg description_mode).xacro" unless="$(arg direct_model)"/>
+    <arg name="robot_model" value="$(find dynarm)/robots/$(arg version)/dynarm.$(arg description_mode).xacro" unless="$(arg direct_model)"/>
     <arg name="robot_ns" value="$(arg robot_ns)" />
     <arg name="rviz_config" value="$(find dynarm)/config/rviz_config" />
     <arg name="rviz_init_pose" value="$(find dynarm)/config/RvizInit.yaml" />

@@ -2,9 +2,9 @@
 <robot
     xmlns:xacro="http://www.ros.org/wiki/xacro" name="dynarm" >
 
-  <xacro:include filename="$(find dynarm)/urdf/common.xacro" />
-  <xacro:include filename="$(find dynarm)/urdf/dynarm_all.xacro" />
-  <xacro:include filename="$(find dynarm)/urdf/gazebo.xacro" />
+  <xacro:include filename="$(find dynarm)/urdf/v0/common.xacro" />
+  <xacro:include filename="$(find dynarm)/urdf/v0/dynarm_all.xacro" />
+  <xacro:include filename="$(find dynarm)/urdf/v0/gazebo.xacro" />
 
   <!-- root joint -->
   <link name="root">
