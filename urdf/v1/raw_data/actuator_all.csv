@@ -11,6 +11,6 @@ gimbal2_roll,gimbal2_roll_tran,transmission_interface/SimpleTransmission,hardwar
 gimbal2_pitch,gimbal2_pitch_tran,transmission_interface/SimpleTransmission,hardware_interface/EffortJointInterface,gimbal2_pitch_servo,1,-3.14,3.14,3,10,0.1,0
 gimbal3_roll,gimbal3_roll_tran,transmission_interface/SimpleTransmission,hardware_interface/EffortJointInterface,gimbal3_roll_servo,1,-3.14,3.14,3,10,0.1,0
 gimbal3_pitch,gimbal3_pitch_tran,transmission_interface/SimpleTransmission,hardware_interface/EffortJointInterface,gimbal3_pitch_servo,1,-3.14,3.14,3,10,0.1,0
-rotor1,rotor1_tran,transmission_interface/SimpleTransmission,RotorInterface,rotor1,1,0,25,100,0.5,,
-rotor2,rotor2_tran,transmission_interface/SimpleTransmission,RotorInterface,rotor2,1,0,25,100,0.5,,
-rotor3,rotor3_tran,transmission_interface/SimpleTransmission,RotorInterface,rotor3,1,0,25,100,0.5,,
+rotor1,rotor1_tran,transmission_interface/SimpleTransmission,RotorInterface,rotor1,1,0,38,100,0.5,,
+rotor2,rotor2_tran,transmission_interface/SimpleTransmission,RotorInterface,rotor2,1,0,38,100,0.5,,
+rotor3,rotor3_tran,transmission_interface/SimpleTransmission,RotorInterface,rotor3,1,0,38,100,0.5,,
