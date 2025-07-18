@@ -81,6 +81,7 @@ private:
 
   ros::Subscriber joint_state_sub_;
   ros::Subscriber target_end_effector_final_pos_sub_;
+  ros::Subscriber circle_trajectory_sub_;
 
   std::string robot_ns_;
 
@@ -91,6 +92,7 @@ private:
   sensor_msgs::JointState joint_state_;
   Eigen::Vector3d target_ee_pos_;
   Eigen::Vector3d target_ee_vel_;
+  Eigen::Vector3d target_ee_acc_;
   Eigen::VectorXd curr_q_;
   Eigen::VectorXd curr_target_q_;
   Eigen::VectorXd curr_dq_;
@@ -116,7 +118,10 @@ private:
   double transform_start_time_;
   double transform_end_time_;
   std::string end_effector_name_;
-  bool is_transforming_;
+  int is_transforming_;  // 0: not transforming, 1: linear transform, 2: circle trajectory
+  double circle_trajectory_radius_;
+  double circle_trajectory_angular_velocity_;
+  Eigen::Vector3d circle_trajectory_center_;
 
   // nlp param
   bool nonlinear_mode_;
@@ -149,5 +154,6 @@ private:
 
   void jointStateCallback(const sensor_msgs::JointState msg);
   void targetEndEffectorPosCallback(const geometry_msgs::Vector3StampedConstPtr& msg);
+  void circleTrajectoryCallback(const std_msgs::Float32MultiArrayConstPtr& msg);
 };
 }  // namespace aerial_robot_control

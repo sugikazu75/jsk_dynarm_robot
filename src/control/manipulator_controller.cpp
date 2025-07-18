@@ -24,7 +24,7 @@ void ManipulatorController::initialize(ros::NodeHandle nh, ros::NodeHandle nhp,
   four_axis_command_pub_ = nh_.advertise<spinal::FourAxisCommand>("four_axes/command", 1);
   joints_control_pub_ = nh_.advertise<sensor_msgs::JointState>("joints_ctrl", 1);
   gimbals_control_pub_ = nh_.advertise<sensor_msgs::JointState>("gimbals_ctrl", 1);
-  is_transforming_pub_ = nh_.advertise<std_msgs::Bool>("is_transforming", 1);
+  is_transforming_pub_ = nh_.advertise<std_msgs::UInt8>("is_transforming", 1);
   id_torque_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/id_debug/torque", 1);
   id_velocity_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/id_debug/velocity", 1);
   id_acc_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/id_debug/acceleration", 1);
@@ -38,6 +38,8 @@ void ManipulatorController::initialize(ros::NodeHandle nh, ros::NodeHandle nhp,
   joint_state_sub_ = nh_.subscribe("joint_states", 1, &ManipulatorController::jointStateCallback, this);
   target_end_effector_final_pos_sub_ =
       nh_.subscribe("target_ee_final_pos", 1, &ManipulatorController::targetEndEffectorPosCallback, this);
+  circle_trajectory_sub_ =
+      nh_.subscribe("circle_trajectory", 1, &ManipulatorController::circleTrajectoryCallback, this);
 
   robot_ns_ = ros::this_node::getNamespace();
   if (!robot_ns_.empty() && robot_ns_[0] == '/')
@@ -47,6 +49,7 @@ void ManipulatorController::initialize(ros::NodeHandle nh, ros::NodeHandle nhp,
 
   target_ee_pos_.setZero();
   target_ee_vel_.setZero();
+  target_ee_acc_.setZero();
 
   curr_q_.resize(pinocchio_robot_model_->getModel()->nq);
   curr_target_q_.resize(pinocchio_robot_model_->getModel()->nq);
@@ -145,21 +148,51 @@ void ManipulatorController::controlCore()
   {
     if (is_transforming_)  // calculate target joint angle by inverse kinematics
     {
-      double curr_time = ros::Time::now().toSec() - transform_start_time_;
-      Eigen::Vector3d pos, vel, acc;
-      pos_trajectory_generator_.eval(curr_time, pos, vel, acc);
-      target_ee_pos_ = pos;
-      target_ee_vel_ = vel;
+      switch (is_transforming_)
+      {
+        case 1:  // linear transform
+        {
+          double curr_time = ros::Time::now().toSec() - transform_start_time_;
+          Eigen::Vector3d pos, vel, acc;
+          pos_trajectory_generator_.eval(curr_time, pos, vel, acc);
+          target_ee_pos_ = pos;
+          target_ee_vel_ = vel;
+          target_ee_acc_ = acc;
+          break;
+        }
+        case 2:  // circle trajectory
+        {
+          double curr_time = ros::Time::now().toSec() - transform_start_time_;
+          target_ee_pos_ =
+              circle_trajectory_center_ +
+              Eigen::Vector3d(0.0, circle_trajectory_radius_ * cos(circle_trajectory_angular_velocity_ * curr_time),
+                              circle_trajectory_radius_ * sin(circle_trajectory_angular_velocity_ * curr_time));
+          target_ee_vel_ = Eigen::Vector3d(0.0,
+                                           -circle_trajectory_radius_ * circle_trajectory_angular_velocity_ *
+                                               sin(circle_trajectory_angular_velocity_ * curr_time),
+                                           circle_trajectory_radius_ * circle_trajectory_angular_velocity_ *
+                                               cos(circle_trajectory_angular_velocity_ * curr_time));
+          target_ee_acc_ = Eigen::Vector3d(
+              0.0,
+              -circle_trajectory_radius_ * circle_trajectory_angular_velocity_ * circle_trajectory_angular_velocity_ *
+                  cos(circle_trajectory_angular_velocity_ * curr_time),
+              -circle_trajectory_radius_ * circle_trajectory_angular_velocity_ * circle_trajectory_angular_velocity_ *
+                  sin(circle_trajectory_angular_velocity_ * curr_time));
+          break;
+        }
+        default:
+          ROS_ERROR_STREAM("[dragon_arm][control] is_transforming_ is not valid: " << is_transforming_);
+          break;
+      }
 
-      Eigen::VectorXd curr_q = dragon_arm_robot_model_->getCurrentJointPositions();
       Eigen::VectorXd ik_initial_q = curr_target_q_;
       bool solved = motion_planning::solveIK(*pinocchio_model_, *pinocchio_data_,
-                                             pinocchio_model_->getFrameId(end_effector_name_), pos, ik_initial_q,
-                                             curr_target_q_, false, 1000, 1e-4);
-
+                                             pinocchio_model_->getFrameId(end_effector_name_), target_ee_pos_,
+                                             ik_initial_q, curr_target_q_, false, 1000, 1e-4);
       if (!solved)
       {
-        ROS_ERROR_STREAM("[dragon_arm][control] IK solution not found for target position: " << pos.transpose());
+        ROS_ERROR_STREAM(
+            "[dragon_arm][control] IK solution not found for target position: " << target_ee_pos_.transpose());
       }
 
       pinocchio::FrameIndex frame_id = pinocchio_model_->getFrameId(end_effector_name_);
@@ -170,7 +203,7 @@ void ManipulatorController::controlCore()
                                       J6);  // world frame. q is (target or current)
       Eigen::MatrixXd J = J6.topRows(3);    // position
       Eigen::MatrixXd JJt = J * J.transpose() + 1e-12 * Eigen::MatrixXd::Identity(3, 3);
-      curr_target_dq_ = J.transpose() * JJt.ldlt().solve(vel);
+      curr_target_dq_ = J.transpose() * JJt.ldlt().solve(target_ee_vel_);  // target velocity
 
       // calculate target ddq
       pinocchio::forwardKinematics(*pinocchio_model_, *pinocchio_data_, curr_target_q_,
@@ -180,7 +213,7 @@ void ManipulatorController::controlCore()
       Eigen::MatrixXd Jdot6 = Eigen::MatrixXd::Zero(6, pinocchio_model_->nv);
       pinocchio::getFrameJacobianTimeVariation(*pinocchio_model_, *pinocchio_data_, frame_id, pinocchio::WORLD, Jdot6);
       Eigen::MatrixXd Jdot = Jdot6.topRows(3);  // position
-      curr_target_ddq_ = J.transpose() * JJt.ldlt().solve(acc - Jdot * curr_target_dq_);
+      curr_target_ddq_ = J.transpose() * JJt.ldlt().solve(target_ee_acc_ - Jdot * curr_target_dq_);
     }
   }
 
@@ -246,10 +279,17 @@ void ManipulatorController::controlCore()
   {
     if (is_transforming_)
     {
-      if (ros::Time::now().toSec() >= transform_end_time_)
+      switch (is_transforming_)
       {
-        is_transforming_ = false;
-        ROS_INFO_STREAM("[dragon_arm][control] end effector position transformation completed.");
+        case 1:  // linear transform
+        {
+          if (ros::Time::now().toSec() >= transform_start_time_ + transform_duration_)
+          {
+            is_transforming_ = false;
+            ROS_INFO_STREAM("[dragon_arm][control] end effector position transformation completed.");
+          }
+          break;
+        }
       }
     }
   }
@@ -304,7 +344,7 @@ void ManipulatorController::sendCmd()
   rnea_solution_pub_.publish(rnea_solution_msg);
 
   // for motion planner: is transforming or not
-  std_msgs::Bool is_transforming_msg;
+  std_msgs::UInt8 is_transforming_msg;
   is_transforming_msg.data = is_transforming_;
   is_transforming_pub_.publish(is_transforming_msg);
 
@@ -460,9 +500,34 @@ void ManipulatorController::targetEndEffectorPosCallback(const geometry_msgs::Ve
   pos_trajectory_generator_.reset();
   pos_trajectory_generator_.generateTrajectory(x_curr, x_des, transform_duration_);
 
-  is_transforming_ = true;
+  is_transforming_ = 1;  // linear mode
   transform_start_time_ = ros::Time::now().toSec();
   transform_end_time_ = ros::Time::now().toSec() + transform_duration_;
+}
+
+void ManipulatorController::circleTrajectoryCallback(const std_msgs::Float32MultiArrayConstPtr& msg)
+{
+  if (msg->data.size() != 2)
+  {
+    ROS_INFO_STREAM("[dragon_arm][control] switch back to linear trajectory mode");
+    is_transforming_ = 0;  // not transforming
+    curr_target_q_ = curr_q_;
+    curr_target_dq_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv);
+    curr_target_ddq_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv);
+    return;
+  }
+
+  pinocchio::FrameIndex frame_id = pinocchio_model_->getFrameId(end_effector_name_);
+  circle_trajectory_center_ = pinocchio_data_->oMf[frame_id].translation();
+  circle_trajectory_radius_ = msg->data[0];
+  circle_trajectory_angular_velocity_ = msg->data[1];
+
+  ROS_INFO_STREAM("[dragon_arm][control] circle trajectory with radius: "
+                  << circle_trajectory_radius_ << " and angular velocity: " << circle_trajectory_angular_velocity_
+                  << " center: " << circle_trajectory_center_.transpose());
+
+  is_transforming_ = 2;  // circular mode
+  transform_start_time_ = ros::Time::now().toSec();
 }
 
 /* plugin registration */

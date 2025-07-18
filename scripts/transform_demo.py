@@ -16,7 +16,7 @@ class TransformDemo:
         self.start_pub = rospy.Publisher("teleop_command/start", Empty, queue_size=1)
         self.takeoff_pub = rospy.Publisher("teleop_command/takeoff", Empty, queue_size=1)
 
-        is_transforming_sub = rospy.Subscriber("is_transforming", Bool, self.isTransformingCallback)
+        is_transforming_sub = rospy.Subscriber("is_transforming", UInt8, self.isTransformingCallback)
         flight_state_sub = rospy.Subscriber("flight_state", UInt8, self.flightStateCallback)
 
         time.sleep(2.0)
