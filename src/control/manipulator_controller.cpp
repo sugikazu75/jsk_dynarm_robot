@@ -163,6 +163,8 @@ void ManipulatorController::controlCore()
         case 2:  // circle trajectory
         {
           double curr_time = ros::Time::now().toSec() - transform_start_time_;
+          if (curr_time < (2 * M_PI / circle_trajectory_angular_velocity_))
+            curr_time = 0.0;  // wait init
           target_ee_pos_ =
               circle_trajectory_center_ +
               Eigen::Vector3d(0.0, circle_trajectory_radius_ * cos(circle_trajectory_angular_velocity_ * curr_time),
