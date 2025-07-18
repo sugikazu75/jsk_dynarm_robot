@@ -86,6 +86,7 @@ private:
 
   // robot parameter
   int rotor_devider_;
+  std::vector<std::string> joint_names_;
 
   sensor_msgs::JointState joint_state_;
   Eigen::Vector3d target_ee_pos_;
@@ -137,6 +138,7 @@ private:
   virtual bool update() override;
   virtual void reset() override;
   void rosParamInit();
+  void getJointNames();
   void controlCore();
   void sendCmd();
   void sendFourAxisCommand();

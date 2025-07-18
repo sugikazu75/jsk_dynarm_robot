@@ -73,6 +73,21 @@ void ManipulatorController::initialize(ros::NodeHandle nh, ros::NodeHandle nhp,
     init_target_q_(i) = init_target_q.at(i);
   }
   ROS_INFO_STREAM("[dragon_arm][control] initial target joint angle: " << init_target_q_.transpose());
+
+  getJointNames();
+}
+
+void ManipulatorController::getJointNames()
+{
+  joint_names_.clear();
+  for (int i = 0; i < pinocchio_model_->njoints; i++)
+  {
+    std::string joint_name = pinocchio_model_->names[i];
+    if (joint_name.find("joint") != std::string::npos)
+    {
+      joint_names_.push_back(joint_name);
+    }
+  }
 }
 
 void ManipulatorController::rosParamInit()
@@ -208,16 +223,10 @@ void ManipulatorController::controlCore()
     // check joint angle convergence
     bool is_converged = true;
     Eigen::VectorXd curr_q = dragon_arm_robot_model_->getCurrentJointPositions();
-    for (int i = 0; i < robot_model_->getRotorNum() / rotor_devider_; i++)
+    for (int i = 0; i < joint_names_.size(); i++)
     {
-      std::string joint_pitch_name = "joint" + std::to_string(i) + "_pitch";
-      std::string joint_yaw_name = "joint" + std::to_string(i) + "_yaw";
-
-      int joint_pitch_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_pitch_name)].idx_q();
-      int joint_yaw_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_yaw_name)].idx_q();
-
-      if (fabs(curr_q(joint_pitch_index_q) - init_target_q_(joint_pitch_index_q)) > 0.05 ||
-          fabs(curr_q(joint_yaw_index_q) - init_target_q_(joint_yaw_index_q)) > 0.05)
+      int joint_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_names_.at(i))].idx_q();
+      if (fabs(curr_q(joint_index_q) - init_target_q_(joint_index_q)) > 0.05)
       {
         is_converged = false;
         break;
@@ -358,24 +367,15 @@ void ManipulatorController::sendJointCommand()
     curr_target_q_ = init_target_q_;
   }
 
-  for (int i = 0; i < robot_model_->getRotorNum() / rotor_devider_; i++)
+  for (int i = 0; i < joint_names_.size(); i++)
   {
-    std::string joint_pitch_name = "joint" + std::to_string(i) + "_pitch";
-    std::string joint_yaw_name = "joint" + std::to_string(i) + "_yaw";
+    int joint_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_names_.at(i))].idx_q();
+    int joint_index_v = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_names_.at(i))].idx_v();
 
-    int joint_pitch_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_pitch_name)].idx_q();
-    int joint_yaw_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_yaw_name)].idx_q();
-    int joint_pitch_index_v = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_pitch_name)].idx_v();
-    int joint_yaw_index_v = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_yaw_name)].idx_v();
-
-    joint_state_msg.name.push_back(joint_pitch_name);
-    joint_state_msg.name.push_back(joint_yaw_name);
-    joint_state_msg.position.push_back(curr_target_q_(joint_pitch_index_q));
-    joint_state_msg.position.push_back(curr_target_q_(joint_yaw_index_q));
-    joint_state_msg.velocity.push_back(curr_target_dq_(joint_pitch_index_v));
-    joint_state_msg.velocity.push_back(curr_target_dq_(joint_yaw_index_v));
-    joint_state_msg.effort.push_back(curr_target_tau_(joint_pitch_index_v));
-    joint_state_msg.effort.push_back(curr_target_tau_(joint_yaw_index_v));
+    joint_state_msg.name.push_back(joint_names_.at(i));
+    joint_state_msg.position.push_back(curr_target_q_(joint_index_q));
+    joint_state_msg.velocity.push_back(curr_target_dq_(joint_index_v));
+    joint_state_msg.effort.push_back(curr_target_tau_(joint_index_v));
   }
 
   joints_control_pub_.publish(joint_state_msg);
