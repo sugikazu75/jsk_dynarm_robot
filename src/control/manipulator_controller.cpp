@@ -13,6 +13,12 @@ void ManipulatorController::initialize(ros::NodeHandle nh, ros::NodeHandle nhp,
                                        double ctrl_loop_du)
 {
   ControlBase::initialize(nh, nhp, robot_model, estimator, navigator, ctrl_loop_du);
+
+  dragon_arm_robot_model_ = boost::dynamic_pointer_cast<aerial_robot_model::ManipulatorRobotModel>(robot_model);
+  pinocchio_robot_model_ = dragon_arm_robot_model_->getPinocchioRobotModel();
+  pinocchio_model_ = pinocchio_robot_model_->getModel();
+  pinocchio_data_ = pinocchio_robot_model_->getData();
+
   rosParamInit();
 
   four_axis_command_pub_ = nh_.advertise<spinal::FourAxisCommand>("four_axes/command", 1);
@@ -38,11 +44,6 @@ void ManipulatorController::initialize(ros::NodeHandle nh, ros::NodeHandle nhp,
     robot_ns_ = robot_ns_.substr(1);
 
   rotor_wrench_pub_index_ = 0;
-
-  dragon_arm_robot_model_ = boost::dynamic_pointer_cast<aerial_robot_model::ManipulatorRobotModel>(robot_model);
-  pinocchio_robot_model_ = dragon_arm_robot_model_->getPinocchioRobotModel();
-  pinocchio_model_ = pinocchio_robot_model_->getModel();
-  pinocchio_data_ = pinocchio_robot_model_->getData();
 
   target_ee_pos_.setZero();
   target_ee_vel_.setZero();
@@ -100,6 +101,7 @@ void ManipulatorController::rosParamInit()
 
   ros::NodeHandle model_nh(nh_, "model");
   getParam<int>(model_nh, "rotor_devider", rotor_devider_, 1);
+  dragon_arm_robot_model_->setRotorDevider(rotor_devider_);
 }
 
 void ManipulatorController::reset()

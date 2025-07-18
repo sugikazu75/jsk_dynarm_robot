@@ -51,7 +51,7 @@ Eigen::VectorXd ManipulatorRobotModel::getGimbalNominalAngles(Eigen::VectorXd q)
 
   Eigen::VectorXd gimbal_processed_q = q;
 
-  for (int i = 0; i < getRotorNum() / 2; i++)
+  for (int i = 0; i < getRotorNum() / rotor_devider_; i++)
   {
     std::string link_i_name = "link" + std::to_string(i + 1);
     pinocchio::FrameIndex link_i_frame_id = pinocchio_model_->getFrameId(link_i_name);
