@@ -463,24 +463,30 @@ void ManipulatorController::jointStateCallback(const sensor_msgs::JointState msg
   for (int i = 0; i < msg.name.size(); i++)
   {
     std::string joint_name = msg.name[i];
+    int joint_id = pinocchio_model_->getJointId(joint_name);
+    if (joint_id == pinocchio_model_->njoints)
+      continue;  // skip this joint because there is not in kinematic tree
 
     // position
-    int joint_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_name)].idx_q();
-    if (joint_index_q < 0)
-      continue;  // skip if joint index is invalid
-    curr_q_(joint_index_q) = msg.position[i];
+    if (msg.name.size() == msg.position.size())
+    {
+      int joint_index_q = pinocchio_model_->joints[joint_id].idx_q();
+      curr_q_(joint_index_q) = msg.position[i];
+    }
 
     // velocity
-    int joint_index_dq = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_name)].idx_v();
-    if (joint_index_dq < 0)
-      continue;  // skip if joint index is invalid
-    curr_dq_(joint_index_dq) = msg.velocity[i];
+    if (msg.name.size() == msg.velocity.size())
+    {
+      int joint_index_dq = pinocchio_model_->joints[joint_id].idx_v();
+      curr_dq_(joint_index_dq) = msg.velocity[i];
+    }
 
     // torque
-    int joint_index_tau = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_name)].idx_v();
-    if (joint_index_tau < 0)
-      continue;  // skip if joint index is invalid
-    curr_tau_(joint_index_tau) = msg.effort[i];
+    if (msg.name.size() == msg.effort.size())
+    {
+      int joint_index_tau = pinocchio_model_->joints[joint_id].idx_v();
+      curr_tau_(joint_index_tau) = msg.effort[i];
+    }
   }
 }
 
