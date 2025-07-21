@@ -20,8 +20,15 @@ void aerial_robot_control::jointTrajectoryGenerator::update(const ros::TimerEven
 {
   generateEndEffectorTrajectory();
   generateJointTrajectory();
-  getGimbalNominalAngles();
+
+  if (!nonlinear_mode_)
+    getGimbalNominalAngles();
+
   solveInverseDynamics();
+
+  if (nonlinear_mode_)
+    updateTargetGimbalAngle();
+
   stateTransition();
   publish();
   publishDummyJointState();

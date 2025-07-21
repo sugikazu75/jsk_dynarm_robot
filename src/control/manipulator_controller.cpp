@@ -111,8 +111,9 @@ void ManipulatorController::controlCore()
     }
   }
 
-  // process gimbal angles
-  joint_trajectory_generator_->getGimbalNominalAngles();
+  // process gimbal angles if linear mode because gimbal angle is nominal state
+  if (!joint_trajectory_generator_->getNonlinearMode())
+    joint_trajectory_generator_->getGimbalNominalAngles();
 
   if (!joint_trajectory_generator_->getIsTransforming())
   {
@@ -123,6 +124,10 @@ void ManipulatorController::controlCore()
 
   // calculate inverse dynamics
   joint_trajectory_generator_->solveInverseDynamics();
+
+  // update target q by target gimbal angle if nonlinear mode
+  if (joint_trajectory_generator_->getNonlinearMode())
+    joint_trajectory_generator_->updateTargetGimbalAngle();
 
   // state transition
   if (!is_initialized_)
