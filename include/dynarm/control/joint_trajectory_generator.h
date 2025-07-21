@@ -49,6 +49,7 @@ public:
   Eigen::VectorXd getGimbalNominalAngles(Eigen::VectorXd q);
   void getGimbalNominalAngles();
   bool solveInverseDynamics();
+  void updateTargetGimbalAngle();
   void stateTransition();
   bool nonlinearInverseDynamics(const Eigen::VectorXd& q, const Eigen::VectorXd& v, const Eigen::VectorXd& a,
                                 Eigen::VectorXd& tau_thrust_gimbal);

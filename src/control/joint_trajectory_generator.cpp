@@ -220,6 +220,21 @@ bool jointTrajectoryGenerator::solveInverseDynamics()
   return solved;
 }
 
+void jointTrajectoryGenerator::updateTargetGimbalAngle()
+{
+  for (int i = 0; i < pinocchio_robot_model_->getRotorNum() / rotor_devider_; i++)
+  {
+    std::string gimbal_roll_name = "gimbal" + std::to_string(i + 1) + "_roll";
+    std::string gimbal_pitch_name = "gimbal" + std::to_string(i + 1) + "_pitch";
+
+    int gimbal_roll_index = pinocchio_model_->joints[pinocchio_model_->getJointId(gimbal_roll_name)].idx_q();
+    int gimbal_pitch_index = pinocchio_model_->joints[pinocchio_model_->getJointId(gimbal_pitch_name)].idx_q();
+
+    curr_target_q_(gimbal_roll_index) = curr_target_gimbal_angle_(2 * i + 0);
+    curr_target_q_(gimbal_pitch_index) = curr_target_gimbal_angle_(2 * i + 1);
+  }
+}
+
 void jointTrajectoryGenerator::stateTransition()
 {
   switch (is_transforming_)
