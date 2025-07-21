@@ -5,7 +5,7 @@ void aerial_robot_control::jointTrajectoryGenerator::publishDummyJointState()
   // for debug: publish current target joint angle
   sensor_msgs::JointState joint_state_msg;
   joint_state_msg.header.stamp = ros::Time::now();
-  for (int i = 0; i < pinocchio_model_->njoints; i++)
+  for (int i = ((pinocchio_robot_model_->getIsFloatingBase()) ? 2 : 1); i < pinocchio_model_->njoints; i++)
   {
     int joint_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(pinocchio_model_->names[i])].idx_q();
     int joint_index_v = pinocchio_model_->joints[pinocchio_model_->getJointId(pinocchio_model_->names[i])].idx_v();
