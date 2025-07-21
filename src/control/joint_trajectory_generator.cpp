@@ -323,6 +323,7 @@ void jointTrajectoryGenerator::jointStateCallback(const sensor_msgs::JointState 
 void jointTrajectoryGenerator::targetEndEffectorPosCallback(const geometry_msgs::Vector3StampedConstPtr& msg)
 {
   pinocchio::FrameIndex frame_id = pinocchio_model_->getFrameId(end_effector_name_);
+  pinocchio::framesForwardKinematics(*pinocchio_model_, *pinocchio_data_, curr_q_);
   Eigen::Vector3d x_curr = pinocchio_data_->oMf[frame_id].translation();
   Eigen::Vector3d x_des(msg->vector.x, msg->vector.y, msg->vector.z);
 
@@ -356,6 +357,7 @@ void jointTrajectoryGenerator::circleTrajectoryCallback(const std_msgs::Float32M
   }
 
   pinocchio::FrameIndex frame_id = pinocchio_model_->getFrameId(end_effector_name_);
+  pinocchio::framesForwardKinematics(*pinocchio_model_, *pinocchio_data_, curr_q_);
   circle_trajectory_center_ = pinocchio_data_->oMf[frame_id].translation();
   circle_trajectory_radius_ = msg->data[0];
   circle_trajectory_angular_velocity_ = msg->data[1];
