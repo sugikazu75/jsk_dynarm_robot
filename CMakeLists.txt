@@ -37,7 +37,24 @@ include_directories(
 add_library(manipulator_model src/model/manipulator_model.cpp)
 target_link_libraries(manipulator_model ${catkin_LIBRARIES} ${Eigen3_LIBRARIES} ${OsqpEigen_LIBRARIES})
 
-add_library(manipulator_controller
-  src/control/manipulator_controller.cpp
+add_library(joint_trajectory_generator
+  src/control/joint_trajectory_generator.cpp
   src/control/nlp_controller.cpp)
-target_link_libraries(manipulator_controller manipulator_model ${catkin_LIBRARIES} ${Eigen3_LIBRARIES} ${OsqpEigen_LIBRARIES} ${NLOPT_LIBRARIES})
+target_link_libraries(joint_trajectory_generator
+  manipulator_model
+  ${catkin_LIBRARIES}
+  ${Eigen3_LIBRARIES}
+  ${OsqpEigen_LIBRARIES}
+  ${NLOPT_LIBRARIES}
+  )
+
+add_library(manipulator_controller
+  src/control/manipulator_controller.cpp)
+target_link_libraries(manipulator_controller
+  joint_trajectory_generator
+  manipulator_model
+  ${catkin_LIBRARIES}
+  ${Eigen3_LIBRARIES}
+  ${OsqpEigen_LIBRARIES}
+  ${NLOPT_LIBRARIES}
+  )

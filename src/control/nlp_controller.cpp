@@ -1,4 +1,5 @@
-#include <dynarm/control/manipulator_controller.h>
+#include <dynarm/control/joint_trajectory_generator.h>
+#include <nlopt.hpp>
 
 using namespace aerial_robot_control;
 
@@ -11,7 +12,7 @@ double torqueThrustMinimize(const std::vector<double>& x, std::vector<double>& g
      nv ~ nv + nr: thrust
      nv + nr ~ nv + nr + gimbal_num: gimbal angles
   */
-  ManipulatorController* controller = reinterpret_cast<ManipulatorController*>(ptr);
+  jointTrajectoryGenerator* controller = reinterpret_cast<jointTrajectoryGenerator*>(ptr);
 
   std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model =
       controller->getPinocchioRobotModel();
@@ -56,7 +57,7 @@ void rneaConstraint(unsigned m, double* result, unsigned n, const double* x, dou
   /* constraints (m)
      0 ~ nv: 0 = rnea - joint_torque - tauext
   */
-  ManipulatorController* controller = reinterpret_cast<ManipulatorController*>(ptr);
+  jointTrajectoryGenerator* controller = reinterpret_cast<jointTrajectoryGenerator*>(ptr);
 
   std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model =
       controller->getPinocchioRobotModel();
@@ -159,8 +160,13 @@ void rneaConstraint(unsigned m, double* result, unsigned n, const double* x, dou
 }
 }  // namespace
 
-void ManipulatorController::nonlinearInverseDynamics()
+bool jointTrajectoryGenerator::nonlinearInverseDynamics(const Eigen::VectorXd& q, const Eigen::VectorXd& v,
+                                                        const Eigen::VectorXd& a, Eigen::VectorXd& tau)
 {
+  nlp_curr_target_q_ = q;
+  nlp_curr_target_dq_ = v;
+  nlp_curr_target_ddq_ = a;
+
   // calculate gimbal num for optimization
   if (nlp_first_run_)
   {
@@ -228,7 +234,7 @@ void ManipulatorController::nonlinearInverseDynamics()
   }
   for (int i = 0; i < pinocchio_robot_model_->getRotorNum(); ++i)
   {
-    x[pinocchio_model_->nv + i] = std::clamp(thrusts_(i), lb[pinocchio_model_->nv + i],
+    x[pinocchio_model_->nv + i] = std::clamp(curr_target_thrust_(i), lb[pinocchio_model_->nv + i],
                                              ub[pinocchio_model_->nv + i]);  // initial guess for thrust
   }
   for (int i = 0; i < gimbal_num_; ++i)
@@ -266,20 +272,11 @@ void ManipulatorController::nonlinearInverseDynamics()
     ROS_ERROR_STREAM_THROTTLE(1.0, "[nlopt] failed to solve. result is " << result);
 
   // print
-  for (int i = 0; i < pinocchio_model_->nv; ++i)
+  tau.resize(n_variables);
+  for (int i = 0; i < n_variables; i++)
   {
-    if (nonlinear_mode_)
-      curr_target_tau_(i) = x[i];
+    tau(i) = x.at(i);
   }
 
-  for (int i = 0; i < pinocchio_robot_model_->getRotorNum(); ++i)
-  {
-    if (nonlinear_mode_)
-      thrusts_(i) = std::clamp(x[pinocchio_model_->nv + i], thrust_lower_limits(i), thrust_upper_limits(i));
-  }
-
-  for (int i = 0; i < gimbal_num_; ++i)
-  {
-    target_gimbal_angles_.at(i) = x[pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i];
-  }
+  return (result >= 0) ? true : false;
 }

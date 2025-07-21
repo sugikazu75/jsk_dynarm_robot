@@ -19,63 +19,28 @@ void ManipulatorController::initialize(ros::NodeHandle nh, ros::NodeHandle nhp,
   pinocchio_model_ = pinocchio_robot_model_->getModel();
   pinocchio_data_ = pinocchio_robot_model_->getData();
 
+  joint_trajectory_generator_ = std::make_shared<jointTrajectoryGenerator>(nh_, pinocchio_robot_model_);
+
   rosParamInit();
 
   four_axis_command_pub_ = nh_.advertise<spinal::FourAxisCommand>("four_axes/command", 1);
   joints_control_pub_ = nh_.advertise<sensor_msgs::JointState>("joints_ctrl", 1);
   gimbals_control_pub_ = nh_.advertise<sensor_msgs::JointState>("gimbals_ctrl", 1);
-  is_transforming_pub_ = nh_.advertise<std_msgs::UInt8>("is_transforming", 1);
-  id_torque_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/id_debug/torque", 1);
-  id_velocity_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/id_debug/velocity", 1);
-  id_acc_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/id_debug/acceleration", 1);
-  id_time_pub_ = nh_.advertise<std_msgs::Float32>("debug/id_debug/solve_time", 1);
   tau_by_thrust_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/id_debug/tau_by_thrust", 1);
   rnea_solution_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/id_debug/rnea_solution", 1);
-  rotor_wrench_pub_ = nh_.advertise<geometry_msgs::WrenchStamped>("rotor_wrench", 1);
-  target_end_effector_pos_pub_ = nh_.advertise<geometry_msgs::Vector3>("debug/target_ee_pos", 1);
-  target_end_effector_vel_pub_ = nh_.advertise<geometry_msgs::Vector3>("debug/target_ee_vel", 1);
-
-  joint_state_sub_ = nh_.subscribe("joint_states", 1, &ManipulatorController::jointStateCallback, this);
-  target_end_effector_final_pos_sub_ =
-      nh_.subscribe("target_ee_final_pos", 1, &ManipulatorController::targetEndEffectorPosCallback, this);
-  circle_trajectory_sub_ =
-      nh_.subscribe("circle_trajectory", 1, &ManipulatorController::circleTrajectoryCallback, this);
-
-  robot_ns_ = ros::this_node::getNamespace();
-  if (!robot_ns_.empty() && robot_ns_[0] == '/')
-    robot_ns_ = robot_ns_.substr(1);
-
-  rotor_wrench_pub_index_ = 0;
-
-  target_ee_pos_.setZero();
-  target_ee_vel_.setZero();
-  target_ee_acc_.setZero();
-
-  curr_q_.resize(pinocchio_robot_model_->getModel()->nq);
-  curr_target_q_.resize(pinocchio_robot_model_->getModel()->nq);
-  curr_dq_.resize(pinocchio_robot_model_->getModel()->nv);
-  curr_target_dq_.resize(pinocchio_robot_model_->getModel()->nv);
-  curr_target_ddq_.resize(pinocchio_robot_model_->getModel()->nv);
-  curr_tau_.resize(pinocchio_robot_model_->getModel()->nv);
-  curr_target_tau_.resize(pinocchio_robot_model_->getModel()->nv);
-  thrusts_.resize(pinocchio_robot_model_->getRotorNum());
-  target_gimbal_angles_.resize(pinocchio_robot_model_->getRotorNum() / rotor_devider_ * 2);
 
   is_initialized_ = false;
-  init_target_q_.resize(pinocchio_robot_model_->getModel()->nq);
 
+  // initial joint angle
+  init_target_q_.resize(pinocchio_robot_model_->getModel()->nq);
   std::vector<double> init_target_q;
   ros::NodeHandle control_nh(nh_, "controller");
   control_nh.getParam("init_target_q", init_target_q);
   if (init_target_q.size() != pinocchio_model_->nq)
-  {
     ROS_ERROR_STREAM("[dragon_arm] nq: " << pinocchio_model_->nq << " and initial joint angle size: "
                                          << init_target_q.size() << " in ros parameter is not same");
-  }
   for (int i = 0; i < pinocchio_model_->nq; i++)
-  {
     init_target_q_(i) = init_target_q.at(i);
-  }
   ROS_INFO_STREAM("[dragon_arm][control] initial target joint angle: " << init_target_q_.transpose());
 
   getJointNames();
@@ -96,12 +61,6 @@ void ManipulatorController::getJointNames()
 
 void ManipulatorController::rosParamInit()
 {
-  ros::NodeHandle control_nh(nh_, "controller");
-  getParam<bool>(control_nh, "nonlinear_mode", nonlinear_mode_, true);
-  getParam<std::string>(control_nh, "end_effector_name", end_effector_name_, "");
-  getParam<double>(control_nh, "transform_duration", transform_duration_, 1.0);
-  getParam<double>(control_nh, "gimbal_delta_max", gimbal_delta_max_, M_PI);
-
   ros::NodeHandle model_nh(nh_, "model");
   getParam<int>(model_nh, "rotor_devider", rotor_devider_, 1);
   dragon_arm_robot_model_->setRotorDevider(rotor_devider_);
@@ -110,10 +69,9 @@ void ManipulatorController::rosParamInit()
 void ManipulatorController::reset()
 {
   ControlBase::reset();
+  joint_trajectory_generator_->reset();
 
   first_run_ = true;
-  nlp_first_run_ = true;
-  is_transforming_ = false;
   is_initialized_ = false;
 
   ROS_INFO_STREAM("[dragon_arm][control] reset");
@@ -134,125 +92,40 @@ void ManipulatorController::controlCore()
 {
   if (first_run_)
   {
-    curr_target_q_ = dragon_arm_robot_model_->getCurrentJointPositions();
-    curr_target_dq_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv);
+    joint_trajectory_generator_->setCurrentTargetQ(dragon_arm_robot_model_->getCurrentJointPositions());
+    joint_trajectory_generator_->setCurrentTargetDQ(Eigen::VectorXd::Zero(pinocchio_model_->nv));
+    joint_trajectory_generator_->setCurrentTargetDDQ(Eigen::VectorXd::Zero(pinocchio_model_->nv));
     first_run_ = false;
   }
 
   // determine q to calculate inverse dynamics
   if (!is_initialized_)
   {
-    curr_target_q_ = dragon_arm_robot_model_->getCurrentJointPositions();
+    joint_trajectory_generator_->setCurrentTargetQ(dragon_arm_robot_model_->getCurrentJointPositions());
   }
   else
   {
-    if (is_transforming_)  // calculate target joint angle by inverse kinematics
+    if (joint_trajectory_generator_->getIsTransforming())  // calculate target joint angle by inverse kinematics
     {
-      switch (is_transforming_)
-      {
-        case 1:  // linear transform
-        {
-          double curr_time = ros::Time::now().toSec() - transform_start_time_;
-          Eigen::Vector3d pos, vel, acc;
-          pos_trajectory_generator_.eval(curr_time, pos, vel, acc);
-          target_ee_pos_ = pos;
-          target_ee_vel_ = vel;
-          target_ee_acc_ = acc;
-          break;
-        }
-        case 2:  // circle trajectory
-        {
-          double curr_time = ros::Time::now().toSec() - transform_start_time_;
-          if (curr_time < (2 * M_PI / circle_trajectory_angular_velocity_))
-            curr_time = 0.0;  // wait init
-          target_ee_pos_ =
-              circle_trajectory_center_ +
-              Eigen::Vector3d(0.0, circle_trajectory_radius_ * cos(circle_trajectory_angular_velocity_ * curr_time),
-                              circle_trajectory_radius_ * sin(circle_trajectory_angular_velocity_ * curr_time));
-          target_ee_vel_ = Eigen::Vector3d(0.0,
-                                           -circle_trajectory_radius_ * circle_trajectory_angular_velocity_ *
-                                               sin(circle_trajectory_angular_velocity_ * curr_time),
-                                           circle_trajectory_radius_ * circle_trajectory_angular_velocity_ *
-                                               cos(circle_trajectory_angular_velocity_ * curr_time));
-          target_ee_acc_ = Eigen::Vector3d(
-              0.0,
-              -circle_trajectory_radius_ * circle_trajectory_angular_velocity_ * circle_trajectory_angular_velocity_ *
-                  cos(circle_trajectory_angular_velocity_ * curr_time),
-              -circle_trajectory_radius_ * circle_trajectory_angular_velocity_ * circle_trajectory_angular_velocity_ *
-                  sin(circle_trajectory_angular_velocity_ * curr_time));
-          break;
-        }
-        default:
-          ROS_ERROR_STREAM("[dragon_arm][control] is_transforming_ is not valid: " << is_transforming_);
-          break;
-      }
-
-      Eigen::VectorXd ik_initial_q = curr_target_q_;
-      bool solved = motion_planning::solveIK(*pinocchio_model_, *pinocchio_data_,
-                                             pinocchio_model_->getFrameId(end_effector_name_), target_ee_pos_,
-                                             ik_initial_q, curr_target_q_, false, 1000, 1e-4);
-      if (!solved)
-      {
-        ROS_ERROR_STREAM(
-            "[dragon_arm][control] IK solution not found for target position: " << target_ee_pos_.transpose());
-      }
-
-      pinocchio::FrameIndex frame_id = pinocchio_model_->getFrameId(end_effector_name_);
-
-      // calculate target dq
-      Eigen::MatrixXd J6 = Eigen::MatrixXd::Zero(6, pinocchio_model_->nv);
-      pinocchio::computeFrameJacobian(*pinocchio_model_, *pinocchio_data_, curr_target_q_, frame_id, pinocchio::WORLD,
-                                      J6);  // world frame. q is (target or current)
-      Eigen::MatrixXd J = J6.topRows(3);    // position
-      Eigen::MatrixXd JJt = J * J.transpose() + 1e-12 * Eigen::MatrixXd::Identity(3, 3);
-      curr_target_dq_ = J.transpose() * JJt.ldlt().solve(target_ee_vel_);  // target velocity
-
-      // calculate target ddq
-      pinocchio::forwardKinematics(*pinocchio_model_, *pinocchio_data_, curr_target_q_,
-                                   curr_target_dq_);  // q is (target or current)
-      pinocchio::computeJointJacobiansTimeVariation(*pinocchio_model_, *pinocchio_data_, curr_target_q_,
-                                                    curr_target_dq_);  // q is (target or current)
-      Eigen::MatrixXd Jdot6 = Eigen::MatrixXd::Zero(6, pinocchio_model_->nv);
-      pinocchio::getFrameJacobianTimeVariation(*pinocchio_model_, *pinocchio_data_, frame_id, pinocchio::WORLD, Jdot6);
-      Eigen::MatrixXd Jdot = Jdot6.topRows(3);  // position
-      curr_target_ddq_ = J.transpose() * JJt.ldlt().solve(target_ee_acc_ - Jdot * curr_target_dq_);
+      joint_trajectory_generator_->generateEndEffectorTrajectory();
+      joint_trajectory_generator_->generateJointTrajectory();
     }
   }
 
   // process gimbal angles
-  Eigen::VectorXd id_q = dragon_arm_robot_model_->getGimbalNominalAngles(curr_target_q_);  // from (target or current) q
-  curr_target_q_ = dragon_arm_robot_model_->getGimbalNominalAngles(curr_target_q_);        // to (target or current) q
+  Eigen::VectorXd id_q =
+      dragon_arm_robot_model_->getGimbalNominalAngles(joint_trajectory_generator_->getCurrentTargetQ());
+  joint_trajectory_generator_->setCurrentTargetQ(id_q);
 
-  if (!is_transforming_)
+  if (!joint_trajectory_generator_->getIsTransforming())
   {
     // set target dq and ddq to zero
-    curr_target_dq_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv);
-    curr_target_ddq_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv);
+    joint_trajectory_generator_->setCurrentTargetDQ(Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv));
+    joint_trajectory_generator_->setCurrentTargetDDQ(Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv));
   }
 
   // calculate inverse dynamics
-  Eigen::VectorXd curr_target_full_tau =
-      Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv + pinocchio_robot_model_->getRotorNum());
-  bool solved = pinocchio_robot_model_->inverseDynamics(id_q, curr_target_dq_, curr_target_ddq_, curr_target_full_tau);
-
-  rnea_solution_ = pinocchio::rnea(*pinocchio_model_, *pinocchio_data_, id_q, curr_target_dq_, curr_target_ddq_);
-
-  if (solved)
-  {
-    curr_target_tau_ = curr_target_full_tau.head(pinocchio_robot_model_->getModel()->nv);
-    thrusts_ = curr_target_full_tau.tail(pinocchio_robot_model_->getRotorNum());
-  }
-  else
-  {
-    ROS_ERROR_STREAM("[dragon_arm][control] Inverse dynamics failed to solve"
-                     << "\n Current target q: " << id_q.transpose() << "\n Current target dq: "
-                     << curr_target_dq_.transpose() << "\n Current target ddq: " << curr_target_ddq_.transpose());
-  }
-
-  nlp_curr_target_q_ = curr_target_q_;
-  nlp_curr_target_dq_ = curr_target_dq_;
-  nlp_curr_target_ddq_ = curr_target_ddq_;
-  nonlinearInverseDynamics();
+  joint_trajectory_generator_->solveInverseDynamics();
 
   // state transition
   if (!is_initialized_)
@@ -272,28 +145,14 @@ void ManipulatorController::controlCore()
     if (is_converged)
     {
       is_initialized_ = true;
-      ROS_INFO_STREAM("[dragon_arm][control] initialized with target q: " << curr_target_q_.transpose());
-      curr_target_q_ = init_target_q_;
-      curr_target_q_ = dragon_arm_robot_model_->getGimbalNominalAngles(curr_target_q_);
+      ROS_INFO_STREAM("[dragon_arm][control] initialized with target q: "
+                      << joint_trajectory_generator_->getCurrentTargetQ().transpose());
+      joint_trajectory_generator_->setCurrentTargetQ(dragon_arm_robot_model_->getGimbalNominalAngles(init_target_q_));
     }
   }
   else
   {
-    if (is_transforming_)
-    {
-      switch (is_transforming_)
-      {
-        case 1:  // linear transform
-        {
-          if (ros::Time::now().toSec() >= transform_start_time_ + transform_duration_)
-          {
-            is_transforming_ = false;
-            ROS_INFO_STREAM("[dragon_arm][control] end effector position transformation completed.");
-          }
-          break;
-        }
-      }
-    }
+    joint_trajectory_generator_->stateTransition();
   }
 }
 
@@ -303,18 +162,17 @@ void ManipulatorController::sendCmd()
   sendJointCommand();
   sendGimbalCommand();
 
+  joint_trajectory_generator_->publish();
+
   // for debug: send target torque
-  sensor_msgs::JointState id_torque_msg;
-  id_torque_msg.header.stamp = ros::Time::now();
-  sensor_msgs::JointState id_velocity_msg;
-  id_velocity_msg.header.stamp = ros::Time::now();
-  sensor_msgs::JointState id_acc_msg;
-  id_acc_msg.header.stamp = ros::Time::now();
-  Eigen::VectorXd tau_by_thrust = pinocchio_robot_model_->computeTauExtByThrustDerivative(curr_q_) * thrusts_;
   sensor_msgs::JointState tau_by_thrust_msg;
   tau_by_thrust_msg.header.stamp = ros::Time::now();
-  sensor_msgs::JointState rnea_solution_msg;
-  rnea_solution_msg.header.stamp = ros::Time::now();
+  // sensor_msgs::JointState rnea_solution_msg;
+  // rnea_solution_msg.header.stamp = ros::Time::now();
+  Eigen::VectorXd curr_q = dragon_arm_robot_model_->getCurrentJointPositions();
+  Eigen::VectorXd curr_target_thrust = joint_trajectory_generator_->getCurrentTargetThrust();
+  Eigen::VectorXd tau_by_thrust = pinocchio_robot_model_->computeTauExtByThrustDerivative(curr_q) * curr_target_thrust;
+
   for (int i = 0; i < pinocchio_model_->njoints; i++)
   {
     int joint_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(pinocchio_model_->names[i])].idx_q();
@@ -323,52 +181,14 @@ void ManipulatorController::sendCmd()
     if (joint_index_q < 0 || joint_index_v < 0)
       continue;  // skip if joint index is invalid
 
-    id_torque_msg.name.push_back(pinocchio_model_->names[i]);
-    id_torque_msg.position.push_back(curr_target_q_(joint_index_q));
-    id_torque_msg.effort.push_back(curr_target_tau_(joint_index_v));
-
-    id_velocity_msg.name.push_back(pinocchio_model_->names[i]);
-    id_velocity_msg.velocity.push_back(curr_target_dq_(joint_index_v));
-
-    id_acc_msg.name.push_back(pinocchio_model_->names[i]);
-    id_acc_msg.effort.push_back(curr_target_ddq_(joint_index_v));
-
     tau_by_thrust_msg.name.push_back(pinocchio_model_->names[i]);
     tau_by_thrust_msg.effort.push_back(tau_by_thrust(joint_index_v));
 
-    rnea_solution_msg.name.push_back(pinocchio_model_->names[i]);
-    rnea_solution_msg.effort.push_back(rnea_solution_(joint_index_v));
+    // rnea_solution_msg.name.push_back(pinocchio_model_->names[i]);
+    // rnea_solution_msg.effort.push_back(rnea_solution_(joint_index_v));
   }
-  id_torque_pub_.publish(id_torque_msg);
-  id_velocity_pub_.publish(id_velocity_msg);
-  id_acc_pub_.publish(id_acc_msg);
   tau_by_thrust_pub_.publish(tau_by_thrust_msg);
-  rnea_solution_pub_.publish(rnea_solution_msg);
-
-  // for motion planner: is transforming or not
-  std_msgs::UInt8 is_transforming_msg;
-  is_transforming_msg.data = is_transforming_;
-  is_transforming_pub_.publish(is_transforming_msg);
-
-  // for debug: send ID solve time
-  std_msgs::Float32 id_time_msg;
-  if (nonlinear_mode_)
-    id_time_msg.data = nlp_solve_time_;
-  else
-    id_time_msg.data = pinocchio_robot_model_->getLatestIdSolveTime();
-  id_time_pub_.publish(id_time_msg);
-
-  // for debug: send target end effector position and velocity
-  geometry_msgs::Vector3 target_ee_pos_msg;
-  geometry_msgs::Vector3 target_ee_vel_msg;
-  target_ee_pos_msg.x = target_ee_pos_(0);
-  target_ee_pos_msg.y = target_ee_pos_(1);
-  target_ee_pos_msg.z = target_ee_pos_(2);
-  target_ee_vel_msg.x = target_ee_vel_(0);
-  target_ee_vel_msg.y = target_ee_vel_(1);
-  target_ee_vel_msg.z = target_ee_vel_(2);
-  target_end_effector_pos_pub_.publish(target_ee_pos_msg);
-  target_end_effector_vel_pub_.publish(target_ee_vel_msg);
+  // rnea_solution_pub_.publish(rnea_solution_msg);
 }
 
 void ManipulatorController::sendFourAxisCommand()
@@ -377,26 +197,14 @@ void ManipulatorController::sendFourAxisCommand()
   Eigen::VectorXd thrust_upper_limits = pinocchio_robot_model_->getThrustUpperLimits();
   Eigen::VectorXd thrust_lower_limits = pinocchio_robot_model_->getThrustLowerLimits();
   spinal::FourAxisCommand four_axis_command_msg;
+  Eigen::VectorXd curr_target_thrust = joint_trajectory_generator_->getCurrentTargetThrust();
+
   for (int i = 0; i < robot_model_->getRotorNum(); i++)
   {
     four_axis_command_msg.base_thrust.push_back(
-        std::min(std::max(thrust_lower_limits(i), thrusts_(i)), thrust_upper_limits(i)));
+        std::min(std::max(thrust_lower_limits(i), curr_target_thrust(i)), thrust_upper_limits(i)));
   }
   four_axis_command_pub_.publish(four_axis_command_msg);
-
-  // for debug: rotor wrench
-  geometry_msgs::WrenchStamped rotor_wrench_msg;
-  rotor_wrench_msg.header.stamp = ros::Time::now();
-  rotor_wrench_msg.header.frame_id = robot_ns_ + "/thrust" + std::to_string(rotor_wrench_pub_index_ + 1);
-  rotor_wrench_msg.wrench.force.x = 0.0;
-  rotor_wrench_msg.wrench.force.y = 0.0;
-  rotor_wrench_msg.wrench.force.z = thrusts_(rotor_wrench_pub_index_);
-  rotor_wrench_msg.wrench.torque.x = 0.0;
-  rotor_wrench_msg.wrench.torque.y = 0.0;
-  rotor_wrench_msg.wrench.torque.z = pinocchio_robot_model_->getRotorDirection(rotor_wrench_pub_index_) *
-                                     pinocchio_robot_model_->getMFRate() * thrusts_(rotor_wrench_pub_index_);
-  rotor_wrench_pub_.publish(rotor_wrench_msg);
-  rotor_wrench_pub_index_ = (rotor_wrench_pub_index_ + 1) % pinocchio_robot_model_->getRotorNum();
 }
 
 void ManipulatorController::sendJointCommand()
@@ -405,10 +213,14 @@ void ManipulatorController::sendJointCommand()
   sensor_msgs::JointState joint_state_msg;
   joint_state_msg.header.stamp = ros::Time::now();
 
+  Eigen::VectorXd curr_target_q = joint_trajectory_generator_->getCurrentTargetQ();
+  Eigen::VectorXd curr_target_dq = joint_trajectory_generator_->getCurrentTargetDQ();
+  Eigen::VectorXd curr_target_tau = joint_trajectory_generator_->getCurrentTargetTau();
+
   // if not initialized, set target joint angle to init target q
   if (!is_initialized_)
   {
-    curr_target_q_ = init_target_q_;
+    curr_target_q = init_target_q_;
   }
 
   for (int i = 0; i < joint_names_.size(); i++)
@@ -417,9 +229,9 @@ void ManipulatorController::sendJointCommand()
     int joint_index_v = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_names_.at(i))].idx_v();
 
     joint_state_msg.name.push_back(joint_names_.at(i));
-    joint_state_msg.position.push_back(curr_target_q_(joint_index_q));
-    joint_state_msg.velocity.push_back(curr_target_dq_(joint_index_v));
-    joint_state_msg.effort.push_back(curr_target_tau_(joint_index_v));
+    joint_state_msg.position.push_back(curr_target_q(joint_index_q));
+    joint_state_msg.velocity.push_back(curr_target_dq(joint_index_v));
+    joint_state_msg.effort.push_back(curr_target_tau(joint_index_v));
   }
 
   joints_control_pub_.publish(joint_state_msg);
@@ -431,6 +243,7 @@ void ManipulatorController::sendGimbalCommand()
   Eigen::VectorXd curr_q = dragon_arm_robot_model_->getCurrentJointPositions();
   Eigen::VectorXd curr_q_gimbal_processed = dragon_arm_robot_model_->getGimbalNominalAngles(curr_q);
   Eigen::VectorXd target_gimbal_angles_q = curr_q_gimbal_processed;
+  Eigen::VectorXd curr_target_gimbal_angle = joint_trajectory_generator_->getCurrentTargetGimbalAngle();
 
   sensor_msgs::JointState joint_state_msg;
   joint_state_msg.header.stamp = ros::Time::now();
@@ -444,10 +257,10 @@ void ManipulatorController::sendGimbalCommand()
 
     joint_state_msg.name.push_back(gimbal_roll_name);
     joint_state_msg.name.push_back(gimbal_pitch_name);
-    if (nonlinear_mode_)
+    if (joint_trajectory_generator_->getNonlinearMode())
     {
-      joint_state_msg.position.push_back(target_gimbal_angles_.at(2 * i));      // roll
-      joint_state_msg.position.push_back(target_gimbal_angles_.at(2 * i + 1));  // pitch
+      joint_state_msg.position.push_back(curr_target_gimbal_angle(2 * i));      // roll
+      joint_state_msg.position.push_back(curr_target_gimbal_angle(2 * i + 1));  // pitch
     }
     else
     {
@@ -456,86 +269,6 @@ void ManipulatorController::sendGimbalCommand()
     }
   }
   gimbals_control_pub_.publish(joint_state_msg);
-}
-
-void ManipulatorController::jointStateCallback(const sensor_msgs::JointState msg)
-{
-  for (int i = 0; i < msg.name.size(); i++)
-  {
-    std::string joint_name = msg.name[i];
-    int joint_id = pinocchio_model_->getJointId(joint_name);
-    if (joint_id == pinocchio_model_->njoints)
-      continue;  // skip this joint because there is not in kinematic tree
-
-    // position
-    if (msg.name.size() == msg.position.size())
-    {
-      int joint_index_q = pinocchio_model_->joints[joint_id].idx_q();
-      curr_q_(joint_index_q) = msg.position[i];
-    }
-
-    // velocity
-    if (msg.name.size() == msg.velocity.size())
-    {
-      int joint_index_dq = pinocchio_model_->joints[joint_id].idx_v();
-      curr_dq_(joint_index_dq) = msg.velocity[i];
-    }
-
-    // torque
-    if (msg.name.size() == msg.effort.size())
-    {
-      int joint_index_tau = pinocchio_model_->joints[joint_id].idx_v();
-      curr_tau_(joint_index_tau) = msg.effort[i];
-    }
-  }
-}
-
-void ManipulatorController::targetEndEffectorPosCallback(const geometry_msgs::Vector3StampedConstPtr& msg)
-{
-  pinocchio::FrameIndex frame_id = pinocchio_model_->getFrameId(end_effector_name_);
-  Eigen::Vector3d x_curr = pinocchio_data_->oMf[frame_id].translation();
-  Eigen::Vector3d x_des(msg->vector.x, msg->vector.y, msg->vector.z);
-
-  if (msg->header.stamp.sec != 0 || msg->header.stamp.nsec != 0)
-  {
-    transform_duration_ = msg->header.stamp.sec + msg->header.stamp.nsec / 1000000000.0;
-  }
-
-  ROS_INFO_STREAM("[dragon_arm][control] target end effector position: " << x_des.transpose() << " with "
-                                                                         << transform_duration_ << "s");
-  ROS_INFO_STREAM("[dragon_arm][control] current end effector position: " << x_curr.transpose());
-
-  pos_trajectory_generator_.reset();
-  pos_trajectory_generator_.generateTrajectory(x_curr, x_des, transform_duration_);
-
-  is_transforming_ = 1;  // linear mode
-  transform_start_time_ = ros::Time::now().toSec();
-  transform_end_time_ = ros::Time::now().toSec() + transform_duration_;
-}
-
-void ManipulatorController::circleTrajectoryCallback(const std_msgs::Float32MultiArrayConstPtr& msg)
-{
-  if (msg->data.size() != 2)
-  {
-    ROS_INFO_STREAM("[dragon_arm][control] switch back to linear trajectory mode");
-    is_transforming_ = 0;  // not transforming
-    curr_target_q_ = curr_q_;
-    curr_target_dq_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv);
-    curr_target_ddq_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv);
-    return;
-  }
-
-  pinocchio::FrameIndex frame_id = pinocchio_model_->getFrameId(end_effector_name_);
-  circle_trajectory_center_ = pinocchio_data_->oMf[frame_id].translation();
-  circle_trajectory_radius_ = msg->data[0];
-  circle_trajectory_angular_velocity_ = msg->data[1];
-
-  ROS_INFO_STREAM("[dragon_arm][control] circle trajectory with radius: "
-                  << circle_trajectory_radius_ << " and angular velocity: " << circle_trajectory_angular_velocity_
-                  << " center: " << circle_trajectory_center_.transpose());
-
-  is_transforming_ = 2;  // circular mode
-  transform_start_time_ = ros::Time::now().toSec();
 }
 
 /* plugin registration */
