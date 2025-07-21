@@ -45,6 +45,8 @@ public:
   void publish();
   void generateEndEffectorTrajectory();
   void generateJointTrajectory();
+  Eigen::VectorXd getGimbalNominalAngles(Eigen::VectorXd q);
+  void getGimbalNominalAngles();
   bool solveInverseDynamics();
   void stateTransition();
   bool nonlinearInverseDynamics(const Eigen::VectorXd& q, const Eigen::VectorXd& v, const Eigen::VectorXd& a,

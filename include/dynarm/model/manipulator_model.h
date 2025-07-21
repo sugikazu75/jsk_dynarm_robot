@@ -22,7 +22,6 @@ public:
   {
     return curr_q_;
   }
-  Eigen::VectorXd getGimbalNominalAngles(Eigen::VectorXd q);
   void setRotorDevider(int rotor_devider)
   {
     rotor_devider_ = rotor_devider;

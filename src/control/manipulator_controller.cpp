@@ -113,9 +113,7 @@ void ManipulatorController::controlCore()
   }
 
   // process gimbal angles
-  Eigen::VectorXd id_q =
-      dragon_arm_robot_model_->getGimbalNominalAngles(joint_trajectory_generator_->getCurrentTargetQ());
-  joint_trajectory_generator_->setCurrentTargetQ(id_q);
+  joint_trajectory_generator_->getGimbalNominalAngles();
 
   if (!joint_trajectory_generator_->getIsTransforming())
   {
@@ -147,7 +145,8 @@ void ManipulatorController::controlCore()
       is_initialized_ = true;
       ROS_INFO_STREAM("[dragon_arm][control] initialized with target q: "
                       << joint_trajectory_generator_->getCurrentTargetQ().transpose());
-      joint_trajectory_generator_->setCurrentTargetQ(dragon_arm_robot_model_->getGimbalNominalAngles(init_target_q_));
+      joint_trajectory_generator_->setCurrentTargetQ(
+          joint_trajectory_generator_->getGimbalNominalAngles(init_target_q_));
     }
   }
   else
@@ -241,7 +240,7 @@ void ManipulatorController::sendGimbalCommand()
 {
   // send gimbal nominal angles
   Eigen::VectorXd curr_q = dragon_arm_robot_model_->getCurrentJointPositions();
-  Eigen::VectorXd curr_q_gimbal_processed = dragon_arm_robot_model_->getGimbalNominalAngles(curr_q);
+  Eigen::VectorXd curr_q_gimbal_processed = joint_trajectory_generator_->getGimbalNominalAngles(curr_q);
   Eigen::VectorXd target_gimbal_angles_q = curr_q_gimbal_processed;
   Eigen::VectorXd curr_target_gimbal_angle = joint_trajectory_generator_->getCurrentTargetGimbalAngle();
 

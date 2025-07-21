@@ -45,30 +45,6 @@ Eigen::VectorXd ManipulatorRobotModel::parseJointState(const KDL::JntArray& join
   return curr_q_;
 }
 
-Eigen::VectorXd ManipulatorRobotModel::getGimbalNominalAngles(Eigen::VectorXd q)
-{
-  pinocchio::framesForwardKinematics(*pinocchio_model_, *pinocchio_data_, q);
-
-  Eigen::VectorXd gimbal_processed_q = q;
-
-  for (int i = 0; i < getRotorNum() / rotor_devider_; i++)
-  {
-    std::string link_i_name = "link" + std::to_string(i + 1);
-    pinocchio::FrameIndex link_i_frame_id = pinocchio_model_->getFrameId(link_i_name);
-    pinocchio::SE3 link_i_frame = pinocchio_data_->oMf[link_i_frame_id];
-    Eigen::Vector3d rpy = pinocchio::rpy::matrixToRpy(link_i_frame.rotation());
-
-    int gimbal_roll_index =
-        pinocchio_model_->joints[pinocchio_model_->getJointId("gimbal" + std::to_string(i + 1) + "_roll")].idx_q();
-    int gimbal_pitch_index =
-        pinocchio_model_->joints[pinocchio_model_->getJointId("gimbal" + std::to_string(i + 1) + "_pitch")].idx_q();
-
-    gimbal_processed_q(gimbal_roll_index) = -rpy(0);   // roll
-    gimbal_processed_q(gimbal_pitch_index) = -rpy(1);  // pitch
-  }
-  return gimbal_processed_q;
-}
-
 /* plugin registration */
 #include <pluginlib/class_list_macros.h>
 PLUGINLIB_EXPORT_CLASS(aerial_robot_model::ManipulatorRobotModel, aerial_robot_model::RobotModel);
