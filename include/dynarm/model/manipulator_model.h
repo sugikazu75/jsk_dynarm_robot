@@ -22,18 +22,12 @@ public:
   {
     return curr_q_;
   }
-  void setRotorDevider(int rotor_devider)
-  {
-    rotor_devider_ = rotor_devider;
-  }
 
 private:
   std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model_;
   std::shared_ptr<pinocchio::Model> pinocchio_model_;
   std::shared_ptr<pinocchio::Data> pinocchio_data_;
   Eigen::VectorXd curr_q_;
-
-  int rotor_devider_;
 
   void updateRobotModelImpl(const KDL::JntArray& joint_positions) override;
   Eigen::VectorXd parseJointState(const sensor_msgs::JointState& joint_state);

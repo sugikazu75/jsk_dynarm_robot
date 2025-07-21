@@ -63,7 +63,6 @@ void ManipulatorController::rosParamInit()
 {
   ros::NodeHandle model_nh(nh_, "model");
   getParam<int>(model_nh, "rotor_devider", rotor_devider_, 1);
-  dragon_arm_robot_model_->setRotorDevider(rotor_devider_);
 }
 
 void ManipulatorController::reset()
