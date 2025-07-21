@@ -116,6 +116,9 @@ void jointTrajectoryGenerator::generateEndEffectorTrajectory()
 
 void jointTrajectoryGenerator::generateJointTrajectory()
 {
+  if (!is_transforming_)
+    return;
+
   Eigen::VectorXd ik_initial_q = curr_target_q_;
   bool solved =
       motion_planning::solveIK(*pinocchio_model_, *pinocchio_data_, pinocchio_model_->getFrameId(end_effector_name_),
