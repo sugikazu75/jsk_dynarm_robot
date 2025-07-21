@@ -20,6 +20,7 @@ jointTrajectoryGenerator::jointTrajectoryGenerator(
   rotor_wrench_pub_ = nh_.advertise<geometry_msgs::WrenchStamped>("rotor_wrench", 1);
   target_end_effector_pos_pub_ = nh_.advertise<geometry_msgs::Vector3>("debug/target_ee_pos", 1);
   target_end_effector_vel_pub_ = nh_.advertise<geometry_msgs::Vector3>("debug/target_ee_vel", 1);
+  dummy_joint_state_pub_ = nh_.advertise<sensor_msgs::JointState>("joint_states", 1);
 
   joint_state_sub_ = nh_.subscribe("joint_states", 1, &jointTrajectoryGenerator::jointStateCallback, this);
   target_end_effector_final_pos_sub_ =
@@ -48,6 +49,19 @@ jointTrajectoryGenerator::jointTrajectoryGenerator(
   curr_target_thrust_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getRotorNum());
   curr_target_gimbal_angle_ =
       Eigen::VectorXd::Zero(pinocchio_robot_model_->getRotorNum() / rotor_devider_ * 2);  // roll and pitch
+
+  // initial joint angle
+  std::vector<double> init_target_q;
+  ros::NodeHandle control_nh(nh_, "controller");
+  control_nh.getParam("init_target_q", init_target_q);
+  if (init_target_q.size() != pinocchio_model_->nq)
+    ROS_ERROR_STREAM("[dragon_arm] nq: " << pinocchio_model_->nq << " and initial joint angle size: "
+                                         << init_target_q.size() << " in ros parameter is not same");
+  for (int i = 0; i < pinocchio_model_->nq; i++)
+  {
+    curr_target_q_(i) = init_target_q.at(i);
+  }
+  ROS_INFO_STREAM("[dragon_arm][control] initial target joint angle: " << curr_target_q_.transpose());
 }
 
 void jointTrajectoryGenerator::rosParamInit()

@@ -48,6 +48,17 @@ target_link_libraries(joint_trajectory_generator
   ${NLOPT_LIBRARIES}
   )
 
+add_executable(joint_trajectory_generator_test
+  src/control/joint_trajectory_generator_test.cpp)
+target_link_libraries(joint_trajectory_generator_test
+  joint_trajectory_generator
+  ${catkin_LIBRARIES}
+  ${Eigen3_LIBRARIES}
+  ${OsqpEigen_LIBRARIES}
+  ${NLOPT_LIBRARIES}
+  )
+
+
 add_library(manipulator_controller
   src/control/manipulator_controller.cpp)
 target_link_libraries(manipulator_controller

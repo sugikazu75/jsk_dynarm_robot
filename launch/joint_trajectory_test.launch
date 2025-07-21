@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="version" default="v1"/>
+  <arg name="robot_ns" default="dynarm"/>
+  <arg name="config_dir" default="$(find dynarm)/config"/>
+
+  <group ns="$(arg robot_ns)">
+    <rosparam file="$(arg config_dir)/$(arg version)/ManipulatorModel.yaml" command="load"/>
+    <rosparam file="$(arg config_dir)/$(arg version)/ManipulatorControl.yaml" command="load"/>
+
+    <node pkg="dynarm" type="joint_trajectory_generator_test" name="joint_trajectory_generator_test" output="screen"/>
+
+    <node name="pinocchio_robot_description_generator" pkg="dynarm" type="pinocchio_robot_description_generator.py" output="screen"/>
+
+  </group>
+
+  <!-- rviz -->
+  <include file="$(find aerial_robot_model)/launch/aerial_robot_model.launch" >
+    <arg name="headless" value="false" />
+    <arg name="robot_model" value="$(find dynarm)/robots/$(arg version)/dynarm.urdf.xacro"/>
+    <arg name="robot_ns" value="$(arg robot_ns)" />
+    <arg name="rviz_config" value="$(arg config_dir)/rviz_config" />
+    <arg name="rviz_init_pose" value="$(arg config_dir)/$(arg version)/RvizInit.yaml" />
+    <arg name="need_joint_state" value="false"/>
+  </include >
+
+  ########### Desired robot state ###########
+  <group ns="$(arg robot_ns)_desired">
+    <param name="robot_description" command="$(find xacro)/xacro $(find dynarm)/robots/$(arg version)/dynarm.urdf.xacro" />
+    <node name="desired_robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+      <param name="tf_prefix" value="$(arg robot_ns)_desired" />
+      <remap from="joint_states" to="/$(arg robot_ns)/debug/id_debug/torque"/>
+    </node>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="static_tf_desired"
+          args="0 0 0 0 0 0 $(arg robot_ns)/root $(arg robot_ns)_desired/root" />
+    <node pkg="aerial_robot_model" type="rotor_tf_publisher" name="desired_rotor_tf_publisher">
+      <param name="tf_prefix" value="$(arg robot_ns)_desired"/>
+    </node>
+  </group>
+
+</launch>

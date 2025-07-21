@@ -43,6 +43,7 @@ public:
 
   void update(const ros::TimerEvent& event);
   void publish();
+  void publishDummyJointState();
   void generateEndEffectorTrajectory();
   void generateJointTrajectory();
   Eigen::VectorXd getGimbalNominalAngles(Eigen::VectorXd q);
@@ -126,6 +127,7 @@ private:
   ros::Publisher rotor_wrench_pub_;
   ros::Publisher target_end_effector_pos_pub_;
   ros::Publisher target_end_effector_vel_pub_;
+  ros::Publisher dummy_joint_state_pub_;
 
   ros::Subscriber joint_state_sub_;
   ros::Subscriber target_end_effector_final_pos_sub_;
