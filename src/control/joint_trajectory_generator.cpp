@@ -17,6 +17,7 @@ jointTrajectoryGenerator::jointTrajectoryGenerator(
   id_acc_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/id_debug/acceleration", 1);
   is_transforming_pub_ = nh_.advertise<std_msgs::UInt8>("is_transforming", 1);
   id_time_pub_ = nh_.advertise<std_msgs::Float32>("debug/id_debug/solve_time", 1);
+  thrust_pub_ = nh_.advertise<std_msgs::Float32MultiArray>("debug/id_debug/thrust", 1);
   rotor_wrench_pub_ = nh_.advertise<geometry_msgs::WrenchStamped>("rotor_wrench", 1);
   target_end_effector_pos_pub_ = nh_.advertise<geometry_msgs::Vector3>("debug/target_ee_pos", 1);
   target_end_effector_vel_pub_ = nh_.advertise<geometry_msgs::Vector3>("debug/target_ee_vel", 1);
@@ -297,6 +298,11 @@ void jointTrajectoryGenerator::stateTransition()
 void jointTrajectoryGenerator::publish()
 {
   // for debug: rotor wrench
+  std_msgs::Float32MultiArray thrust_msg;
+  for (int i = 0; i < pinocchio_robot_model_->getRotorNum(); i++)
+    thrust_msg.data.push_back(curr_target_thrust_(i));
+  thrust_pub_.publish(thrust_msg);
+
   geometry_msgs::WrenchStamped rotor_wrench_msg;
   rotor_wrench_msg.header.stamp = ros::Time::now();
   rotor_wrench_msg.header.frame_id = robot_ns_ + "/thrust" + std::to_string(rotor_wrench_pub_index_ + 1);
