@@ -155,6 +155,9 @@ private:
   Eigen::VectorXd curr_target_thrust_;
   Eigen::VectorXd curr_target_gimbal_angle_;
 
+  Eigen::VectorXd final_target_q_;
+  Eigen::VectorXd init_target_q_;
+
   // manipulation param
   motion_planning::PositionTrajectoryGenerator pos_trajectory_generator_;
   double transform_duration_;

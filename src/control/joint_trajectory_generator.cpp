@@ -135,11 +135,13 @@ void jointTrajectoryGenerator::generateEndEffectorTrajectory()
 
 void jointTrajectoryGenerator::generateJointTrajectory()
 {
-  if (!is_transforming_)
-    return;
-
-  if ((is_transforming_ == 1) ||
-      (is_transforming_ == 2))  // solve IK and generate dq, ddq from target end-effector trajectory
+  if (is_transforming_ == 0)
+  {
+    curr_target_dq_ = Eigen::VectorXd::Zero(pinocchio_model_->nv);
+    curr_target_ddq_ = Eigen::VectorXd::Zero(pinocchio_model_->nv);
+  }
+  else if ((is_transforming_ == 1) ||
+           (is_transforming_ == 2))  // solve IK and generate dq, ddq from target end-effector trajectory
   {
     Eigen::VectorXd ik_initial_q = curr_target_q_;
     bool solved =
@@ -171,8 +173,17 @@ void jointTrajectoryGenerator::generateJointTrajectory()
     Eigen::MatrixXd Jdot = Jdot6.topRows(3);  // position
     curr_target_ddq_ = J.transpose() * JJt.ldlt().solve(target_ee_acc_ - Jdot * curr_target_dq_);
   }
-  else if (is_transforming_ == 3)  // direct command. Do not update joint command
+  else if (is_transforming_ == 3)  // direct command. linear interpolation
   {
+    double curr_time = ros::Time::now().toSec() - transform_start_time_;
+    if (transform_duration_ == 0.0)
+    {
+      curr_target_q_ = final_target_q_;
+      return;
+    }
+    Eigen::VectorXd delta_q = final_target_q_ - init_target_q_;
+    curr_target_q_ = init_target_q_ + delta_q * (curr_time / transform_duration_);
+    curr_target_dq_ = delta_q / transform_duration_;
   }
 }
 
@@ -270,7 +281,11 @@ void jointTrajectoryGenerator::stateTransition()
     }
     case 3:  // direct joint angle command
     {
-      is_transforming_ = 0;
+      if (ros::Time::now().toSec() >= transform_start_time_ + transform_duration_)
+      {
+        is_transforming_ = 0;
+        ROS_INFO_STREAM("[dragon_arm][control] direct joint angle transformation completed.");
+      }
       break;
     }
     default: {
@@ -428,6 +443,12 @@ void jointTrajectoryGenerator::directJointAngleCallback(const sensor_msgs::Joint
                                                               << msg->position.size() << " is not same");
     return;
   }
+
+  transform_duration_ = msg->header.stamp.sec + msg->header.stamp.nsec / 1000000000.0;
+
+  init_target_q_ = curr_q_;
+  final_target_q_ = curr_q_;
+
   for (int i = 0; i < msg->name.size(); i++)
   {
     std::string joint_name = msg->name.at(i);
@@ -439,7 +460,13 @@ void jointTrajectoryGenerator::directJointAngleCallback(const sensor_msgs::Joint
     }
 
     int joint_index_q = pinocchio_model_->joints[joint_id].idx_q();
-    curr_target_q_(joint_index_q) = msg->position[i];
+    final_target_q_(joint_index_q) = msg->position[i];
   }
+
+  ROS_INFO_STREAM("[dynarm][control] move to " << final_target_q_.transpose() << " with " << transform_duration_
+                                               << "s");
+
   is_transforming_ = 3;
+  transform_start_time_ = ros::Time::now().toSec();
+  transform_end_time_ = ros::Time::now().toSec() + transform_duration_;
 }
