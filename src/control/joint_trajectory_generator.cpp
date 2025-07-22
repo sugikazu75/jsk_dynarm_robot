@@ -27,6 +27,8 @@ jointTrajectoryGenerator::jointTrajectoryGenerator(
       nh_.subscribe("target_ee_final_pos", 1, &jointTrajectoryGenerator::targetEndEffectorPosCallback, this);
   circle_trajectory_sub_ =
       nh_.subscribe("circle_trajectory", 1, &jointTrajectoryGenerator::circleTrajectoryCallback, this);
+  direct_joint_angle_sub_ =
+      nh_.subscribe("direct_joint_angle", 1, &jointTrajectoryGenerator::directJointAngleCallback, this);
 
   // for rotor wrench visualization
   robot_ns_ = ros::this_node::getNamespace();
@@ -122,6 +124,9 @@ void jointTrajectoryGenerator::generateEndEffectorTrajectory()
               sin(circle_trajectory_angular_velocity_ * curr_time));
       break;
     }
+    case 3: {
+      break;
+    }
     default:
       ROS_ERROR_STREAM("[dragon_arm][control] is_transforming_ is not valid: " << is_transforming_);
       break;
@@ -133,34 +138,42 @@ void jointTrajectoryGenerator::generateJointTrajectory()
   if (!is_transforming_)
     return;
 
-  Eigen::VectorXd ik_initial_q = curr_target_q_;
-  bool solved =
-      motion_planning::solveIK(*pinocchio_model_, *pinocchio_data_, pinocchio_model_->getFrameId(end_effector_name_),
-                               target_ee_pos_, ik_initial_q, curr_target_q_, false, 1000, 1e-4);
-  if (!solved)
+  if ((is_transforming_ == 1) ||
+      (is_transforming_ == 2))  // solve IK and generate dq, ddq from target end-effector trajectory
   {
-    ROS_ERROR_STREAM("[dragon_arm][control] IK solution not found for target position: " << target_ee_pos_.transpose());
+    Eigen::VectorXd ik_initial_q = curr_target_q_;
+    bool solved =
+        motion_planning::solveIK(*pinocchio_model_, *pinocchio_data_, pinocchio_model_->getFrameId(end_effector_name_),
+                                 target_ee_pos_, ik_initial_q, curr_target_q_, false, 1000, 1e-4);
+    if (!solved)
+    {
+      ROS_ERROR_STREAM(
+          "[dragon_arm][control] IK solution not found for target position: " << target_ee_pos_.transpose());
+    }
+
+    pinocchio::FrameIndex frame_id = pinocchio_model_->getFrameId(end_effector_name_);
+
+    // calculate target dq
+    Eigen::MatrixXd J6 = Eigen::MatrixXd::Zero(6, pinocchio_model_->nv);
+    pinocchio::computeFrameJacobian(*pinocchio_model_, *pinocchio_data_, curr_target_q_, frame_id, pinocchio::WORLD,
+                                    J6);  // world frame. q is (target or current)
+    Eigen::MatrixXd J = J6.topRows(3);    // position
+    Eigen::MatrixXd JJt = J * J.transpose() + 1e-12 * Eigen::MatrixXd::Identity(3, 3);
+    curr_target_dq_ = J.transpose() * JJt.ldlt().solve(target_ee_vel_);  // target velocity
+
+    // calculate target ddq
+    pinocchio::forwardKinematics(*pinocchio_model_, *pinocchio_data_, curr_target_q_,
+                                 curr_target_dq_);  // q is (target or current)
+    pinocchio::computeJointJacobiansTimeVariation(*pinocchio_model_, *pinocchio_data_, curr_target_q_,
+                                                  curr_target_dq_);  // q is (target or current)
+    Eigen::MatrixXd Jdot6 = Eigen::MatrixXd::Zero(6, pinocchio_model_->nv);
+    pinocchio::getFrameJacobianTimeVariation(*pinocchio_model_, *pinocchio_data_, frame_id, pinocchio::WORLD, Jdot6);
+    Eigen::MatrixXd Jdot = Jdot6.topRows(3);  // position
+    curr_target_ddq_ = J.transpose() * JJt.ldlt().solve(target_ee_acc_ - Jdot * curr_target_dq_);
   }
-
-  pinocchio::FrameIndex frame_id = pinocchio_model_->getFrameId(end_effector_name_);
-
-  // calculate target dq
-  Eigen::MatrixXd J6 = Eigen::MatrixXd::Zero(6, pinocchio_model_->nv);
-  pinocchio::computeFrameJacobian(*pinocchio_model_, *pinocchio_data_, curr_target_q_, frame_id, pinocchio::WORLD,
-                                  J6);  // world frame. q is (target or current)
-  Eigen::MatrixXd J = J6.topRows(3);    // position
-  Eigen::MatrixXd JJt = J * J.transpose() + 1e-12 * Eigen::MatrixXd::Identity(3, 3);
-  curr_target_dq_ = J.transpose() * JJt.ldlt().solve(target_ee_vel_);  // target velocity
-
-  // calculate target ddq
-  pinocchio::forwardKinematics(*pinocchio_model_, *pinocchio_data_, curr_target_q_,
-                               curr_target_dq_);  // q is (target or current)
-  pinocchio::computeJointJacobiansTimeVariation(*pinocchio_model_, *pinocchio_data_, curr_target_q_,
-                                                curr_target_dq_);  // q is (target or current)
-  Eigen::MatrixXd Jdot6 = Eigen::MatrixXd::Zero(6, pinocchio_model_->nv);
-  pinocchio::getFrameJacobianTimeVariation(*pinocchio_model_, *pinocchio_data_, frame_id, pinocchio::WORLD, Jdot6);
-  Eigen::MatrixXd Jdot = Jdot6.topRows(3);  // position
-  curr_target_ddq_ = J.transpose() * JJt.ldlt().solve(target_ee_acc_ - Jdot * curr_target_dq_);
+  else if (is_transforming_ == 3)  // direct command. Do not update joint command
+  {
+  }
 }
 
 Eigen::VectorXd jointTrajectoryGenerator::getGimbalNominalAngles(Eigen::VectorXd q)
@@ -246,13 +259,18 @@ void jointTrajectoryGenerator::stateTransition()
     {
       if (ros::Time::now().toSec() >= transform_start_time_ + transform_duration_)
       {
-        is_transforming_ = false;
+        is_transforming_ = 0;
         ROS_INFO_STREAM("[dragon_arm][control] end effector position transformation completed.");
       }
       break;
     }
     case 2:  // circular trajectory
     {
+      break;
+    }
+    case 3:  // direct joint angle command
+    {
+      is_transforming_ = 0;
       break;
     }
     default: {
@@ -400,4 +418,28 @@ void jointTrajectoryGenerator::circleTrajectoryCallback(const std_msgs::Float32M
 
   is_transforming_ = 2;  // circular mode
   transform_start_time_ = ros::Time::now().toSec();
+}
+
+void jointTrajectoryGenerator::directJointAngleCallback(const sensor_msgs::JointStateConstPtr& msg)
+{
+  if (msg->name.size() != msg->position.size())
+  {
+    ROS_ERROR_STREAM("[dynarm][control] size of joint name: " << msg->name.size() << " and joint position: "
+                                                              << msg->position.size() << " is not same");
+    return;
+  }
+  for (int i = 0; i < msg->name.size(); i++)
+  {
+    std::string joint_name = msg->name.at(i);
+    int joint_id = pinocchio_model_->getJointId(joint_name);
+    if (joint_id == pinocchio_model_->njoints)
+    {
+      ROS_WARN_STREAM("[dynarm][control] there is not joint named \"" << joint_name << "\"");
+      continue;  // skip this joint because there is not in kinematic tree
+    }
+
+    int joint_index_q = pinocchio_model_->joints[joint_id].idx_q();
+    curr_target_q_(joint_index_q) = msg->position[i];
+  }
+  is_transforming_ = 3;
 }

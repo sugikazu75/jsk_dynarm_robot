@@ -133,6 +133,7 @@ private:
   ros::Subscriber joint_state_sub_;
   ros::Subscriber target_end_effector_final_pos_sub_;
   ros::Subscriber circle_trajectory_sub_;
+  ros::Subscriber direct_joint_angle_sub_;
 
   // debug
   std::string robot_ns_;
@@ -180,6 +181,7 @@ private:
   void jointStateCallback(const sensor_msgs::JointState msg);
   void targetEndEffectorPosCallback(const geometry_msgs::Vector3StampedConstPtr& msg);
   void circleTrajectoryCallback(const std_msgs::Float32MultiArrayConstPtr& msg);
+  void directJointAngleCallback(const sensor_msgs::JointStateConstPtr& msg);
 
   template <class T>
   void getParam(ros::NodeHandle nh, std::string param_name, T& param, T default_value)
