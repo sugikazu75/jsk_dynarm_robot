@@ -3,6 +3,6 @@
 
   <node pkg="rosbag" type="record" name="rosbag_record" args="-a -o /home/$(env USER)/.ros/dynarm_gazebo" output="screen"/>
 
-  <node pkg="dynarm" type="transform_demo.py" name="transform_demo" output="screen" ns="dynarm"/>
+  <node pkg="dynarm" type="linear_trajectory_demo.py" name="linear_trajectory_demo" output="screen" ns="dynarm"/>
 
 </launch>
