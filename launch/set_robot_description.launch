@@ -1,0 +1,12 @@
+<launch>
+  <arg name="robot_id" default="" />
+  <arg name="version" default="v1"/>
+  <arg name="robot_ns" value="dynarm$(arg robot_id)" />
+
+  <group ns="$(arg robot_ns)">
+    <param
+        name="robot_description"
+        textfile="$(find dynarm)/urdf/$(arg version)/dynarm_color.urdf" />
+  </group>
+
+</launch>
