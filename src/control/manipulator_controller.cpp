@@ -115,13 +115,6 @@ void ManipulatorController::controlCore()
   if (!joint_trajectory_generator_->getNonlinearMode())
     joint_trajectory_generator_->getGimbalNominalAngles();
 
-  if (!joint_trajectory_generator_->getIsTransforming())
-  {
-    // set target dq and ddq to zero
-    joint_trajectory_generator_->setCurrentTargetDQ(Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv));
-    joint_trajectory_generator_->setCurrentTargetDDQ(Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv));
-  }
-
   // calculate inverse dynamics
   joint_trajectory_generator_->solveInverseDynamics();
 
