@@ -1,0 +1,2 @@
+meshes/v1/joint_junction1.dae filter=lfs diff=lfs merge=lfs -text
+meshes/v1/joint_junction2.dae filter=lfs diff=lfs merge=lfs -text
