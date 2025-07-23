@@ -17,10 +17,13 @@ jointTrajectoryGenerator::jointTrajectoryGenerator(
   id_acc_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/id_debug/acceleration", 1);
   is_transforming_pub_ = nh_.advertise<std_msgs::UInt8>("is_transforming", 1);
   id_time_pub_ = nh_.advertise<std_msgs::Float32>("debug/id_debug/solve_time", 1);
+  id_result_torque_pub_ = nh_.advertise<std_msgs::Float32>("debug/id_debug/result/torque", 1);
+  id_result_thrust_pub_ = nh_.advertise<std_msgs::Float32>("debug/id_debug/result/thrust", 1);
   thrust_pub_ = nh_.advertise<std_msgs::Float32MultiArray>("debug/id_debug/thrust", 1);
   rotor_wrench_pub_ = nh_.advertise<geometry_msgs::WrenchStamped>("rotor_wrench", 1);
   target_end_effector_pos_pub_ = nh_.advertise<geometry_msgs::Vector3>("debug/target_ee_pos", 1);
   target_end_effector_vel_pub_ = nh_.advertise<geometry_msgs::Vector3>("debug/target_ee_vel", 1);
+  target_end_effector_acc_pub_ = nh_.advertise<geometry_msgs::Vector3>("debug/target_ee_acc", 1);
   dummy_joint_state_pub_ = nh_.advertise<sensor_msgs::JointState>("joint_states", 1);
 
   joint_state_sub_ = nh_.subscribe("joint_states", 1, &jointTrajectoryGenerator::jointStateCallback, this);
@@ -350,14 +353,19 @@ void jointTrajectoryGenerator::publish()
   // for debug: send target end effector position and velocity
   geometry_msgs::Vector3 target_ee_pos_msg;
   geometry_msgs::Vector3 target_ee_vel_msg;
+  geometry_msgs::Vector3 target_ee_acc_msg;
   target_ee_pos_msg.x = target_ee_pos_(0);
   target_ee_pos_msg.y = target_ee_pos_(1);
   target_ee_pos_msg.z = target_ee_pos_(2);
   target_ee_vel_msg.x = target_ee_vel_(0);
   target_ee_vel_msg.y = target_ee_vel_(1);
   target_ee_vel_msg.z = target_ee_vel_(2);
+  target_ee_acc_msg.x = target_ee_acc_(0);
+  target_ee_acc_msg.y = target_ee_acc_(1);
+  target_ee_acc_msg.z = target_ee_acc_(2);
   target_end_effector_pos_pub_.publish(target_ee_pos_msg);
   target_end_effector_vel_pub_.publish(target_ee_vel_msg);
+  target_end_effector_acc_pub_.publish(target_ee_acc_msg);
 
   // for motion planner: is transforming or not
   std_msgs::UInt8 is_transforming_msg;
@@ -371,6 +379,13 @@ void jointTrajectoryGenerator::publish()
   else
     id_time_msg.data = pinocchio_robot_model_->getLatestIdSolveTime();
   id_time_pub_.publish(id_time_msg);
+
+  // for debug: ID result.
+  std_msgs::Float32 id_result_msg;
+  id_result_msg.data = curr_target_tau_.dot(curr_target_tau_);
+  id_result_torque_pub_.publish(id_result_msg);
+  id_result_msg.data = curr_target_thrust_.dot(curr_target_thrust_);
+  id_result_thrust_pub_.publish(id_result_msg);
 }
 
 void jointTrajectoryGenerator::jointStateCallback(const sensor_msgs::JointState msg)

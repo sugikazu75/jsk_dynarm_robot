@@ -125,10 +125,13 @@ private:
   ros::Publisher id_acc_pub_;
   ros::Publisher is_transforming_pub_;
   ros::Publisher id_time_pub_;
+  ros::Publisher id_result_torque_pub_;
+  ros::Publisher id_result_thrust_pub_;
   ros::Publisher thrust_pub_;
   ros::Publisher rotor_wrench_pub_;
   ros::Publisher target_end_effector_pos_pub_;
   ros::Publisher target_end_effector_vel_pub_;
+  ros::Publisher target_end_effector_acc_pub_;
   ros::Publisher dummy_joint_state_pub_;
 
   ros::Subscriber joint_state_sub_;
