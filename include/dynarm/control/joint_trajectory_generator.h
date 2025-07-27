@@ -123,6 +123,7 @@ private:
   ros::Publisher id_torque_pub_;
   ros::Publisher id_velocity_pub_;
   ros::Publisher id_acc_pub_;
+  ros::Publisher id_tau_by_thrust_pub_;
   ros::Publisher is_transforming_pub_;
   ros::Publisher id_time_pub_;
   ros::Publisher id_result_torque_pub_;
