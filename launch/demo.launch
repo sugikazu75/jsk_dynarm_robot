@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="demo" default=""/>
+
+  <node pkg="rosbag" type="record" name="rosbag_record" args="-a -o /home/$(env USER)/.ros/dynarm_$(arg demo)" output="screen"/>
+
+  <node pkg="dynarm" type="$(arg demo).py" name="$(arg demo)" output="screen" ns="dynarm"/>
+
+</launch>

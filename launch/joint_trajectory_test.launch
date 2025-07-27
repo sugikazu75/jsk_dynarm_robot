@@ -24,7 +24,7 @@
     <arg name="need_joint_state" value="false"/>
   </include >
 
-  ########### Desired robot state ###########
+  <!-- desired robot state -->
   <group ns="$(arg robot_ns)_desired">
     <param name="robot_description" command="$(find xacro)/xacro $(find dynarm)/robots/$(arg version)/dynarm.urdf.xacro" />
     <node name="desired_robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
