@@ -15,8 +15,8 @@ class CircleTrajectoryDemo:
         self.joint_names = ["joint0_roll", "joint0_pitch", "joint1_yaw", "joint1_pitch", "joint2_yaw", "joint2_pitch"]
         self.joint_angle = [0, 1.0, 0, -1.0, 0, -1.0]
 
-        self.radius = 0.3
-        self.angvel = 1.5
+        self.radius = 0.4
+        self.angvel = 2.5
 
         time.sleep(2.0)
 
