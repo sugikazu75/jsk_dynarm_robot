@@ -13,7 +13,7 @@ servo_controller:
 
     # for simulation
     simulation:
-      pid: {p: 1000.0, i: 0.0, d: 3.0}
+      pid: {p: 400.0, i: 0.0, d: 10.0}
       init_value: 0.0
       type: effort_controllers/JointComputeTorqueController
 
@@ -25,18 +25,23 @@ servo_controller:
     controller2:
       id: 1
       name: joint0_pitch
+      simulation:
+        init_value: 0.5
     controller3:
       id: 4
       name: joint1_yaw
     controller4:
       id: 5
       name: joint1_pitch
+      simulation:
+        init_value: -1.0
     controller5:
       id: 8
       name: joint2_yaw
     controller6:
       id: 9
       name: joint2_pitch
+      simulation: -0.5
 
   gimbals:
     no_real_state: false # true if there is no servo state from real machine
