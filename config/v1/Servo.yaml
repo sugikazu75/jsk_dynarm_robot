@@ -41,7 +41,8 @@ servo_controller:
     controller6:
       id: 9
       name: joint2_pitch
-      simulation: -0.5
+      simulation:
+        init_value: -0.5
 
   gimbals:
     no_real_state: false # true if there is no servo state from real machine
