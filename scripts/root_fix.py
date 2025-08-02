@@ -7,23 +7,30 @@ import time
 
 rospy.init_node("root_fix_node")
 
+root_fix = False
+if rospy.has_param("~root_fix"):
+    root_fix = rospy.get_param("~root_fix")
+
 rospy.wait_for_service("link_attacher_node/attach")
 rospy.wait_for_service("gazebo/unpause_physics")
 
 time.sleep(5.0)
 
-attach_service = rospy.ServiceProxy("link_attacher_node/attach", Attach)
-req = AttachRequest()
-req.model_name_1 = "dynarm"
-req.link_name_1 = "root"
-req.model_name_2 = "ground_plane"
-req.link_name_2 = "link"
-try:
-    res = attach_service(req)
-except rospy.ServiceException as e:
-    print("link_attacher_node/attach service call failed %s" % e)
+# fix root link to world
+if root_fix:
+    attach_service = rospy.ServiceProxy("link_attacher_node/attach", Attach)
+    req = AttachRequest()
+    req.model_name_1 = "dynarm"
+    req.link_name_1 = "root"
+    req.model_name_2 = "ground_plane"
+    req.link_name_2 = "link"
+    try:
+        res = attach_service(req)
+    except rospy.ServiceException as e:
+        print("link_attacher_node/attach service call failed %s" % e)
 
 
+# unpause simulation
 unpause_service = rospy.ServiceProxy("gazebo/unpause_physics", Empty)
 req = EmptyRequest()
 try:
