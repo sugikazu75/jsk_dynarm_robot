@@ -151,10 +151,14 @@ private:
   Eigen::Vector3d target_ee_acc_;
 
   Eigen::VectorXd curr_q_;
+  Eigen::VectorXd curr_dq_;
 
   Eigen::VectorXd curr_target_q_;
   Eigen::VectorXd curr_target_dq_;
   Eigen::VectorXd curr_target_ddq_;
+
+  Eigen::MatrixXd ctm_p_gain_;
+  Eigen::MatrixXd ctm_d_gain_;
 
   Eigen::VectorXd curr_target_tau_;
   Eigen::VectorXd curr_target_thrust_;

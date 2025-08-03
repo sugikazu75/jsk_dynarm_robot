@@ -48,9 +48,15 @@ jointTrajectoryGenerator::jointTrajectoryGenerator(
   target_ee_acc_.setZero();
 
   curr_q_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nq);
+  curr_dq_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv);
   curr_target_q_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nq);
   curr_target_dq_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv);
   curr_target_ddq_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv);
+
+  ctm_p_gain_ =
+      Eigen::MatrixXd::Identity(pinocchio_robot_model_->getModel()->nv, pinocchio_robot_model_->getModel()->nv);
+  ctm_d_gain_ =
+      Eigen::MatrixXd::Identity(pinocchio_robot_model_->getModel()->nv, pinocchio_robot_model_->getModel()->nv);
 
   curr_target_tau_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv);
   curr_target_thrust_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getRotorNum());
@@ -140,6 +146,7 @@ void jointTrajectoryGenerator::generateJointTrajectory()
   {
     curr_target_dq_ = Eigen::VectorXd::Zero(pinocchio_model_->nv);
     curr_target_ddq_ = Eigen::VectorXd::Zero(pinocchio_model_->nv);
+    return;
   }
   else if ((is_transforming_ == 1) ||
            (is_transforming_ == 2))  // solve IK and generate dq, ddq from target end-effector trajectory
@@ -158,21 +165,21 @@ void jointTrajectoryGenerator::generateJointTrajectory()
 
     // calculate target dq
     Eigen::MatrixXd J6 = Eigen::MatrixXd::Zero(6, pinocchio_model_->nv);
-    pinocchio::computeFrameJacobian(*pinocchio_model_, *pinocchio_data_, curr_target_q_, frame_id, pinocchio::WORLD,
+    pinocchio::computeFrameJacobian(*pinocchio_model_, *pinocchio_data_, curr_q_, frame_id, pinocchio::WORLD,
                                     J6);  // world frame. q is (target or current)
     Eigen::MatrixXd J = J6.topRows(3);    // position
     Eigen::MatrixXd JJt = J * J.transpose() + 1e-12 * Eigen::MatrixXd::Identity(3, 3);
     curr_target_dq_ = J.transpose() * JJt.ldlt().solve(target_ee_vel_);  // target velocity
 
     // calculate target ddq
-    pinocchio::forwardKinematics(*pinocchio_model_, *pinocchio_data_, curr_target_q_,
-                                 curr_target_dq_);  // q is (target or current)
-    pinocchio::computeJointJacobiansTimeVariation(*pinocchio_model_, *pinocchio_data_, curr_target_q_,
-                                                  curr_target_dq_);  // q is (target or current)
+    pinocchio::forwardKinematics(*pinocchio_model_, *pinocchio_data_, curr_q_,
+                                 curr_dq_);  // q and dq are (target or current)
+    pinocchio::computeJointJacobiansTimeVariation(*pinocchio_model_, *pinocchio_data_, curr_q_,
+                                                  curr_dq_);  // q is (target or current)
     Eigen::MatrixXd Jdot6 = Eigen::MatrixXd::Zero(6, pinocchio_model_->nv);
     pinocchio::getFrameJacobianTimeVariation(*pinocchio_model_, *pinocchio_data_, frame_id, pinocchio::WORLD, Jdot6);
     Eigen::MatrixXd Jdot = Jdot6.topRows(3);  // position
-    curr_target_ddq_ = J.transpose() * JJt.ldlt().solve(target_ee_acc_ - Jdot * curr_target_dq_);
+    curr_target_ddq_ = J.transpose() * JJt.ldlt().solve(target_ee_acc_ - Jdot * curr_dq_);
   }
   else if (is_transforming_ == 3)  // direct command. linear interpolation
   {
@@ -186,6 +193,9 @@ void jointTrajectoryGenerator::generateJointTrajectory()
     curr_target_q_ = init_target_q_ + delta_q * (curr_time / transform_duration_);
     curr_target_dq_ = delta_q / transform_duration_;
   }
+  curr_target_ddq_ = curr_target_ddq_ +
+                     ctm_p_gain_ * pinocchio::difference(*pinocchio_model_, curr_q_, curr_target_q_) +
+                     ctm_d_gain_ * (curr_target_dq_ - curr_dq_);
 }
 
 Eigen::VectorXd jointTrajectoryGenerator::getGimbalNominalAngles(Eigen::VectorXd q)
@@ -223,14 +233,14 @@ bool jointTrajectoryGenerator::solveInverseDynamics()
   bool solved;
   if (nonlinear_mode_)
   {
-    solved = nonlinearInverseDynamics(curr_target_q_, curr_target_dq_, curr_target_ddq_, id_result);
+    solved = nonlinearInverseDynamics(curr_q_, curr_dq_, curr_target_ddq_, id_result);
     curr_target_tau_ = id_result.head(pinocchio_model_->nv);
     curr_target_thrust_ = id_result.segment(pinocchio_model_->nv, pinocchio_robot_model_->getRotorNum());
     curr_target_gimbal_angle_ = id_result.tail(pinocchio_robot_model_->getRotorNum() / rotor_devider_ * 2);
   }
   else
   {
-    solved = pinocchio_robot_model_->inverseDynamics(curr_target_q_, curr_target_dq_, curr_target_ddq_, id_result);
+    solved = pinocchio_robot_model_->inverseDynamics(curr_q_, curr_dq_, curr_target_ddq_, id_result);
     curr_target_tau_ = id_result.head(pinocchio_model_->nv);
     curr_target_thrust_ = id_result.tail(pinocchio_robot_model_->getRotorNum());
   }
@@ -407,6 +417,13 @@ void jointTrajectoryGenerator::jointStateCallback(const sensor_msgs::JointState 
     {
       int joint_index_q = pinocchio_model_->joints[joint_id].idx_q();
       curr_q_(joint_index_q) = msg.position[i];
+    }
+
+    // velocity
+    if (msg.name.size() == msg.velocity.size())
+    {
+      int joint_index_v = pinocchio_model_->joints[joint_id].idx_v();
+      curr_dq_(joint_index_v) = msg.velocity[i];
     }
   }
 }
