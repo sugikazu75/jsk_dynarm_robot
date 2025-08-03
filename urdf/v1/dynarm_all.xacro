@@ -10,6 +10,12 @@
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
       </material>
     </visual>
+    <collision>
+      <origin xyz="0.025 0 0" rpy="0 ${pi / 2} 0"/>
+      <geometry>
+        <cylinder length="0.05" radius="0.05"/>
+      </geometry>
+    </collision>
     <inertial>
       <mass value="1.0761005"/>
       <origin xyz="0.01809388 -1.734e-05 4.966e-05" rpy="0 0 0"/>
@@ -26,6 +32,12 @@
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
       </material>
     </visual>
+    <collision>
+      <origin xyz="0.062 0 0" rpy="${pi / 2} 0 0"/>
+      <geometry>
+        <cylinder length="0.05" radius="0.05"/>
+      </geometry>
+    </collision>
     <inertial>
       <mass value="1.24295185"/>
       <origin xyz="0.05712269 0.0040978 -3.125e-05" rpy="0 0 0"/>
@@ -50,6 +62,24 @@
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
       </material>
     </visual>
+    <collision>
+      <origin xyz="0.292 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.05" radius="0.2"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.137 0 -0.05" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.01"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.447 0 -0.05" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.01"/>
+      </geometry>
+    </collision>
     <inertial>
       <mass value="0.56565523"/>
       <origin xyz="0.23081982 0.00378886 -0.00900833" rpy="0 0 0"/>
@@ -98,6 +128,12 @@
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
       </material>
     </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.05" radius="0.1"/>
+      </geometry>
+    </collision>
     <inertial>
       <mass value="0.45023026"/>
       <origin xyz="-8.221e-05 -0.000402 0.0018275" rpy="0 0 0"/>
@@ -145,6 +181,12 @@
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
       </material>
     </visual>
+    <collision>
+      <origin xyz="0.0835 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.167 0.05 0.05"/>
+      </geometry>
+    </collision>
     <inertial>
       <mass value="0.77591975"/>
       <origin xyz="0.08350022 -0.00154617 0.00154617" rpy="0 0 0"/>
@@ -169,6 +211,24 @@
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
       </material>
     </visual>
+    <collision>
+      <origin xyz="0.24 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.05" radius="0.2"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.085 0 -0.05" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.01"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.395 0 -0.05" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.01"/>
+      </geometry>
+    </collision>
     <inertial>
       <mass value="0.44767426"/>
       <origin xyz="0.23294712 -0.00010111 -0.0113824" rpy="0 0 0"/>
@@ -217,6 +277,12 @@
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
       </material>
     </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.05" radius="0.1"/>
+      </geometry>
+    </collision>
     <inertial>
       <mass value="0.45023026"/>
       <origin xyz="-8.221e-05 -0.000402 0.0018275" rpy="0 0 0"/>
@@ -264,6 +330,12 @@
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
       </material>
     </visual>
+    <collision>
+      <origin xyz="0.0835 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.167 0.05 0.05"/>
+      </geometry>
+    </collision>
     <inertial>
       <mass value="0.77591975"/>
       <origin xyz="0.08350022 -0.00154617 0.00154617" rpy="0 0 0"/>
@@ -288,6 +360,24 @@
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
       </material>
     </visual>
+    <collision>
+      <origin xyz="0.24 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.05" radius="0.2"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.085 0 -0.05" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.01"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.395 0 -0.05" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.01"/>
+      </geometry>
+    </collision>
     <inertial>
       <mass value="0.41309537"/>
       <origin xyz="0.21249397 -0.00010957 -0.01269557" rpy="0 0 0"/>
@@ -336,6 +426,12 @@
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
       </material>
     </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.05" radius="0.1"/>
+      </geometry>
+    </collision>
     <inertial>
       <mass value="0.45023026"/>
       <origin xyz="-8.221e-05 -0.00040201 0.0018275" rpy="0 0 0"/>

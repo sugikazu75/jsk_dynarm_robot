@@ -150,4 +150,19 @@
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
+
+  <!-- friction -->
+  <gazebo reference="link1">
+    <mu1>0.4</mu1>
+    <mu2>0.4</mu2>
+  </gazebo>
+  <gazebo reference="link2">
+    <mu1>0.4</mu1>
+    <mu2>0.4</mu2>
+  </gazebo>
+  <gazebo reference="link3">
+    <mu1>0.4</mu1>
+    <mu2>0.4</mu2>
+  </gazebo>
+
 </robot>
