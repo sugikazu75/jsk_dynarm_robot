@@ -69,6 +69,10 @@ private:
   std::shared_ptr<pinocchio::Data> pinocchio_data_;
   std::shared_ptr<jointTrajectoryGenerator> joint_trajectory_generator_;
 
+  // joint control
+  Eigen::MatrixXd joint_p_gain_;
+  Eigen::MatrixXd joint_d_gain_;
+
   virtual bool update() override;
   virtual void reset() override;
   void rosParamInit();
