@@ -84,6 +84,11 @@ void jointTrajectoryGenerator::rosParamInit()
   getParam<std::string>(control_nh, "end_effector_name", end_effector_name_, "");
   getParam<double>(control_nh, "transform_duration", transform_duration_, 1.0);
   getParam<double>(control_nh, "gimbal_delta_max", gimbal_delta_max_, M_PI);
+  double ctm_gain;
+  getParam<double>(control_nh, "ctm_p_gain", ctm_gain, 1.0);
+  ctm_p_gain_ *= ctm_gain;
+  getParam<double>(control_nh, "ctm_d_gain", ctm_gain, 1.0);
+  ctm_d_gain_ *= ctm_gain;
 
   ros::NodeHandle model_nh(nh_, "model");
   getParam<int>(model_nh, "rotor_devider", rotor_devider_, 1);
@@ -146,7 +151,6 @@ void jointTrajectoryGenerator::generateJointTrajectory()
   {
     curr_target_dq_ = Eigen::VectorXd::Zero(pinocchio_model_->nv);
     curr_target_ddq_ = Eigen::VectorXd::Zero(pinocchio_model_->nv);
-    return;
   }
   else if ((is_transforming_ == 1) ||
            (is_transforming_ == 2))  // solve IK and generate dq, ddq from target end-effector trajectory

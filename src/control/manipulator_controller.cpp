@@ -173,11 +173,8 @@ void ManipulatorController::controlCore()
   }
   else
   {
-    if (joint_trajectory_generator_->getIsTransforming())  // calculate target joint angle by inverse kinematics
-    {
-      joint_trajectory_generator_->generateEndEffectorTrajectory();
-      joint_trajectory_generator_->generateJointTrajectory();
-    }
+    joint_trajectory_generator_->generateEndEffectorTrajectory();
+    joint_trajectory_generator_->generateJointTrajectory();
   }
 
   // process gimbal angles if linear mode because gimbal angle is nominal state
