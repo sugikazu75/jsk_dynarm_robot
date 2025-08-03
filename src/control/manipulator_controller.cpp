@@ -63,6 +63,75 @@ void ManipulatorController::rosParamInit()
 {
   ros::NodeHandle model_nh(nh_, "model");
   getParam<int>(model_nh, "rotor_devider", rotor_devider_, 1);
+
+  Eigen::VectorXd joint_p_gain = Eigen::VectorXd::Zero(pinocchio_model_->nv);
+  Eigen::VectorXd joint_d_gain = Eigen::VectorXd::Zero(pinocchio_model_->nv);
+  bool simulation_mode;
+  nh_.param("/use_sim_time", simulation_mode, false);
+  if (simulation_mode)
+  {
+    while (!ros::service::waitForService(nh_.getNamespace() + std::string("/controller_manager/load_controller")))
+    {
+      ROS_INFO_STREAM_THROTTLE(1.0, "[dynarm][control] wait for controller manager for joints");
+    }
+
+    XmlRpc::XmlRpcValue all_servos_params;
+    nh_.getParam("servo_controller", all_servos_params);
+    for (auto servo_group_params : all_servos_params)
+    {
+      if (servo_group_params.second.getType() != XmlRpc::XmlRpcValue::TypeStruct)
+        continue;
+
+      double servo_group_p_gain = -1;
+      double servo_group_d_gain = -1;
+
+      if (servo_group_params.second.hasMember("simulation") &&
+          servo_group_params.second["simulation"].hasMember("pid"))  // PD gains are defined for all servos in group
+      {
+        servo_group_p_gain = servo_group_params.second["simulation"]["pid"]["p"];
+        servo_group_d_gain = servo_group_params.second["simulation"]["pid"]["d"];
+      }
+
+      for (auto servo_params : servo_group_params.second)  // each servo
+      {
+        bool has_pd_gain = false;
+        if (servo_params.first.find("controller") != std::string::npos)
+        {
+          std::string joint_name = servo_params.second["name"];
+          int joint_id = pinocchio_model_->getJointId(joint_name);
+          double p_gain = servo_group_p_gain;
+          double d_gain = servo_group_d_gain;
+          if (joint_id == pinocchio_model_->njoints)
+          {
+            ROS_WARN_STREAM("[dynarm][control] there is not joint named \"" << joint_name << "\"");
+            continue;
+          }
+          else
+          {
+            int joint_index_v = pinocchio_model_->joints[joint_id].idx_v();
+
+            has_pd_gain =
+                (servo_params.second.hasMember("simulation") && servo_params.second["simulation"].hasMember("pid"));
+            if (has_pd_gain)
+            {
+              p_gain = servo_params.second["simulation"]["pid"]["p"];
+              d_gain = servo_params.second["simulation"]["pid"]["d"];
+            }
+
+            if (p_gain < 0 || d_gain < 0)
+              ROS_ERROR_STREAM("[dynarm][control] PD gain for " << joint_name << " is " << p_gain << " " << d_gain);
+
+            joint_p_gain(joint_index_v) = p_gain;
+            joint_d_gain(joint_index_v) = d_gain;
+          }
+        }
+      }
+    }
+    ROS_INFO_STREAM("[dynarm][control] joint P gain: " << joint_p_gain.transpose());
+    ROS_INFO_STREAM("[dynarm][control] joint D gain: " << joint_d_gain.transpose());
+    joint_p_gain_ = joint_p_gain.asDiagonal();
+    joint_d_gain_ = joint_d_gain.asDiagonal();
+  }
 }
 
 void ManipulatorController::reset()
