@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(Eigen3 REQUIRED)
 find_package(pinocchio REQUIRED)
+find_package(crocoddyl REQUIRED)
 find_package(OsqpEigen REQUIRED)
 find_package(NLopt REQUIRED)
 
@@ -65,6 +66,17 @@ target_link_libraries(manipulator_controller
   joint_trajectory_generator
   manipulator_model
   ${catkin_LIBRARIES}
+  ${Eigen3_LIBRARIES}
+  ${OsqpEigen_LIBRARIES}
+  ${NLOPT_LIBRARIES}
+  )
+
+add_executable(crocoddyl_test
+  src/control/crocoddyl_test.cpp)
+target_link_libraries(crocoddyl_test
+  ${catkin_LIBRARIES}
+  pinocchio::pinocchio
+  crocoddyl::crocoddyl
   ${Eigen3_LIBRARIES}
   ${OsqpEigen_LIBRARIES}
   ${NLOPT_LIBRARIES}

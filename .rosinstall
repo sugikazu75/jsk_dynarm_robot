@@ -17,3 +17,8 @@
     local-name: ros_controllers
     uri: https://github.com/sugikazu75/ros_controllers
     version: develop/computed_torque_control
+
+- git:
+    local-name: crocoddyl
+    uri: https://github.com/sugikazu75/crocoddyl.git
+    version: develop/articulated_aerial_robot

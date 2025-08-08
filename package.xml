@@ -14,6 +14,7 @@
   <build_depend>aerial_robot_estimation</build_depend>
   <build_depend>aerial_robot_model</build_depend>
   <build_depend>aerial_robot_msgs</build_depend>
+  <build_depend>crocoddyl</build_depend>
   <build_depend>motion_planning</build_depend>
   <build_depend>nlopt</build_depend>
   <build_depend>osqp-eigen</build_depend>
@@ -29,6 +30,7 @@
   <exec_depend>aerial_robot_model</exec_depend>
   <exec_depend>aerial_robot_msgs</exec_depend>
   <exec_depend>aerial_robot_simulation</exec_depend>
+  <exec_depend>crocoddyl</exec_depend>
   <exec_depend>motion_planning</exec_depend>
   <exec_depend>nlopt</exec_depend>
   <exec_depend>osqp-eigen</exec_depend>
