@@ -4,4 +4,5 @@ model:
   rotor_devider: 1
 
 dynamics:
+  is_floating_base: false
   thrust_hessian_weight: 0.1 # the larger, there smaller thrust is exerted and joint torque become larger

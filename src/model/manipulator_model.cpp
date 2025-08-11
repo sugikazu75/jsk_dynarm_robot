@@ -5,7 +5,10 @@ using namespace aerial_robot_model;
 ManipulatorRobotModel::ManipulatorRobotModel(bool init_with_rosparam, bool verbose)
   : aerial_robot_model::transformable::RobotModel(init_with_rosparam, verbose)
 {
-  pinocchio_robot_model_ = std::make_shared<aerial_robot_dynamics::PinocchioRobotModel>(false);
+  if (init_with_rosparam)
+    getParamFromRos();
+
+  pinocchio_robot_model_ = std::make_shared<aerial_robot_dynamics::PinocchioRobotModel>(is_floating_base_);
   pinocchio_model_ = pinocchio_robot_model_->getModel();
   pinocchio_data_ = pinocchio_robot_model_->getData();
 
@@ -13,6 +16,12 @@ ManipulatorRobotModel::ManipulatorRobotModel(bool init_with_rosparam, bool verbo
 
   loadJointNames();
   loadGimbalNames();
+}
+
+void ManipulatorRobotModel::getParamFromRos()
+{
+  ros::NodeHandle nh;
+  nh.param("dynamics/is_floating_base", is_floating_base_, false);
 }
 
 void ManipulatorRobotModel::loadJointNames()

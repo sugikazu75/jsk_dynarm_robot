@@ -40,11 +40,13 @@ private:
   Eigen::VectorXd curr_q_;
   std::vector<std::string> joint_names_;
   std::vector<std::string> gimbal_names_;
+  bool is_floating_base_ = false;
 
   void updateRobotModelImpl(const KDL::JntArray& joint_positions) override;
   Eigen::VectorXd parseJointState(const sensor_msgs::JointState& joint_state);
   Eigen::VectorXd parseJointState(const KDL::JntArray& joint_positions);
 
+  void getParamFromRos();
   void loadJointNames();
   void loadGimbalNames();
 };
