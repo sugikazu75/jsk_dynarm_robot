@@ -42,21 +42,6 @@ void ManipulatorController::initialize(ros::NodeHandle nh, ros::NodeHandle nhp,
   for (int i = 0; i < pinocchio_model_->nq; i++)
     init_target_q_(i) = init_target_q.at(i);
   ROS_INFO_STREAM("[dragon_arm][control] initial target joint angle: " << init_target_q_.transpose());
-
-  getJointNames();
-}
-
-void ManipulatorController::getJointNames()
-{
-  joint_names_.clear();
-  for (int i = 0; i < pinocchio_model_->njoints; i++)
-  {
-    std::string joint_name = pinocchio_model_->names[i];
-    if (joint_name.find("joint") != std::string::npos)
-    {
-      joint_names_.push_back(joint_name);
-    }
-  }
 }
 
 void ManipulatorController::rosParamInit()
@@ -194,9 +179,10 @@ void ManipulatorController::controlCore()
     // check joint angle convergence
     bool is_converged = true;
     Eigen::VectorXd curr_q = dragon_arm_robot_model_->getCurrentJointPositions();
-    for (int i = 0; i < joint_names_.size(); i++)
+    std::vector<std::string> joint_names = dragon_arm_robot_model_->getJointNames();
+    for (int i = 0; i < joint_names.size(); i++)
     {
-      int joint_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_names_.at(i))].idx_q();
+      int joint_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_names.at(i))].idx_q();
       if (fabs(curr_q(joint_index_q) - init_target_q_(joint_index_q)) > 0.05)
       {
         is_converged = false;
@@ -285,12 +271,13 @@ void ManipulatorController::sendJointCommand()
     curr_target_q = init_target_q_;
   }
 
-  for (int i = 0; i < joint_names_.size(); i++)
+  std::vector<std::string> joint_names = dragon_arm_robot_model_->getJointNames();
+  for (int i = 0; i < joint_names.size(); i++)
   {
-    int joint_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_names_.at(i))].idx_q();
-    int joint_index_v = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_names_.at(i))].idx_v();
+    int joint_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_names.at(i))].idx_q();
+    int joint_index_v = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_names.at(i))].idx_v();
 
-    joint_state_msg.name.push_back(joint_names_.at(i));
+    joint_state_msg.name.push_back(joint_names.at(i));
     joint_state_msg.position.push_back(curr_target_q(joint_index_q));
     joint_state_msg.velocity.push_back(curr_target_dq(joint_index_v));
     joint_state_msg.effort.push_back(curr_target_tau(joint_index_v));

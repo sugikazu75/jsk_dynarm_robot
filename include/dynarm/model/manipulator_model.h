@@ -23,14 +23,29 @@ public:
     return curr_q_;
   }
 
+  const std::vector<std::string>& getJointNames()
+  {
+    return joint_names_;
+  }
+
+  const std::vector<std::string>& getGimbalNames()
+  {
+    return gimbal_names_;
+  }
+
 private:
   std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model_;
   std::shared_ptr<pinocchio::Model> pinocchio_model_;
   std::shared_ptr<pinocchio::Data> pinocchio_data_;
   Eigen::VectorXd curr_q_;
+  std::vector<std::string> joint_names_;
+  std::vector<std::string> gimbal_names_;
 
   void updateRobotModelImpl(const KDL::JntArray& joint_positions) override;
   Eigen::VectorXd parseJointState(const sensor_msgs::JointState& joint_state);
   Eigen::VectorXd parseJointState(const KDL::JntArray& joint_positions);
+
+  void loadJointNames();
+  void loadGimbalNames();
 };
 }  // namespace aerial_robot_model

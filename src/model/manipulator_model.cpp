@@ -10,6 +10,35 @@ ManipulatorRobotModel::ManipulatorRobotModel(bool init_with_rosparam, bool verbo
   pinocchio_data_ = pinocchio_robot_model_->getData();
 
   curr_q_.resize(pinocchio_robot_model_->getModel()->nq);
+
+  loadJointNames();
+  loadGimbalNames();
+}
+
+void ManipulatorRobotModel::loadJointNames()
+{
+  joint_names_.clear();
+  for (int i = 0; i < pinocchio_model_->njoints; i++)
+  {
+    std::string joint_name = pinocchio_model_->names[i];
+    if (joint_name.find("joint") != std::string::npos)
+    {
+      joint_names_.push_back(joint_name);
+    }
+  }
+}
+
+void ManipulatorRobotModel::loadGimbalNames()
+{
+  gimbal_names_.clear();
+  for (int i = 0; i < pinocchio_model_->njoints; i++)
+  {
+    std::string joint_name = pinocchio_model_->names[i];
+    if (joint_name.find("gimbal") != std::string::npos)
+    {
+      gimbal_names_.push_back(joint_name);
+    }
+  }
 }
 
 void ManipulatorRobotModel::updateRobotModelImpl(const KDL::JntArray& joint_positions)
