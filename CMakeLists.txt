@@ -59,25 +59,23 @@ target_link_libraries(joint_trajectory_generator_test
   ${NLOPT_LIBRARIES}
   )
 
-
-add_library(manipulator_controller
-  src/control/manipulator_controller.cpp)
-target_link_libraries(manipulator_controller
-  joint_trajectory_generator
-  manipulator_model
-  ${catkin_LIBRARIES}
-  ${Eigen3_LIBRARIES}
-  ${OsqpEigen_LIBRARIES}
-  ${NLOPT_LIBRARIES}
-  )
-
-add_executable(crocoddyl_test
-  src/control/crocoddyl_test.cpp)
-target_link_libraries(crocoddyl_test
+add_library(ddp_hovering_problem
+  src/control/ddp_hovering_problem.cpp)
+target_link_libraries(ddp_hovering_problem
   ${catkin_LIBRARIES}
   pinocchio::pinocchio
   crocoddyl::crocoddyl
   ${Eigen3_LIBRARIES}
   ${OsqpEigen_LIBRARIES}
-  ${NLOPT_LIBRARIES}
+  )
+
+add_executable(ddp_hovering_problem_test
+  src/control/ddp_hovering_problem.cpp)
+target_link_libraries(ddp_hovering_problem_test
+  ddp_hovering_problem
+  ${catkin_LIBRARIES}
+  pinocchio::pinocchio
+  crocoddyl::crocoddyl
+  ${Eigen3_LIBRARIES}
+  ${OsqpEigen_LIBRARIES}
   )

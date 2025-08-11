@@ -2,9 +2,10 @@
 <launch>
   <arg name="version" default="v1"/>
   <arg name="robot_ns" default="dynarm"/>
+  <arg name="headless" default="true"/>
 
   <group ns="$(arg robot_ns)">
-    <node pkg="dynarm" type="crocoddyl_test" name="crocoddyl_test" output="screen">
+    <node pkg="dynarm" type="ddp_hovering_problem_test" name="ddp_hovering_problem_test" output="screen">
       <param name="num_threads" value="1"/>
       <param name="horizon" value="2.0"/>
       <param name="dt" value="0.1"/>
@@ -13,24 +14,16 @@
       <param name="add_noise" value="true"/>
 
       <!-- weights of cost for running model  -->
-      <param name="com_weight" value="0"/>
-      <param name="root_rotation_weight" value="0"/>
-      <param name="x_reg_weight" value="1"/>
-      <param name="x_bounds_weight" value="100"/>
-      <!-- <param name="u_reg_weight" value="0.0000001"/> -->
-      <param name="u_reg_weight" value="0.1"/>
-
-      <!-- weights of cost for terminal model -->
-      <param name="com_terminal_weight" value="0"/>
-      <param name="root_rotation_terminal_weight" value="0"/>
-      <param name="x_terminal_reg_weight" value="10"/>
-      <param name="x_terminal_bounds_weight" value="0"/>
+      <param name="state_weight" value="1"/>
+      <param name="state_bound_weight" value="100"/>
+      <param name="control_weight" value="0.1"/>
 
       <rosparam command="load" file="$(find dynarm)/config/v1/DDP_$(arg robot_ns).yaml"/>
+
     </node>
 
     <!-- visualization -->
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find dynarm)/config/rviz_config"/>
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find dynarm)/config/rviz_config" unless="$(arg headless)"/>
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
       <param name="tf_prefix" value="$(arg robot_ns)" />
