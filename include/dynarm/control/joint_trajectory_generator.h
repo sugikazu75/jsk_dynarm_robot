@@ -1,6 +1,7 @@
 #pragma once
 
 #include <dynarm/model/manipulator_model.h>
+#include <dynarm/model/nonlinear_inverse_dynamics.h>
 #include <motion_planning/position_trajectory_generator.hpp>
 #include <motion_planning/inverse_kinematics_3d.hpp>
 #include <ros/ros.h>
@@ -51,8 +52,6 @@ public:
   bool solveInverseDynamics();
   void updateTargetGimbalAngle();
   void stateTransition();
-  bool nonlinearInverseDynamics(const Eigen::VectorXd& q, const Eigen::VectorXd& v, const Eigen::VectorXd& a,
-                                Eigen::VectorXd& tau_thrust_gimbal);
   void rosParamInit();
   void reset();
 
@@ -95,23 +94,6 @@ public:
   Eigen::VectorXd getCurrentTargetGimbalAngle()
   {
     return curr_target_gimbal_angle_;
-  }
-
-  const int getGimbalNumForOpt()
-  {
-    return gimbal_num_;
-  }
-  const Eigen::VectorXd getCurrentTargetQForOpt()
-  {
-    return nlp_curr_target_q_;
-  }
-  const Eigen::VectorXd getCurrentTargetDqForOpt()
-  {
-    return nlp_curr_target_dq_;
-  }
-  const Eigen::VectorXd getCurrentTargetDdqForOpt()
-  {
-    return nlp_curr_target_ddq_;
   }
 
 private:
@@ -169,6 +151,7 @@ private:
 
   // manipulation param
   motion_planning::PositionTrajectoryGenerator pos_trajectory_generator_;
+  std::shared_ptr<aerial_robot_model::NonlinearInverseDynamics> nonlinear_inverse_dynamics_solver_;
   double transform_duration_;
   double transform_start_time_;
   double transform_end_time_;
@@ -179,16 +162,7 @@ private:
 
   // nlp param
   bool nonlinear_mode_;
-  int gimbal_num_;
   int rotor_devider_ = 1;
-  std::vector<int> gimbal_q_indices_;
-  std::vector<int> gimbal_v_indices_;
-  bool nlp_first_run_ = true;
-  double nlp_solve_time_ = 0.0;
-  double gimbal_delta_max_;
-  Eigen::VectorXd nlp_curr_target_q_;
-  Eigen::VectorXd nlp_curr_target_dq_;
-  Eigen::VectorXd nlp_curr_target_ddq_;
 
   void jointStateCallback(const sensor_msgs::JointState msg);
   void targetEndEffectorPosCallback(const geometry_msgs::Vector3StampedConstPtr& msg);

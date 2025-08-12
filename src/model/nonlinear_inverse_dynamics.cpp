@@ -1,25 +1,26 @@
-#include <dynarm/control/joint_trajectory_generator.h>
+#include <dynarm/model/nonlinear_inverse_dynamics.h>
+
 #include <nlopt.hpp>
 
-using namespace aerial_robot_control;
+using namespace aerial_robot_model;
 
 namespace
 {
 double torqueThrustMinimize(const std::vector<double>& x, std::vector<double>& grad, void* ptr)
 {
   /* variables (n)
-     0 ~ nv: joint torque
+     0 ~ nv: generalized force
      nv ~ nv + nr: thrust
      nv + nr ~ nv + nr + gimbal_num: gimbal angles
   */
-  jointTrajectoryGenerator* controller = reinterpret_cast<jointTrajectoryGenerator*>(ptr);
+  NonlinearInverseDynamics* robot_model = reinterpret_cast<NonlinearInverseDynamics*>(ptr);
 
   std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model =
-      controller->getPinocchioRobotModel();
-  std::shared_ptr<pinocchio::Model> pinocchio_model = controller->getPinocchioModel();
-  std::shared_ptr<pinocchio::Data> pinocchio_data = controller->getPinocchioData();
+      robot_model->getPinocchioRobotModel();
+  std::shared_ptr<pinocchio::Model> pinocchio_model = robot_model->getPinocchioModel();
+  std::shared_ptr<pinocchio::Data> pinocchio_data = robot_model->getPinocchioData();
 
-  int gimbal_num = controller->getGimbalNumForOpt();
+  int gimbal_num = robot_model->getGimbalNames().size();
   double thrust_hessian_weight = pinocchio_robot_model->getThrustHessianWeight();
 
   double cost = 0.0;
@@ -55,40 +56,34 @@ double torqueThrustMinimize(const std::vector<double>& x, std::vector<double>& g
 void rneaConstraint(unsigned m, double* result, unsigned n, const double* x, double* grad, void* ptr)
 {
   /* constraints (m)
-     0 ~ nv: 0 = rnea - joint_torque - tauext
+     0 ~ nv: 0 = rnea - generalized_force - tauext
   */
-  jointTrajectoryGenerator* controller = reinterpret_cast<jointTrajectoryGenerator*>(ptr);
+  NonlinearInverseDynamics* robot_model = reinterpret_cast<NonlinearInverseDynamics*>(ptr);
 
   std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model =
-      controller->getPinocchioRobotModel();
-  std::shared_ptr<pinocchio::Model> pinocchio_model = controller->getPinocchioModel();
-  std::shared_ptr<pinocchio::Data> pinocchio_data = controller->getPinocchioData();
+      robot_model->getPinocchioRobotModel();
+  std::shared_ptr<pinocchio::Model> pinocchio_model = robot_model->getPinocchioModel();
+  std::shared_ptr<pinocchio::Data> pinocchio_data = robot_model->getPinocchioData();
 
-  Eigen::VectorXd curr_target_q = controller->getCurrentTargetQForOpt();
-  Eigen::VectorXd curr_target_dq = controller->getCurrentTargetDqForOpt();
-  Eigen::VectorXd curr_target_ddq = controller->getCurrentTargetDdqForOpt();
+  Eigen::VectorXd curr_target_q = robot_model->getCurrentTargetQForOpt();
+  Eigen::VectorXd curr_target_dq = robot_model->getCurrentTargetDqForOpt();
+  Eigen::VectorXd curr_target_ddq = robot_model->getCurrentTargetDdqForOpt();
 
   // overwrite q with current gimbal angles
-  int gimbal_num = controller->getGimbalNumForOpt();
+  std::vector<std::string> gimbal_names = robot_model->getGimbalNames();
+  int gimbal_num = gimbal_names.size();
   std::vector<int> gimbal_q_indices(0);
   std::vector<int> gimbal_v_indices(0);
-  for (int i = 0; i < pinocchio_robot_model->getRotorNum() / controller->getRotorDevider(); i++)
+  for (int i = 0; i < gimbal_num; i++)
   {
-    // assume gimbal_num = 2*rotor_num and their names are gimbal*_roll and gimbal*_pitch in this order
-    std::string gimbal_roll_name = "gimbal" + std::to_string(i + 1) + "_roll";
-    std::string gimbal_pitch_name = "gimbal" + std::to_string(i + 1) + "_pitch";
-    int gimbal_roll_index_q = pinocchio_model->joints[pinocchio_model->getJointId(gimbal_roll_name)].idx_q();
-    int gimbal_pitch_index_q = pinocchio_model->joints[pinocchio_model->getJointId(gimbal_pitch_name)].idx_q();
-    int gimbal_roll_index_v = pinocchio_model->joints[pinocchio_model->getJointId(gimbal_roll_name)].idx_v();
-    int gimbal_pitch_index_v = pinocchio_model->joints[pinocchio_model->getJointId(gimbal_pitch_name)].idx_v();
+    std::string gimbal_name = gimbal_names.at(i);
+    int gimbal_index_q = pinocchio_model->joints[pinocchio_model->getJointId(gimbal_name)].idx_q();
+    int gimbal_index_v = pinocchio_model->joints[pinocchio_model->getJointId(gimbal_name)].idx_v();
 
-    gimbal_q_indices.push_back(gimbal_roll_index_q);
-    gimbal_q_indices.push_back(gimbal_pitch_index_q);
-    gimbal_v_indices.push_back(gimbal_roll_index_v);
-    gimbal_v_indices.push_back(gimbal_pitch_index_v);
+    gimbal_q_indices.push_back(gimbal_index_q);
+    gimbal_v_indices.push_back(gimbal_index_v);
 
-    curr_target_q(gimbal_roll_index_q) = x[pinocchio_model->nv + pinocchio_robot_model->getRotorNum() + 2 * i];
-    curr_target_q(gimbal_pitch_index_q) = x[pinocchio_model->nv + pinocchio_robot_model->getRotorNum() + 2 * i + 1];
+    curr_target_q(gimbal_index_q) = x[pinocchio_model->nv + pinocchio_robot_model->getRotorNum() + i];
   }
 
   // calculate tauext by thrust
@@ -160,44 +155,66 @@ void rneaConstraint(unsigned m, double* result, unsigned n, const double* x, dou
 }
 }  // namespace
 
-bool jointTrajectoryGenerator::nonlinearInverseDynamics(const Eigen::VectorXd& q, const Eigen::VectorXd& v,
-                                                        const Eigen::VectorXd& a, Eigen::VectorXd& tau)
+NonlinearInverseDynamics::NonlinearInverseDynamics(
+    ros::NodeHandle nh, std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model)
+  : nh_(nh), pinocchio_robot_model_(pinocchio_robot_model)
+{
+  pinocchio_model_ = pinocchio_robot_model_->getModel();
+  pinocchio_data_ = pinocchio_robot_model_->getData();
+
+  rosParamInit();
+  loadJointNames();
+  loadGimbalNames();
+
+  nlp_last_solution_ =
+      Eigen::VectorXd::Zero(pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + gimbal_names_.size());
+}
+
+void NonlinearInverseDynamics::rosParamInit()
+{
+  ros::NodeHandle control_nh(nh_, "controller");
+  getParam<double>(control_nh, "gimbal_delta_max", gimbal_delta_max_, M_PI);
+
+  std::cout << "gimbal_delta_max: " << gimbal_delta_max_ << std::endl;
+}
+
+void NonlinearInverseDynamics::loadJointNames()
+{
+  joint_names_.clear();
+  for (int i = 0; i < pinocchio_model_->njoints; i++)
+  {
+    std::string joint_name = pinocchio_model_->names[i];
+    if (joint_name.find("joint") != std::string::npos)
+    {
+      joint_names_.push_back(joint_name);
+    }
+  }
+}
+
+void NonlinearInverseDynamics::loadGimbalNames()
+{
+  gimbal_names_.clear();
+  for (int i = 0; i < pinocchio_model_->njoints; i++)
+  {
+    std::string joint_name = pinocchio_model_->names[i];
+    if (joint_name.find("gimbal") != std::string::npos)
+    {
+      gimbal_names_.push_back(joint_name);
+    }
+  }
+}
+
+bool NonlinearInverseDynamics::solve(const Eigen::VectorXd& q, const Eigen::VectorXd& v, const Eigen::VectorXd& a,
+                                     Eigen::VectorXd& tau)
 {
   nlp_curr_target_q_ = q;
   nlp_curr_target_dq_ = v;
   nlp_curr_target_ddq_ = a;
 
-  // calculate gimbal num for optimization
-  if (nlp_first_run_)
-  {
-    gimbal_num_ = 0;
-    gimbal_q_indices_.clear();
-    gimbal_v_indices_.clear();
-    for (int i = 0; i < pinocchio_robot_model_->getRotorNum() / rotor_devider_; i++)
-    {
-      // assume gimbal_num = rotor_num and their names are gimbal*_roll and gimbal*_pitch in this order
-      std::string gimbal_roll_name = "gimbal" + std::to_string(i + 1) + "_roll";
-      std::string gimbal_pitch_name = "gimbal" + std::to_string(i + 1) + "_pitch";
-
-      gimbal_num_ += 2;  // each gimbal has two angles (roll and pitch)
-
-      int gimbal_roll_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(gimbal_roll_name)].idx_q();
-      int gimbal_pitch_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(gimbal_pitch_name)].idx_q();
-      int gimbal_roll_index_v = pinocchio_model_->joints[pinocchio_model_->getJointId(gimbal_roll_name)].idx_v();
-      int gimbal_pitch_index_v = pinocchio_model_->joints[pinocchio_model_->getJointId(gimbal_pitch_name)].idx_v();
-
-      gimbal_q_indices_.push_back(gimbal_roll_index_q);
-      gimbal_q_indices_.push_back(gimbal_pitch_index_q);
-      gimbal_v_indices_.push_back(gimbal_roll_index_v);
-      gimbal_v_indices_.push_back(gimbal_pitch_index_v);
-    }
-    ROS_INFO_STREAM("[dynarm][control][nlopt] gibmal num is " << gimbal_num_);
-    nlp_first_run_ = false;
-  }
-
   // // Initialize the nonlinear programming problem
+  int gimbal_num = gimbal_names_.size();
   int n_variables = pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() +
-                    gimbal_num_;            // joint torque + thrust + gimbal angles
+                    gimbal_num;             // generalized_force + thrust + gimbal_angles
   int n_constrints = pinocchio_model_->nv;  // rnea
 
   // bounds
@@ -216,33 +233,41 @@ bool jointTrajectoryGenerator::nonlinearInverseDynamics(const Eigen::VectorXd& q
     lb[pinocchio_model_->nv + i] = thrust_lower_limits(i);
     ub[pinocchio_model_->nv + i] = thrust_upper_limits(i);
   }
-  for (int i = 0; i < gimbal_num_; i++)
+  for (int i = 0; i < gimbal_num; i++)
   {
-    lb[pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i] = std::clamp(
-        curr_q_(gimbal_q_indices_[i]) - gimbal_delta_max_, pinocchio_model_->lowerPositionLimit(gimbal_q_indices_[i]),
-        pinocchio_model_->upperPositionLimit(gimbal_q_indices_[i]));  // gimbal angles lower bound
-    ub[pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i] = std::clamp(
-        curr_q_(gimbal_q_indices_[i]) + gimbal_delta_max_, pinocchio_model_->lowerPositionLimit(gimbal_q_indices_[i]),
-        pinocchio_model_->upperPositionLimit(gimbal_q_indices_[i]));  // gimbal angles upper bound
+    int gimbal_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(gimbal_names_.at(i))].idx_q();
+    lb[pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i] =
+        std::clamp(q(gimbal_index_q) - gimbal_delta_max_, pinocchio_model_->lowerPositionLimit(gimbal_index_q),
+                   pinocchio_model_->upperPositionLimit(gimbal_index_q));  // gimbal angles lower bound
+    ub[pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i] =
+        std::clamp(q(gimbal_index_q) + gimbal_delta_max_, pinocchio_model_->lowerPositionLimit(gimbal_index_q),
+                   pinocchio_model_->upperPositionLimit(gimbal_index_q));  // gimbal angles upper bound
   }
 
   // // Set initial guess
   std::vector<double> x(n_variables);
-  for (int i = 0; i < pinocchio_model_->nv; ++i)
+  for (int i = 0; i < pinocchio_model_->nv; ++i)  // initial guess for generalized force.
   {
-    x[i] = std::clamp(curr_target_tau_(i), lb[i], ub[i]);  // initial guess for joint torque
+    if (tau.size() == n_variables)  // initial guess is passed
+      x[i] = std::clamp(tau(i), lb[i], ub[i]);
+    else
+      x[i] = std::clamp(nlp_last_solution_(i), lb[i], ub[i]);
   }
-  for (int i = 0; i < pinocchio_robot_model_->getRotorNum(); ++i)
+  for (int i = 0; i < pinocchio_robot_model_->getRotorNum(); ++i)  // initial guess for thrust.
   {
-    x[pinocchio_model_->nv + i] = std::clamp(curr_target_thrust_(i), lb[pinocchio_model_->nv + i],
-                                             ub[pinocchio_model_->nv + i]);  // initial guess for thrust
+    if (tau.size() == n_variables)  // initial guess is passed
+      x[pinocchio_model_->nv + i] =
+          std::clamp(tau(pinocchio_model_->nv + i), lb[pinocchio_model_->nv + i], ub[pinocchio_model_->nv + i]);
+    else
+      x[pinocchio_model_->nv + i] = std::clamp(nlp_last_solution_(pinocchio_model_->nv + i),
+                                               lb[pinocchio_model_->nv + i], ub[pinocchio_model_->nv + i]);
   }
-  for (int i = 0; i < gimbal_num_; ++i)
+  for (int i = 0; i < gimbal_num; ++i)  // initial guess for gimbal angles
   {
-    // assume gimbal angles are initialized to zero
-    x[pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i] = std::clamp(
-        curr_q_(gimbal_q_indices_[i]), lb[pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i],
-        ub[pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i]);  // initial guess for gimbal angles
+    int gimbal_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(gimbal_names_.at(i))].idx_q();
+    x[pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i] =
+        std::clamp(q(gimbal_index_q), lb[pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i],
+                   ub[pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i]);
   }
 
   // Solve the optimization problem
@@ -263,7 +288,7 @@ bool jointTrajectoryGenerator::nonlinearInverseDynamics(const Eigen::VectorXd& q
     result = opt.optimize(x, minf);
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    nlp_solve_time_ = duration.count();  // microseconds
+    solve_time_ = duration.count();  // microseconds
   }
   catch (std::runtime_error error)
   {
@@ -277,6 +302,8 @@ bool jointTrajectoryGenerator::nonlinearInverseDynamics(const Eigen::VectorXd& q
   {
     tau(i) = x.at(i);
   }
+
+  nlp_last_solution_ = tau;
 
   return (result >= 0) ? true : false;
 }

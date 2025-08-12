@@ -10,6 +10,9 @@ jointTrajectoryGenerator::jointTrajectoryGenerator(
   pinocchio_model_ = pinocchio_robot_model_->getModel();
   pinocchio_data_ = pinocchio_robot_model_->getData();
 
+  nonlinear_inverse_dynamics_solver_ =
+      std::make_shared<aerial_robot_model::NonlinearInverseDynamics>(nh, pinocchio_robot_model);
+
   rosParamInit();
 
   id_torque_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/id_debug/torque", 1);
@@ -83,7 +86,6 @@ void jointTrajectoryGenerator::rosParamInit()
   getParam<bool>(control_nh, "nonlinear_mode", nonlinear_mode_, true);
   getParam<std::string>(control_nh, "end_effector_name", end_effector_name_, "");
   getParam<double>(control_nh, "transform_duration", transform_duration_, 1.0);
-  getParam<double>(control_nh, "gimbal_delta_max", gimbal_delta_max_, M_PI);
   double ctm_gain;
   getParam<double>(control_nh, "ctm_p_gain", ctm_gain, 1.0);
   ctm_p_gain_ *= ctm_gain;
@@ -97,7 +99,6 @@ void jointTrajectoryGenerator::rosParamInit()
 void jointTrajectoryGenerator::reset()
 {
   is_transforming_ = 0;
-  nlp_first_run_ = true;
 }
 
 void jointTrajectoryGenerator::generateEndEffectorTrajectory()
@@ -237,7 +238,7 @@ bool jointTrajectoryGenerator::solveInverseDynamics()
   bool solved;
   if (nonlinear_mode_)
   {
-    solved = nonlinearInverseDynamics(curr_q_, curr_dq_, curr_target_ddq_, id_result);
+    solved = nonlinear_inverse_dynamics_solver_->solve(curr_q_, curr_dq_, curr_target_ddq_, id_result);
     curr_target_tau_ = id_result.head(pinocchio_model_->nv);
     curr_target_thrust_ = id_result.segment(pinocchio_model_->nv, pinocchio_robot_model_->getRotorNum());
     curr_target_gimbal_angle_ = id_result.tail(pinocchio_robot_model_->getRotorNum() / rotor_devider_ * 2);
@@ -394,7 +395,7 @@ void jointTrajectoryGenerator::publish()
   // for debug: send ID solve time
   std_msgs::Float32 id_time_msg;
   if (nonlinear_mode_)
-    id_time_msg.data = nlp_solve_time_;
+    id_time_msg.data = nonlinear_inverse_dynamics_solver_->getSolveTime();
   else
     id_time_msg.data = pinocchio_robot_model_->getLatestIdSolveTime();
   id_time_pub_.publish(id_time_msg);
