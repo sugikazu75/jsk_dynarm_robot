@@ -56,6 +56,7 @@ private:
 
   // robot parameter
   int rotor_devider_;
+  std::vector<std::string> joint_names_;
 
   // init
   bool first_run_;
@@ -75,6 +76,7 @@ private:
   virtual bool update() override;
   virtual void reset() override;
   void rosParamInit();
+  void loadJointNames();
   void controlCore();
   void sendCmd();
   void sendFourAxisCommand();
