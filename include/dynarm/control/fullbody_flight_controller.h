@@ -30,6 +30,7 @@ private:
   ros::Publisher joints_control_pub_;
   ros::Publisher gimbals_control_pub_;
   ros::Publisher four_axis_command_pub_;
+  ros::Subscriber joint_state_sub_;
 
   boost::shared_ptr<aerial_robot_model::ManipulatorRobotModel> dragon_arm_robot_model_;
   std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model_;
@@ -43,6 +44,8 @@ private:
   std::vector<Eigen::VectorXd> xs_init_;
   std::vector<Eigen::VectorXd> us_init_;
 
+  Eigen::VectorXd curr_q_;
+  Eigen::VectorXd curr_dq_;
   Eigen::VectorXd curr_target_q_;
   Eigen::VectorXd curr_target_dq_;
 
@@ -58,5 +61,6 @@ private:
   void sendFourAxisCommand();
   void sendJointCommand();
   void sendGimbalCommand();
+  void jointStateCallback(const sensor_msgs::JointStateConstPtr& msg);
 };
 }  // namespace aerial_robot_control

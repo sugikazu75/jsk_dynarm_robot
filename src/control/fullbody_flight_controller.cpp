@@ -23,11 +23,16 @@ void FullbodyFlightController::initialize(ros::NodeHandle nh, ros::NodeHandle nh
   joints_control_pub_ = nh_.advertise<sensor_msgs::JointState>("joints_ctrl", 1);
   gimbals_control_pub_ = nh_.advertise<sensor_msgs::JointState>("gimbals_ctrl", 1);
 
+  joint_state_sub_ = nh_.subscribe("joint_states", 1, &FullbodyFlightController::jointStateCallback, this);
+
   nonlinear_inverse_dynamics_solver_ =
       std::make_shared<aerial_robot_model::NonlinearInverseDynamics>(nh, pinocchio_robot_model_);
 
   control_input_ = Eigen::VectorXd::Zero(pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() +
                                          nonlinear_inverse_dynamics_solver_->getGimbalNames().size());
+
+  curr_q_ = Eigen::VectorXd::Zero(pinocchio_model_->nq);
+  curr_dq_ = Eigen::VectorXd::Zero(pinocchio_model_->nv);
 
   rosParamInit();
   DDPProblemInit();
@@ -135,6 +140,7 @@ void FullbodyFlightController::reset()
   std::cout << "[ddp] xref: " << xref.transpose() << std::endl;
 
   curr_target_q_ = xref.head(pinocchio_model_->nq);
+  curr_target_dq_ = Eigen::VectorXd::Zero(pinocchio_model_->nv);
 
   ddp_problem_ = hovering_->createHoveringProblem(x0, xref);
   ddp_solver_ = std::make_shared<crocoddyl::SolverBoxFDDP>(ddp_problem_);
@@ -183,16 +189,22 @@ void FullbodyFlightController::controlCore()
 
   // set current state as next initial state
   Eigen::VectorXd current_x = Eigen::VectorXd::Zero(pinocchio_model_->nq + pinocchio_model_->nv);
-  current_x.head(pinocchio_model_->nq) = dragon_arm_robot_model_->getCurrentJointPositions();
+
+  // joint positions
+  current_x.head(pinocchio_model_->nq) = curr_q_;
+
+  // root position
   current_x.head(3) << estimator_->getPos(Frame::BASELINK, estimate_mode_).x(),
-      estimator_->getPos(Frame::BASELINK, estimate_mode_).y(),
-      estimator_->getPos(Frame::BASELINK, estimate_mode_).z();  // root position
+      estimator_->getPos(Frame::BASELINK, estimate_mode_).y(), estimator_->getPos(Frame::BASELINK, estimate_mode_).z();
 
   // root orientation
   tf::Matrix3x3 root_rot = estimator_->getOrientation(Frame::BASELINK, estimate_mode_);
   tf::Quaternion root_quat;
   root_rot.getRotation(root_quat);
   current_x.segment(3, 4) << root_quat.x(), root_quat.y(), root_quat.z(), root_quat.w();  // root rotation
+
+  // joint velocities
+  current_x.tail(pinocchio_model_->nv) = curr_dq_;
 
   // root linear velocity in local frame
   tf::Vector3 root_vel = root_rot.inverse() * estimator_->getVel(Frame::BASELINK, estimate_mode_);
@@ -298,6 +310,27 @@ void FullbodyFlightController::sendGimbalCommand()
   }
 
   gimbals_control_pub_.publish(gimbal_state_msg);
+}
+
+void FullbodyFlightController::jointStateCallback(const sensor_msgs::JointStateConstPtr& msg)
+{
+  for (size_t i = 0; i < msg->name.size(); ++i)
+  {
+    int joint_id = pinocchio_model_->getJointId(msg->name[i]);
+    if (joint_id >= 0 && joint_id < pinocchio_model_->njoints)
+    {
+      int joint_index_q = pinocchio_model_->joints[joint_id].idx_q();
+      int joint_index_v = pinocchio_model_->joints[joint_id].idx_v();
+      if (msg->position.size() == msg->name.size())
+      {
+        curr_q_(joint_index_q) = msg->position[i];
+      }
+      if (msg->velocity.size() == msg->name.size())
+      {
+        curr_dq_(joint_index_v) = msg->velocity[i];
+      }
+    }
+  }
 }
 
 /* plugin registration */
