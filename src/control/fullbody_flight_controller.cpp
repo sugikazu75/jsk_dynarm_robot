@@ -26,6 +26,9 @@ void FullbodyFlightController::initialize(ros::NodeHandle nh, ros::NodeHandle nh
   nonlinear_inverse_dynamics_solver_ =
       std::make_shared<aerial_robot_model::NonlinearInverseDynamics>(nh, pinocchio_robot_model_);
 
+  control_input_ = Eigen::VectorXd::Zero(pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() +
+                                         nonlinear_inverse_dynamics_solver_->getGimbalNames().size());
+
   rosParamInit();
   DDPProblemInit();
 }
@@ -93,9 +96,24 @@ void FullbodyFlightController::DDPProblemInit()
       std::make_shared<DDPHoveringProblem>(pinocchio_model_, thrusters, fwddyn, cost_weight, optimization_param);
 }
 
+void FullbodyFlightController::activate()
+{
+  ControlBase::activate();
+
+  control_input_ = Eigen::VectorXd::Zero(pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() +
+                                         nonlinear_inverse_dynamics_solver_->getGimbalNames().size());
+
+  sendGimbalCommand();
+}
+
 void FullbodyFlightController::reset()
 {
   ControlBase::reset();
+
+  nonlinear_inverse_dynamics_solver_->reset();
+
+  control_input_ = Eigen::VectorXd::Zero(pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() +
+                                         nonlinear_inverse_dynamics_solver_->getGimbalNames().size());
 
   Eigen::VectorXd x0 = Eigen::VectorXd::Zero(pinocchio_model_->nq + pinocchio_model_->nv);
   Eigen::VectorXd curr_q = dragon_arm_robot_model_->getCurrentJointPositions();

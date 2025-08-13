@@ -54,6 +54,7 @@ public:
     return solve_time_;
   }
 
+  void reset();
   bool solve(const Eigen::VectorXd& q, const Eigen::VectorXd& v, const Eigen::VectorXd& a,
              Eigen::VectorXd& tau_thrust_gimbal);
 

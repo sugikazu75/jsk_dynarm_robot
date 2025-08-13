@@ -50,6 +50,7 @@ private:
 
   void rosParamInit();
   void DDPProblemInit();
+  virtual void activate() override;
   virtual bool update() override;
   virtual void reset() override;
   void controlCore();

@@ -170,6 +170,13 @@ NonlinearInverseDynamics::NonlinearInverseDynamics(
       Eigen::VectorXd::Zero(pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + gimbal_names_.size());
 }
 
+void NonlinearInverseDynamics::reset()
+{
+  nlp_last_solution_ =
+      Eigen::VectorXd::Zero(pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + gimbal_names_.size());
+  solve_time_ = 0.0;
+}
+
 void NonlinearInverseDynamics::rosParamInit()
 {
   ros::NodeHandle control_nh(nh_, "controller");
