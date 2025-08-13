@@ -1,0 +1,53 @@
+aerial_robot_control_name: aerial_robot_control/fullbody_flight_controller
+
+controller:
+  gimbal_delta_max: 0.5  # Maximum change in gimbal angles (radians)
+
+
+ddp:
+  fwddyn: false
+  state_weight: 1.0
+  state_bound_weight: 100.0
+  control_weight: 1.0
+
+  x_init: [
+    0, 0, 0, 0, 0, 0, 1,
+    0, 0, 0, 0,
+    1.57, 0, 0, 0,
+    1.57, 0, 0, 0,
+    0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0]
+
+  x_ref: [
+    0, 0, 1, 0, 0, 0, 1,
+    0, 0, 0, 0,
+    1.57, 0, 0, 0,
+    1.57, 0, 0, 0,
+    0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0]
+
+  x_state_weights: [
+    10, 10, 100, 10, 10, 10,
+    10, 10, 1, 1,
+    10, 10, 1, 1,
+    10, 10, 1, 1,
+    1, 1, 1, 10, 10, 10,
+    10, 10, 1, 1,
+    10, 10, 1, 1,
+    10, 10, 1, 1]
+
+  u_weight_fwddyn: [
+    0.01, 0.01, 0.01,
+    10, 10, 10, 10,
+    10, 10, 10, 10,
+    10, 10, 10, 10]
+
+  u_weight_invdyn: [
+    1, 1, 1, 1, 1, 1,
+    10, 10, 10, 10,
+    10, 10, 10, 10,
+    10, 10, 10, 10]

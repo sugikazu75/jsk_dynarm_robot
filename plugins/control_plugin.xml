@@ -1,4 +1,7 @@
-<library path="lib/libmanipulator_controller">
+<library path="lib/libdynarm_controllib">
   <class name="aerial_robot_control/manipulator_controller" type="aerial_robot_control::ManipulatorController" base_class_type="aerial_robot_control::ControlBase">
+  </class>
+
+  <class name="aerial_robot_control/fullbody_flight_controller" type="aerial_robot_control::FullbodyFlightController" base_class_type="aerial_robot_control::ControlBase">
   </class>
 </library>

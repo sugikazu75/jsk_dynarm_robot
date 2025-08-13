@@ -76,18 +76,6 @@ target_link_libraries(joint_trajectory_generator_test
   ${NLOPT_LIBRARIES}
   )
 
-add_library(manipulator_controller
-  src/control/manipulator_controller.cpp)
-target_link_libraries(manipulator_controller
-  joint_trajectory_generator
-  manipulator_model
-  nonlinear_inverse_dynamics
-  ${catkin_LIBRARIES}
-  pinocchio::pinocchio
-  ${Eigen3_LIBRARIES}
-  ${OsqpEigen_LIBRARIES}
-  )
-
 add_library(ddp_hovering_problem
   src/control/ddp_hovering_problem.cpp)
 target_link_libraries(ddp_hovering_problem
@@ -105,6 +93,20 @@ target_link_libraries(ddp_hovering_problem_test
   ${catkin_LIBRARIES}
   pinocchio::pinocchio
   crocoddyl::crocoddyl
+  ${Eigen3_LIBRARIES}
+  ${OsqpEigen_LIBRARIES}
+  )
+
+add_library(dynarm_controllib
+  src/control/fullbody_flight_controller.cpp
+  src/control/manipulator_controller.cpp)
+target_link_libraries(dynarm_controllib
+  ddp_hovering_problem
+  joint_trajectory_generator
+  manipulator_model
+  nonlinear_inverse_dynamics
+  ${catkin_LIBRARIES}
+  pinocchio::pinocchio
   ${Eigen3_LIBRARIES}
   ${OsqpEigen_LIBRARIES}
   )
