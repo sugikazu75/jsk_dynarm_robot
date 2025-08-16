@@ -140,7 +140,7 @@ void FullbodyFlightController::reset()
   std::cout << "[ddp] xref: " << xref.transpose() << std::endl;
 
   curr_target_q_ = xref.head(pinocchio_model_->nq);
-  curr_target_dq_ = Eigen::VectorXd::Zero(pinocchio_model_->nv);
+  curr_target_dq_ = xref.tail(pinocchio_model_->nv);
 
   ddp_problem_ = hovering_->createHoveringProblem(x0, xref);
   ddp_solver_ = std::make_shared<crocoddyl::SolverBoxFDDP>(ddp_problem_);
@@ -271,8 +271,9 @@ void FullbodyFlightController::sendJointCommand()
   joint_state_msg.header.stamp = ros::Time::now();
 
   Eigen::VectorXd curr_target_q = curr_target_q_;
-  Eigen::VectorXd curr_target_dq = Eigen::VectorXd::Zero(pinocchio_model_->nv);
-  Eigen::VectorXd curr_target_tau = control_input_.segment(6, pinocchio_model_->nv - 6);  // exclude root ddq
+  Eigen::VectorXd curr_target_dq = curr_target_dq_;
+  Eigen::VectorXd curr_target_tau = control_input_.head(
+      pinocchio_model_->nv);  // this vector includes target root generalized force(should be 0) and joint torques
 
   std::vector<std::string> joint_names = nonlinear_inverse_dynamics_solver_->getJointNames();
 
