@@ -1,7 +1,5 @@
 #include <dynarm/model/nonlinear_inverse_dynamics.h>
 
-#include <nlopt.hpp>
-
 using namespace aerial_robot_model;
 
 namespace
@@ -166,8 +164,34 @@ NonlinearInverseDynamics::NonlinearInverseDynamics(
   loadJointNames();
   loadGimbalNames();
 
-  nlp_last_solution_ =
-      Eigen::VectorXd::Zero(pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + gimbal_names_.size());
+  nlp_n_variables_ = pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() +
+                     gimbal_names_.size();    // generalized_force + thrust + gimbal_angles
+  nlp_n_constraints_ = pinocchio_model_->nv;  // rnea
+  nlp_lb_.resize(nlp_n_variables_, -std::numeric_limits<double>::infinity());
+  nlp_ub_.resize(nlp_n_variables_, std::numeric_limits<double>::infinity());
+  Eigen::VectorXd joint_torque_limits = pinocchio_robot_model_->getJointTorqueLimits();
+  Eigen::VectorXd thrust_upper_limits = pinocchio_robot_model_->getThrustUpperLimits();
+  Eigen::VectorXd thrust_lower_limits = pinocchio_robot_model_->getThrustLowerLimits();
+  for (int i = 0; i < pinocchio_model_->nv; ++i)
+  {
+    nlp_lb_[i] = -joint_torque_limits(i);
+    nlp_ub_[i] = joint_torque_limits(i);
+  }
+  for (int i = 0; i < pinocchio_robot_model_->getRotorNum(); ++i)
+  {
+    nlp_lb_[pinocchio_model_->nv + i] = thrust_lower_limits(i);
+    nlp_ub_[pinocchio_model_->nv + i] = thrust_upper_limits(i);
+  }
+
+  nlp_solver_ = nlopt::opt(nlopt::LD_SLSQP, nlp_n_variables_);
+  nlp_solver_.set_min_objective(torqueThrustMinimize, this);
+  nlp_solver_.add_equality_mconstraint(rneaConstraint, this,
+                                       std::vector<double>(nlp_n_constraints_, 1e-4));  // rnea constraints
+  nlp_solver_.set_ftol_rel(1e-6);
+  nlp_solver_.set_xtol_rel(1e-6);
+  nlp_solver_.set_maxeval(1000);
+
+  nlp_last_solution_ = Eigen::VectorXd::Zero(nlp_n_variables_);  // last solution is initialized to zero
 }
 
 void NonlinearInverseDynamics::reset()
@@ -214,85 +238,59 @@ void NonlinearInverseDynamics::loadGimbalNames()
 bool NonlinearInverseDynamics::solve(const Eigen::VectorXd& q, const Eigen::VectorXd& v, const Eigen::VectorXd& a,
                                      Eigen::VectorXd& tau)
 {
+  // store current state for optimization
   nlp_curr_target_q_ = q;
   nlp_curr_target_dq_ = v;
   nlp_curr_target_ddq_ = a;
 
-  // // Initialize the nonlinear programming problem
+  // update bounds for gimbal angles
   int gimbal_num = gimbal_names_.size();
-  int n_variables = pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() +
-                    gimbal_num;             // generalized_force + thrust + gimbal_angles
-  int n_constrints = pinocchio_model_->nv;  // rnea
-
-  // bounds
-  std::vector<double> lb(n_variables, -std::numeric_limits<double>::infinity());
-  std::vector<double> ub(n_variables, std::numeric_limits<double>::infinity());
-  Eigen::VectorXd joint_torque_limits = pinocchio_robot_model_->getJointTorqueLimits();
-  Eigen::VectorXd thrust_upper_limits = pinocchio_robot_model_->getThrustUpperLimits();
-  Eigen::VectorXd thrust_lower_limits = pinocchio_robot_model_->getThrustLowerLimits();
-  for (int i = 0; i < pinocchio_model_->nv; ++i)
-  {
-    lb[i] = -joint_torque_limits(i);
-    ub[i] = joint_torque_limits(i);
-  }
-  for (int i = 0; i < pinocchio_robot_model_->getRotorNum(); ++i)
-  {
-    lb[pinocchio_model_->nv + i] = thrust_lower_limits(i);
-    ub[pinocchio_model_->nv + i] = thrust_upper_limits(i);
-  }
   for (int i = 0; i < gimbal_num; i++)
   {
     int gimbal_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(gimbal_names_.at(i))].idx_q();
-    lb[pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i] =
+    nlp_lb_[pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i] =
         std::clamp(q(gimbal_index_q) - gimbal_delta_max_, pinocchio_model_->lowerPositionLimit(gimbal_index_q),
                    pinocchio_model_->upperPositionLimit(gimbal_index_q));  // gimbal angles lower bound
-    ub[pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i] =
+    nlp_ub_[pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i] =
         std::clamp(q(gimbal_index_q) + gimbal_delta_max_, pinocchio_model_->lowerPositionLimit(gimbal_index_q),
                    pinocchio_model_->upperPositionLimit(gimbal_index_q));  // gimbal angles upper bound
   }
+  nlp_solver_.set_lower_bounds(nlp_lb_);
+  nlp_solver_.set_upper_bounds(nlp_ub_);
 
   // // Set initial guess
-  std::vector<double> x(n_variables);
+  std::vector<double> x(nlp_n_variables_);
   for (int i = 0; i < pinocchio_model_->nv; ++i)  // initial guess for generalized force.
   {
-    if (tau.size() == n_variables)  // initial guess is passed
-      x[i] = std::clamp(tau(i), lb[i], ub[i]);
+    if (tau.size() == nlp_n_variables_)  // initial guess is passed
+      x[i] = std::clamp(tau(i), nlp_lb_[i], nlp_ub_[i]);
     else
-      x[i] = std::clamp(nlp_last_solution_(i), lb[i], ub[i]);
+      x[i] = std::clamp(nlp_last_solution_(i), nlp_lb_[i], nlp_ub_[i]);
   }
   for (int i = 0; i < pinocchio_robot_model_->getRotorNum(); ++i)  // initial guess for thrust.
   {
-    if (tau.size() == n_variables)  // initial guess is passed
-      x[pinocchio_model_->nv + i] =
-          std::clamp(tau(pinocchio_model_->nv + i), lb[pinocchio_model_->nv + i], ub[pinocchio_model_->nv + i]);
+    if (tau.size() == nlp_n_variables_)  // initial guess is passed
+      x[pinocchio_model_->nv + i] = std::clamp(tau(pinocchio_model_->nv + i), nlp_lb_[pinocchio_model_->nv + i],
+                                               nlp_ub_[pinocchio_model_->nv + i]);
     else
       x[pinocchio_model_->nv + i] = std::clamp(nlp_last_solution_(pinocchio_model_->nv + i),
-                                               lb[pinocchio_model_->nv + i], ub[pinocchio_model_->nv + i]);
+                                               nlp_lb_[pinocchio_model_->nv + i], nlp_ub_[pinocchio_model_->nv + i]);
   }
   for (int i = 0; i < gimbal_num; ++i)  // initial guess for gimbal angles
   {
     int gimbal_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(gimbal_names_.at(i))].idx_q();
     x[pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i] =
-        std::clamp(q(gimbal_index_q), lb[pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i],
-                   ub[pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i]);
+        std::clamp(q(gimbal_index_q), nlp_lb_[pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i],
+                   nlp_ub_[pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i]);
   }
 
   // Solve the optimization problem
-  nlopt::opt opt(nlopt::LD_SLSQP, n_variables);
-  opt.set_min_objective(torqueThrustMinimize, this);
-  opt.add_equality_mconstraint(rneaConstraint, this, std::vector<double>(n_constrints, 1e-4));  // rnea constraints
-  opt.set_lower_bounds(lb);
-  opt.set_upper_bounds(ub);
-  opt.set_ftol_rel(1e-6);
-  opt.set_xtol_rel(1e-6);
-  opt.set_maxeval(1000);
-
   double minf;
   nlopt::result result;
   try
   {
     auto start = std::chrono::high_resolution_clock::now();
-    result = opt.optimize(x, minf);
+    result = nlp_solver_.optimize(x, minf);
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
     solve_time_ = duration.count();  // microseconds
@@ -304,8 +302,8 @@ bool NonlinearInverseDynamics::solve(const Eigen::VectorXd& q, const Eigen::Vect
     ROS_ERROR_STREAM_THROTTLE(1.0, "[nlopt] failed to solve. result is " << result);
 
   // print
-  tau.resize(n_variables);
-  for (int i = 0; i < n_variables; i++)
+  tau.resize(nlp_n_variables_);
+  for (int i = 0; i < nlp_n_variables_; i++)
   {
     tau(i) = x.at(i);
   }

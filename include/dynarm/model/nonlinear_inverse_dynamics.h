@@ -3,6 +3,8 @@
 #include <pinocchio/fwd.hpp>
 #include <aerial_robot_dynamics/robot_model.h>
 
+#include <nlopt.hpp>
+
 namespace aerial_robot_model
 {
 class NonlinearInverseDynamics
@@ -65,6 +67,12 @@ private:
   std::shared_ptr<pinocchio::Data> pinocchio_data_;
   std::vector<std::string> joint_names_;
   std::vector<std::string> gimbal_names_;
+
+  nlopt::opt nlp_solver_;
+  std::vector<double> nlp_lb_;
+  std::vector<double> nlp_ub_;
+  int nlp_n_variables_;
+  int nlp_n_constraints_;
 
   Eigen::VectorXd nlp_last_solution_;
   Eigen::VectorXd nlp_curr_target_q_;
