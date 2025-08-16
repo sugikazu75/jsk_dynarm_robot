@@ -46,10 +46,6 @@ jointTrajectoryGenerator::jointTrajectoryGenerator(
 
   is_transforming_ = 0;
 
-  target_ee_pos_.setZero();
-  target_ee_vel_.setZero();
-  target_ee_acc_.setZero();
-
   curr_q_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nq);
   curr_dq_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv);
   curr_target_q_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nq);
@@ -78,6 +74,13 @@ jointTrajectoryGenerator::jointTrajectoryGenerator(
     curr_target_q_(i) = init_target_q.at(i);
   }
   ROS_INFO_STREAM("[dragon_arm][control] initial target joint angle: " << curr_target_q_.transpose());
+
+  // initialize target end-effector position, velocity, and acceleration
+  pinocchio::framesForwardKinematics(*pinocchio_model_, *pinocchio_data_, curr_target_q_);
+  pinocchio::FrameIndex frame_id = pinocchio_model_->getFrameId(end_effector_name_);
+  target_ee_pos_ = pinocchio_data_->oMf[frame_id].translation();
+  target_ee_vel_.setZero();
+  target_ee_acc_.setZero();
 }
 
 void jointTrajectoryGenerator::rosParamInit()
