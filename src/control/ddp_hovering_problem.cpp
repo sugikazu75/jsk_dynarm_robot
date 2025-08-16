@@ -26,7 +26,7 @@ DDPHoveringProblem::DDPHoveringProblem(std::shared_ptr<pinocchio::Model> pinocch
     nu_ = state_->get_nv();
 }
 
-std::shared_ptr<crocoddyl::ShootingProblem> DDPHoveringProblem::createHoveringProblem(Eigen::VectorXd x0,
+std::shared_ptr<crocoddyl::ActionModelAbstract> DDPHoveringProblem::createActionModel(Eigen::VectorXd x0,
                                                                                       Eigen::VectorXd xref)
 {
   x0.segment<4>(3).normalize();    // Ensure quaternion is normalized
@@ -73,11 +73,22 @@ std::shared_ptr<crocoddyl::ShootingProblem> DDPHoveringProblem::createHoveringPr
   std::shared_ptr<crocoddyl::ActionModelAbstract> action_model =
       std::make_shared<crocoddyl::IntegratedActionModelEuler>(dmodel, optimization_param_.dt);
 
+  return action_model;
+}
+
+std::shared_ptr<crocoddyl::ShootingProblem> DDPHoveringProblem::createHoveringProblem(Eigen::VectorXd x0,
+                                                                                      Eigen::VectorXd xref)
+{
   int N = optimization_param_.horizon / optimization_param_.dt;
-  std::vector<std::shared_ptr<crocoddyl::ActionModelAbstract>> action_models(N, action_model);
+  std::vector<std::shared_ptr<crocoddyl::ActionModelAbstract>> action_models(0);
+  for (int i = 0; i < N; i++)
+  {
+    action_models.push_back(createActionModel(x0, xref));
+  }
+  std::shared_ptr<crocoddyl::ActionModelAbstract> terminal_model = createActionModel(x0, xref);
 
   std::shared_ptr<crocoddyl::ShootingProblem> problem =
-      std::make_shared<crocoddyl::ShootingProblem>(x0, action_models, action_model);
+      std::make_shared<crocoddyl::ShootingProblem>(x0, action_models, terminal_model);
 
   return problem;
 }

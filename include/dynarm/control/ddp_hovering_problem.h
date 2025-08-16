@@ -49,6 +49,7 @@ public:
                      bool fwddyn, const CostWeight& cost_weight, const OptimizationParam& optimization_param);
   ~DDPHoveringProblem(){};
 
+  std::shared_ptr<crocoddyl::ActionModelAbstract> createActionModel(Eigen::VectorXd x0, Eigen::VectorXd xref);
   std::shared_ptr<crocoddyl::ShootingProblem> createHoveringProblem(Eigen::VectorXd x0, Eigen::VectorXd xref);
 
   CostWeight cost_weight_;
