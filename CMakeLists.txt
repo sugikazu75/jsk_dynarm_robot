@@ -45,9 +45,31 @@ target_link_libraries(nonlinear_inverse_dynamics
   ${NLOPT_LIBRARIES}
   )
 
-add_library(manipulator_model
-  src/model/manipulator_model.cpp)
-target_link_libraries(manipulator_model
+add_library(joint_trajectory_generator
+  src/control/joint_trajectory_generator.cpp)
+target_link_libraries(joint_trajectory_generator
+  ${catkin_LIBRARIES}
+  pinocchio::pinocchio
+  ${Eigen3_LIBRARIES}
+  ${OsqpEigen_LIBRARIES}
+  )
+
+add_library(trajectory_generator
+  src/control/trajectory_generator.cpp)
+target_link_libraries(trajectory_generator
+  joint_trajectory_generator
+  nonlinear_inverse_dynamics
+  ${catkin_LIBRARIES}
+  pinocchio::pinocchio
+  ${Eigen3_LIBRARIES}
+  ${OsqpEigen_LIBRARIES}
+  ${NLOPT_LIBRARIES}
+  )
+add_executable(trajectory_generator_test
+  src/control/trajectory_generator.cpp)
+target_link_libraries(trajectory_generator_test
+  trajectory_generator
+  nonlinear_inverse_dynamics
   ${catkin_LIBRARIES}
   pinocchio::pinocchio
   ${Eigen3_LIBRARIES}
@@ -55,22 +77,11 @@ target_link_libraries(manipulator_model
   ${NLOPT_LIBRARIES}
   )
 
-add_library(joint_trajectory_generator
-  src/control/joint_trajectory_generator.cpp)
-target_link_libraries(joint_trajectory_generator
-  manipulator_model
-  nonlinear_inverse_dynamics
+add_library(manipulator_model
+  src/model/manipulator_model.cpp)
+target_link_libraries(manipulator_model
   ${catkin_LIBRARIES}
-  ${Eigen3_LIBRARIES}
-  ${OsqpEigen_LIBRARIES}
-  )
-
-add_executable(joint_trajectory_generator_test
-  src/control/joint_trajectory_generator_test.cpp)
-target_link_libraries(joint_trajectory_generator_test
-  joint_trajectory_generator
-  nonlinear_inverse_dynamics
-  ${catkin_LIBRARIES}
+  pinocchio::pinocchio
   ${Eigen3_LIBRARIES}
   ${OsqpEigen_LIBRARIES}
   ${NLOPT_LIBRARIES}
@@ -105,6 +116,7 @@ target_link_libraries(dynarm_controllib
   joint_trajectory_generator
   manipulator_model
   nonlinear_inverse_dynamics
+  trajectory_generator
   ${catkin_LIBRARIES}
   pinocchio::pinocchio
   ${Eigen3_LIBRARIES}

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <dynarm/model/manipulator_model.h>
+#include <pinocchio/fwd.hpp>
 #include <dynarm/model/nonlinear_inverse_dynamics.h>
 #include <motion_planning/position_trajectory_generator.hpp>
 #include <motion_planning/inverse_kinematics_3d.hpp>
@@ -21,44 +21,32 @@ public:
                            std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model);
   virtual ~jointTrajectoryGenerator() = default;
 
-  std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> getPinocchioRobotModel()
-  {
-    return pinocchio_robot_model_;
-  }
-  std::shared_ptr<pinocchio::Model> getPinocchioModel()
-  {
-    return pinocchio_model_;
-  }
-  std::shared_ptr<pinocchio::Data> getPinocchioData()
-  {
-    return pinocchio_data_;
-  }
-  const int getRotorDevider()
-  {
-    return rotor_devider_;
-  }
-  const int getIsTransforming()
-  {
-    return is_transforming_;
-  }
-
-  void update(const ros::TimerEvent& event);
+  void update();
   void publish();
   void publishDummyJointState();
+  Eigen::VectorXd getGimbalNominalAngles(Eigen::VectorXd q);
   void generateEndEffectorTrajectory();
   void generateJointTrajectory();
-  Eigen::VectorXd getGimbalNominalAngles(Eigen::VectorXd q);
-  void getGimbalNominalAngles();
-  bool solveInverseDynamics();
-  void updateTargetGimbalAngle();
   void stateTransition();
-  void rosParamInit();
   void reset();
 
-  const bool getNonlinearMode()
+  void setCurrentQ(const Eigen::VectorXd curr_q)
   {
-    return nonlinear_mode_;
+    curr_q_ = curr_q;
   }
+  void setCurrentDQ(const Eigen::VectorXd curr_dq)
+  {
+    curr_dq_ = curr_dq;
+  }
+  Eigen::VectorXd getCurrentQ()
+  {
+    return curr_q_;
+  }
+  Eigen::VectorXd getCurrentDQ()
+  {
+    return curr_dq_;
+  }
+
   void setCurrentTargetQ(const Eigen::VectorXd curr_target_q)
   {
     curr_target_q_ = curr_target_q;
@@ -83,17 +71,17 @@ public:
   {
     return curr_target_ddq_;
   }
-  Eigen::VectorXd getCurrentTargetTau()
+  void setFinalTargetQ(const Eigen::VectorXd final_target_q)
   {
-    return curr_target_tau_;
+    final_target_q_ = final_target_q;
   }
-  Eigen::VectorXd getCurrentTargetThrust()
+  Eigen::VectorXd getResetTargetQ()
   {
-    return curr_target_thrust_;
+    return reset_target_q_;
   }
-  Eigen::VectorXd getCurrentTargetGimbalAngle()
+  void setTransformDuration(double duration)
   {
-    return curr_target_gimbal_angle_;
+    transform_duration_ = duration;
   }
 
 private:
@@ -102,35 +90,24 @@ private:
   std::shared_ptr<pinocchio::Data> pinocchio_data_;
 
   ros::NodeHandle nh_;
-  ros::Publisher id_torque_pub_;
-  ros::Publisher id_velocity_pub_;
-  ros::Publisher id_acc_pub_;
-  ros::Publisher id_tau_by_thrust_pub_;
   ros::Publisher is_transforming_pub_;
-  ros::Publisher id_time_pub_;
-  ros::Publisher id_result_torque_pub_;
-  ros::Publisher id_result_thrust_pub_;
-  ros::Publisher thrust_pub_;
-  ros::Publisher rotor_wrench_pub_;
+  ros::Publisher target_q_pub_;
+  ros::Publisher target_dq_pub_;
+  ros::Publisher target_ddq_pub_;
   ros::Publisher target_end_effector_pos_pub_;
   ros::Publisher target_end_effector_vel_pub_;
   ros::Publisher target_end_effector_acc_pub_;
   ros::Publisher dummy_joint_state_pub_;
-
   ros::Subscriber joint_state_sub_;
   ros::Subscriber target_end_effector_final_pos_sub_;
   ros::Subscriber circle_trajectory_sub_;
   ros::Subscriber direct_joint_angle_sub_;
 
-  // debug
-  std::string robot_ns_;
-  int rotor_wrench_pub_index_;
-
   int is_transforming_ = 0;  // 0: not transforming, 1: linear transform, 2: circle trajectory
 
-  Eigen::Vector3d target_ee_pos_;
-  Eigen::Vector3d target_ee_vel_;
-  Eigen::Vector3d target_ee_acc_;
+  std::vector<std::string> joint_names_;
+  std::vector<std::string> gimbal_names_;
+  int rotor_devider_ = 1;
 
   Eigen::VectorXd curr_q_;
   Eigen::VectorXd curr_dq_;
@@ -139,30 +116,29 @@ private:
   Eigen::VectorXd curr_target_dq_;
   Eigen::VectorXd curr_target_ddq_;
 
+  Eigen::VectorXd final_target_q_;
+  Eigen::VectorXd init_target_q_;
+  Eigen::VectorXd reset_target_q_;
+
+  Eigen::Vector3d target_ee_pos_;
+  Eigen::Vector3d target_ee_vel_;
+  Eigen::Vector3d target_ee_acc_;
+
   Eigen::MatrixXd ctm_p_gain_;
   Eigen::MatrixXd ctm_d_gain_;
 
-  Eigen::VectorXd curr_target_tau_;
-  Eigen::VectorXd curr_target_thrust_;
-  Eigen::VectorXd curr_target_gimbal_angle_;
-
-  Eigen::VectorXd final_target_q_;
-  Eigen::VectorXd init_target_q_;
-
   // manipulation param
   motion_planning::PositionTrajectoryGenerator pos_trajectory_generator_;
-  std::shared_ptr<aerial_robot_model::NonlinearInverseDynamics> nonlinear_inverse_dynamics_solver_;
   double transform_duration_;
   double transform_start_time_;
-  double transform_end_time_;
   std::string end_effector_name_;
   double circle_trajectory_radius_;
   double circle_trajectory_angular_velocity_;
   Eigen::Vector3d circle_trajectory_center_;
 
-  // nlp param
-  bool nonlinear_mode_;
-  int rotor_devider_ = 1;
+  void loadJointNames();
+  void loadGimbalNames();
+  void rosParamInit();
 
   void jointStateCallback(const sensor_msgs::JointState msg);
   void targetEndEffectorPosCallback(const geometry_msgs::Vector3StampedConstPtr& msg);

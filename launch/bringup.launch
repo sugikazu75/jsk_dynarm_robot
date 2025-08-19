@@ -60,16 +60,18 @@
 
   ########### Desired robot state ###########
   <group ns="$(arg robot_ns)_desired">
-    <param name="robot_description" command="$(find xacro)/xacro $(find dynarm)/robots/$(arg version)/dynarm.urdf.xacro" />
-    <node name="desired_robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
-      <param name="tf_prefix" value="$(arg robot_ns)_desired" />
-      <remap from="joint_states" to="/$(arg robot_ns)/debug/id_debug/torque"/>
-    </node>
-    <node pkg="tf2_ros" type="static_transform_publisher" name="static_tf_desired"
-          args="0 0 $(arg spawn_z) 0 0 0 world $(arg robot_ns)_desired/root" />
-    <node pkg="aerial_robot_model" type="rotor_tf_publisher" name="desired_rotor_tf_publisher">
-      <param name="tf_prefix" value="$(arg robot_ns)_desired"/>
-    </node>
+    <group if="$(arg root_fix)">
+      <param name="robot_description" command="$(find xacro)/xacro $(find dynarm)/robots/$(arg version)/dynarm.urdf.xacro" />
+      <node name="desired_robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+        <param name="tf_prefix" value="$(arg robot_ns)_desired" />
+        <remap from="joint_states" to="/$(arg robot_ns)/debug/target_q"/>
+      </node>
+      <node pkg="tf2_ros" type="static_transform_publisher" name="static_tf_desired"
+            args="0 0 $(arg spawn_z) 0 0 0 world $(arg robot_ns)_desired/root" />
+      <node pkg="aerial_robot_model" type="rotor_tf_publisher" name="desired_rotor_tf_publisher">
+        <param name="tf_prefix" value="$(arg robot_ns)_desired"/>
+      </node>
+    </group>
   </group>
 
   ###########  Base Platform  ###########

@@ -8,7 +8,7 @@
     <rosparam file="$(arg config_dir)/$(arg version)/ManipulatorModel.yaml" command="load"/>
     <rosparam file="$(arg config_dir)/$(arg version)/ManipulatorControl.yaml" command="load"/>
 
-    <node pkg="dynarm" type="joint_trajectory_generator_test" name="joint_trajectory_generator_test" output="screen"/>
+    <node pkg="dynarm" type="trajectory_generator_test" name="trajectory_generator_test" output="screen"/>
 
     <node name="pinocchio_robot_description_generator" pkg="dynarm" type="pinocchio_robot_description_generator.py" output="screen"/>
 
@@ -29,7 +29,7 @@
     <param name="robot_description" command="$(find xacro)/xacro $(find dynarm)/robots/$(arg version)/dynarm.urdf.xacro" />
     <node name="desired_robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
       <param name="tf_prefix" value="$(arg robot_ns)_desired" />
-      <remap from="joint_states" to="/$(arg robot_ns)/debug/id_debug/torque"/>
+      <remap from="joint_states" to="/$(arg robot_ns)/debug/target_q"/>
     </node>
     <node pkg="tf2_ros" type="static_transform_publisher" name="static_tf_desired"
           args="0 0 0 0 0 0 $(arg robot_ns)/root $(arg robot_ns)_desired/root" />
