@@ -4,12 +4,30 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://dynarm/meshes/link1.STL"/>
+        <mesh filename="package://dynarm/meshes/v2/link1.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
       </material>
     </visual>
+    <collision>
+      <origin xyz="0.255 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.05" radius="0.2"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.1 0 -0.05" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.01"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.41 0 -0.05" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.01"/>
+      </geometry>
+    </collision>
     <inertial>
       <mass value="0.41284002"/>
       <origin xyz="0.26725805 0.00025098 -0.0123267" rpy="0 0 0"/>
@@ -20,7 +38,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://dynarm/meshes/gimbal1_roll_link.STL"/>
+        <mesh filename="package://dynarm/meshes/v2/gimbal1_roll_link.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
@@ -44,12 +62,18 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://dynarm/meshes/gimbal1_pitch_link.STL"/>
+        <mesh filename="package://dynarm/meshes/v2/gimbal1_pitch_link.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
       </material>
     </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.05" radius="0.1"/>
+      </geometry>
+    </collision>
     <inertial>
       <mass value="0.46029389"/>
       <origin xyz="-8.041e-05 -0.00069333 0.00178754" rpy="0 0 0"/>
@@ -68,7 +92,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://dynarm/meshes/thrust1.STL"/>
+        <mesh filename="package://dynarm/meshes/v2/thrust1.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.698039215686274 0.698039215686274 0.698039215686274 1"/>
@@ -91,12 +115,18 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://dynarm/meshes/joint_junction1.STL"/>
+        <mesh filename="package://dynarm/meshes/v2/joint_junction1.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
       </material>
     </visual>
+    <collision>
+      <origin xyz="0.0835 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.167 0.05 0.05"/>
+      </geometry>
+    </collision>
     <inertial>
       <mass value="0.77592368"/>
       <origin xyz="0.08350022 -0.00154673 0.00154673" rpy="0 0 0"/>
@@ -115,12 +145,30 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://dynarm/meshes/link2.STL"/>
+        <mesh filename="package://dynarm/meshes/v2/link2.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
       </material>
     </visual>
+    <collision>
+      <origin xyz="0.24 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.05" radius="0.2"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.085 0 -0.05" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.01"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.395 0 -0.05" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.01"/>
+      </geometry>
+    </collision>
     <inertial>
       <mass value="0.44741891"/>
       <origin xyz="0.23304896 -0.00010116 -0.01137403" rpy="0 0 0"/>
@@ -139,7 +187,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://dynarm/meshes/gimbal2_roll_link.STL"/>
+        <mesh filename="package://dynarm/meshes/v2/gimbal2_roll_link.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
@@ -163,12 +211,18 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://dynarm/meshes/gimbal2_pitch_link.STL"/>
+        <mesh filename="package://dynarm/meshes/v2/gimbal2_pitch_link.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
       </material>
     </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.05" radius="0.1"/>
+      </geometry>
+    </collision>
     <inertial>
       <mass value="0.46029389"/>
       <origin xyz="-8.041e-05 -0.00069333 0.00178754" rpy="0 0 0"/>
@@ -187,7 +241,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://dynarm/meshes/thrust2.STL"/>
+        <mesh filename="package://dynarm/meshes/v2/thrust2.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.698039215686274 0.698039215686274 0.698039215686274 1"/>
@@ -210,12 +264,18 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://dynarm/meshes/joint_junction2.STL"/>
+        <mesh filename="package://dynarm/meshes/v2/joint_junction2.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
       </material>
     </visual>
+    <collision>
+      <origin xyz="0.0835 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.167 0.05 0.05"/>
+      </geometry>
+    </collision>
     <inertial>
       <mass value="0.77592368"/>
       <origin xyz="0.08350022 -0.00154673 0.00154673" rpy="0 0 0"/>
@@ -234,12 +294,30 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://dynarm/meshes/link3.STL"/>
+        <mesh filename="package://dynarm/meshes/v2/link3.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
       </material>
     </visual>
+    <collision>
+      <origin xyz="0.24 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.05" radius="0.2"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.085 0 -0.05" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.01"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.395 0 -0.05" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.01"/>
+      </geometry>
+    </collision>
     <inertial>
       <mass value="0.44741891"/>
       <origin xyz="0.23304896 -0.00010116 -0.01137403" rpy="0 0 0"/>
@@ -258,7 +336,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://dynarm/meshes/gimbal3_roll_link.STL"/>
+        <mesh filename="package://dynarm/meshes/v2/gimbal3_roll_link.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
@@ -282,12 +360,18 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://dynarm/meshes/gimbal3_pitch_link.STL"/>
+        <mesh filename="package://dynarm/meshes/v2/gimbal3_pitch_link.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
       </material>
     </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.05" radius="0.1"/>
+      </geometry>
+    </collision>
     <inertial>
       <mass value="0.46029389"/>
       <origin xyz="-8.041e-05 -0.00069333 0.00178754" rpy="0 0 0"/>
@@ -306,7 +390,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://dynarm/meshes/thrust3.STL"/>
+        <mesh filename="package://dynarm/meshes/v2/thrust3.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.698039215686274 0.698039215686274 0.698039215686274 1"/>
@@ -329,12 +413,18 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://dynarm/meshes/joint_junction3.STL"/>
+        <mesh filename="package://dynarm/meshes/v2/joint_junction3.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
       </material>
     </visual>
+    <collision>
+      <origin xyz="0.0835 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.167 0.05 0.05"/>
+      </geometry>
+    </collision>
     <inertial>
       <mass value="0.77592368"/>
       <origin xyz="0.08350022 -0.00154673 0.00154673" rpy="0 0 0"/>
@@ -353,12 +443,30 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://dynarm/meshes/link4.STL"/>
+        <mesh filename="package://dynarm/meshes/v2/link4.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
       </material>
     </visual>
+    <collision>
+      <origin xyz="0.24 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.05" radius="0.2"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.085 0 -0.05" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.01"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.395 0 -0.05" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.01"/>
+      </geometry>
+    </collision>
     <inertial>
       <mass value="0.41284002"/>
       <origin xyz="0.21259169 -0.00010964 -0.01268731" rpy="0 0 0"/>
@@ -377,7 +485,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://dynarm/meshes/gimbal4_roll_link.STL"/>
+        <mesh filename="package://dynarm/meshes/v2/gimbal4_roll_link.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
@@ -401,12 +509,18 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://dynarm/meshes/gimbal4_pitch_link.STL"/>
+        <mesh filename="package://dynarm/meshes/v2/gimbal4_pitch_link.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
       </material>
     </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.05" radius="0.1"/>
+      </geometry>
+    </collision>
     <inertial>
       <mass value="0.46029389"/>
       <origin xyz="-8.041e-05 -0.00069333 0.00178754" rpy="0 0 0"/>
@@ -425,7 +539,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://dynarm/meshes/thrust4.STL"/>
+        <mesh filename="package://dynarm/meshes/v2/thrust4.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.698039215686274 0.698039215686274 0.698039215686274 1"/>
