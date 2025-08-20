@@ -1,0 +1,6 @@
+robot_model_plugin_name: aerial_robot_model/manipulator_robot_model
+model:
+  rotor_devider: 1
+
+dynamics:
+  is_floating_base: true
