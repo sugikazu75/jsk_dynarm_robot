@@ -22,6 +22,14 @@ void FullbodyFlightController::initialize(ros::NodeHandle nh, ros::NodeHandle nh
   four_axis_command_pub_ = nh_.advertise<spinal::FourAxisCommand>("four_axes/command", 1);
   joints_control_pub_ = nh_.advertise<sensor_msgs::JointState>("joints_ctrl", 1);
   gimbals_control_pub_ = nh_.advertise<sensor_msgs::JointState>("gimbals_ctrl", 1);
+  rotor_wrench_pub_ = nh_.advertise<geometry_msgs::WrenchStamped>("rotor_wrench", 1);
+
+  state_command_sub_ = nh_.subscribe("state_command", 1, &FullbodyFlightController::stateCommandCallback, this);
+
+  robot_ns_ = ros::this_node::getNamespace();
+  if (!robot_ns_.empty() && robot_ns_[0] == '/')
+    robot_ns_ = robot_ns_.substr(1);
+  rotor_wrench_pub_index_ = 0;
 
   joint_state_sub_ = nh_.subscribe("joint_states", 1, &FullbodyFlightController::jointStateCallback, this);
 
@@ -136,7 +144,16 @@ void FullbodyFlightController::reset()
   xref.head(pinocchio_model_->nq) = curr_q;  // includes root pose and joint positions
   xref.head(3) << estimator_->getPos(Frame::BASELINK, estimate_mode_).x(),
       estimator_->getPos(Frame::BASELINK, estimate_mode_).y(), navigator_->getTargetPos().z();  // root position
-  xref.segment(3, 4) << root_quat.x(), root_quat.y(), root_quat.z(), root_quat.w();             // root rotation
+  tf::Quaternion root_quat_des(navigator_->getTargetRPY().x(), navigator_->getTargetRPY().y(),
+                               navigator_->getTargetRPY().z());
+  xref.segment(3, 4) << root_quat_des.x(), root_quat_des.y(), root_quat_des.z(), root_quat_des.w();  // root rotation
+  std::vector<std::string> gimbal_names = nonlinear_inverse_dynamics_solver_->getGimbalNames();
+  for (int i = 0; i < gimbal_names.size(); i++)
+  {
+    int gimbal_id = pinocchio_model_->getJointId(gimbal_names[i]);
+    int gimbal_index_q = pinocchio_model_->joints[gimbal_id].idx_q();
+    xref(gimbal_index_q) = 0.0;  // set target gimbal angles to 0
+  }
   std::cout << "[ddp] xref: " << xref.transpose() << std::endl;
 
   curr_target_q_ = xref.head(pinocchio_model_->nq);
@@ -201,7 +218,7 @@ void FullbodyFlightController::controlCore()
   tf::Matrix3x3 root_rot = estimator_->getOrientation(Frame::BASELINK, estimate_mode_);
   tf::Quaternion root_quat;
   root_rot.getRotation(root_quat);
-  current_x.segment(3, 4) << root_quat.x(), root_quat.y(), root_quat.z(), root_quat.w();  // root rotation
+  current_x.segment(3, 4) << root_quat.x(), root_quat.y(), root_quat.z(), root_quat.w();
 
   // joint velocities
   current_x.tail(pinocchio_model_->nv) = curr_dq_;
@@ -250,6 +267,27 @@ void FullbodyFlightController::sendCmd()
   sendFourAxisCommand();
   sendJointCommand();
   sendGimbalCommand();
+  publish();
+  publishDDPTrajectory();
+}
+
+void FullbodyFlightController::publish()
+{
+  // for debug: rotor wrench
+  Eigen::VectorXd curr_target_thrust =
+      control_input_.segment(pinocchio_model_->nv, pinocchio_robot_model_->getRotorNum());
+  geometry_msgs::WrenchStamped rotor_wrench_msg;
+  rotor_wrench_msg.header.stamp = ros::Time::now();
+  rotor_wrench_msg.header.frame_id = robot_ns_ + "/thrust" + std::to_string(rotor_wrench_pub_index_ + 1);
+  rotor_wrench_msg.wrench.force.x = 0.0;
+  rotor_wrench_msg.wrench.force.y = 0.0;
+  rotor_wrench_msg.wrench.force.z = curr_target_thrust(rotor_wrench_pub_index_);
+  rotor_wrench_msg.wrench.torque.x = 0.0;
+  rotor_wrench_msg.wrench.torque.y = 0.0;
+  rotor_wrench_msg.wrench.torque.z = pinocchio_robot_model_->getRotorDirection(rotor_wrench_pub_index_) *
+                                     pinocchio_robot_model_->getMFRate() * curr_target_thrust(rotor_wrench_pub_index_);
+  rotor_wrench_pub_.publish(rotor_wrench_msg);
+  rotor_wrench_pub_index_ = (rotor_wrench_pub_index_ + 1) % pinocchio_robot_model_->getRotorNum();
 }
 
 void FullbodyFlightController::sendFourAxisCommand()
@@ -331,6 +369,73 @@ void FullbodyFlightController::jointStateCallback(const sensor_msgs::JointStateC
         curr_dq_(joint_index_v) = msg->velocity[i];
       }
     }
+  }
+}
+
+void FullbodyFlightController::stateCommandCallback(const sensor_msgs::JointStateConstPtr& msg)
+{
+  if (msg->name.size() != msg->position.size())
+  {
+    ROS_ERROR("[ddp] Joint state command size mismatch.");
+    return;
+  }
+
+  if (msg->name.size() == msg->position.size())
+  {
+    for (size_t i = 0; i < msg->name.size(); ++i)
+    {
+      int joint_id = pinocchio_model_->getJointId(msg->name.at(i));
+      if (joint_id < 0 || joint_id >= pinocchio_model_->njoints)
+      {
+        ROS_ERROR("[ddp] Joint name '%s' not found in the model.", msg->name.at(i).c_str());
+        continue;
+      }
+      int joint_index_q = pinocchio_model_->joints[joint_id].idx_q();
+      curr_target_q_(joint_index_q) = msg->position.at(i);
+    }
+  }
+  if (msg->name.size() == msg->velocity.size())
+  {
+    for (size_t i = 0; i < msg->name.size(); ++i)
+    {
+      int joint_id = pinocchio_model_->getJointId(msg->name.at(i));
+      if (joint_id < 0 || joint_id >= pinocchio_model_->njoints)
+      {
+        ROS_ERROR("[ddp] Joint name '%s' not found in the model.", msg->name.at(i).c_str());
+        continue;
+      }
+      int joint_index_v = pinocchio_model_->joints[joint_id].idx_v();
+      curr_target_dq_(joint_index_v) = msg->velocity.at(i);
+    }
+  }
+
+  // set the reference for state residuals
+  Eigen::VectorXd reference_x = Eigen::VectorXd::Zero(pinocchio_model_->nq + pinocchio_model_->nv);
+  reference_x.head(pinocchio_model_->nq) = curr_target_q_;   // root pose and joint positions
+  reference_x.tail(pinocchio_model_->nv) = curr_target_dq_;  // root linear and angular velocities
+  for (int i = 0; i < hovering_->state_residuals_.size(); i++)
+  {
+    hovering_->state_residuals_.at(i)->set_reference(reference_x);
+  }
+}
+
+void FullbodyFlightController::publishDDPTrajectory()
+{
+  geometry_msgs::TransformStamped robot_base_transform;
+  robot_base_transform.header.stamp = ros::Time::now();
+  for (int i = 0; i < xs_init_.size(); i++)
+  {
+    robot_base_transform.header.frame_id = "world";
+    robot_base_transform.child_frame_id = tf::resolve(robot_ns_, "root") + "_trajectory_" + std::to_string(i);
+    robot_base_transform.transform.translation.x = xs_init_[i](0);
+    robot_base_transform.transform.translation.y = xs_init_[i](1);
+    robot_base_transform.transform.translation.z = xs_init_[i](2);
+    robot_base_transform.transform.rotation.x = xs_init_[i](3);
+    robot_base_transform.transform.rotation.y = xs_init_[i](4);
+    robot_base_transform.transform.rotation.z = xs_init_[i](5);
+    robot_base_transform.transform.rotation.w = xs_init_[i](6);
+
+    tf_broadcaster_.sendTransform(robot_base_transform);
   }
 }
 

@@ -10,8 +10,10 @@
 #include <ros/ros.h>
 #include <Eigen/Core>
 
+#include <geometry_msgs/TransformStamped.h>
 #include <sensor_msgs/JointState.h>
 #include <spinal/FourAxisCommand.h>
+#include <tf/transform_broadcaster.h>
 
 namespace aerial_robot_control
 {
@@ -27,10 +29,16 @@ public:
                           boost::shared_ptr<aerial_robot_navigation::BaseNavigator> navigator, double ctrl_loop_du);
 
 private:
-  ros::Publisher joints_control_pub_;
-  ros::Publisher gimbals_control_pub_;
-  ros::Publisher four_axis_command_pub_;
+  tf::TransformBroadcaster tf_broadcaster_;  // for debug
+  ros::Publisher joints_control_pub_;        // for servo bridge
+  ros::Publisher gimbals_control_pub_;       // for servo bridge
+  ros::Publisher four_axis_command_pub_;     // for spinal
+  ros::Publisher rotor_wrench_pub_;          // for debug
   ros::Subscriber joint_state_sub_;
+  ros::Subscriber state_command_sub_;
+
+  std::string robot_ns_;
+  int rotor_wrench_pub_index_;
 
   boost::shared_ptr<aerial_robot_model::ManipulatorRobotModel> dragon_arm_robot_model_;
   std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model_;
@@ -58,9 +66,12 @@ private:
   virtual void reset() override;
   void controlCore();
   void sendCmd();
+  void publish();
   void sendFourAxisCommand();
   void sendJointCommand();
   void sendGimbalCommand();
   void jointStateCallback(const sensor_msgs::JointStateConstPtr& msg);
+  void publishDDPTrajectory();
+  void stateCommandCallback(const sensor_msgs::JointStateConstPtr& msg);
 };
 }  // namespace aerial_robot_control

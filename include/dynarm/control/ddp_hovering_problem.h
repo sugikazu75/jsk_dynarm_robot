@@ -54,6 +54,7 @@ public:
 
   CostWeight cost_weight_;
   OptimizationParam optimization_param_;
+  std::vector<std::shared_ptr<crocoddyl::ResidualModelState>> state_residuals_;
 
 protected:
   std::vector<crocoddyl::Thruster> thrusters_;

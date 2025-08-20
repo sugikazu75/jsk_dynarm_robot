@@ -45,10 +45,11 @@ std::shared_ptr<crocoddyl::ActionModelAbstract> DDPHoveringProblem::createAction
       std::make_shared<crocoddyl::CostModelResidual>(state_, activation_x_bounds, x_bounds_residual);
 
   // state point
-  std::shared_ptr<crocoddyl::ResidualModelAbstract> x_residual =
+  std::shared_ptr<crocoddyl::ResidualModelState> x_residual =
       std::make_shared<crocoddyl::ResidualModelState>(state_, xref, nu_);
   std::shared_ptr<crocoddyl::CostModelAbstract> x_reg_cost = std::make_shared<crocoddyl::CostModelResidual>(
       state_, std::make_shared<crocoddyl::ActivationModelWeightedQuad>(cost_weight_.x_weights), x_residual);
+  state_residuals_.push_back(x_residual);
 
   // control input
   Eigen::VectorXd uref = Eigen::VectorXd::Zero(nu_);
@@ -81,6 +82,7 @@ std::shared_ptr<crocoddyl::ShootingProblem> DDPHoveringProblem::createHoveringPr
 {
   int N = optimization_param_.horizon / optimization_param_.dt;
   std::vector<std::shared_ptr<crocoddyl::ActionModelAbstract>> action_models(0);
+  state_residuals_.clear();
   for (int i = 0; i < N; i++)
   {
     action_models.push_back(createActionModel(x0, xref));
