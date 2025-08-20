@@ -18,7 +18,7 @@
       <param name="state_bound_weight" value="100"/>
       <param name="control_weight" value="0.1"/>
 
-      <rosparam command="load" file="$(find dynarm)/config/v1/DDP_$(arg robot_ns).yaml"/>
+      <rosparam command="load" file="$(find dynarm)/config/$(arg version)/DDP_$(arg robot_ns).yaml"/>
 
     </node>
 
