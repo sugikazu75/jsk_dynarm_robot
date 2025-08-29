@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="version" default="v1"/>
+
+  <group ns="dynarm">
+
+    <rosparam file="$(find dynarm)/config/$(arg version)/Robstride.yaml" command="load"/>
+
+    <include file="$(find robstride_actuator_bridge)/launch/motor_test.launch"/>
+
+    <node pkg="dynarm" type="robstride_bridge" name="robstride_bridge"/>
+
+  </group>
+
+</launch>

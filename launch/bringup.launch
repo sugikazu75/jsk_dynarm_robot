@@ -102,6 +102,11 @@
   <!--   <arg name="robot_ns" value="$(arg robot_ns)" /> -->
   <!-- </include > -->
 
+  ###########  Actuators  ###########
+  <include file="$(find dynarm)/launch/includes/robstride.launch">
+    <arg name="version" value="$(arg version)"/>
+  </include>
+
   ###########  Servo Bridge  ###########
   <node pkg="aerial_robot_model" type="servo_bridge_node" name="servo_bridge"  output="screen" ns="$(arg robot_ns)"/>
 
