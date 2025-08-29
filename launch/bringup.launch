@@ -27,7 +27,8 @@
     <rosparam file="$(find dynarm)/config/$(arg version)/MotorInfo.yaml" command="load" />
 
     ###########  Servo Config  ###########
-    <rosparam file="$(find dynarm)/config/$(arg version)/Servo.yaml" command="load" />
+    <rosparam file="$(find dynarm)/config/$(arg version)/Servo.yaml" command="load" if="$(eval arg('simulation') and not arg('real_machine'))"/>
+    <rosparam file="$(find dynarm)/config/$(arg version)/Dynamixel.yaml" command="load" if="$(eval not arg('simulation') and arg('real_machine'))"/>
 
     ###########  Battery Config  ###########
     <rosparam file="$(find dynarm)/config/$(arg version)/Battery.yaml" command="load" />
