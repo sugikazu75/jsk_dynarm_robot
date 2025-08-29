@@ -106,9 +106,13 @@
   <node pkg="aerial_robot_model" type="servo_bridge_node" name="servo_bridge"  output="screen" ns="$(arg robot_ns)"/>
 
   ########### Fix root link to world ###########
-  <node pkg="dynarm" type="root_fix.py" name="root_fix_node">
-    <param name="root_fix" value="$(arg root_fix)"/>
-  </node>
+  <group unless="$(arg real_machine)">
+    <group if="$(arg simulation)">
+      <node pkg="dynarm" type="root_fix.py" name="root_fix_node">
+        <param name="root_fix" value="$(arg root_fix)"/>
+      </node>
+    </group>
+  </group>
 
   ########## Simulation in Gazebo #########
   <include file="$(find aerial_robot_simulation)/launch/gazebo.launch" if = "$(eval arg('simulation') and not arg('real_machine'))" >
