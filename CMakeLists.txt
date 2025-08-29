@@ -133,3 +133,9 @@ target_link_libraries(dynarm_controllib
   ${Eigen3_LIBRARIES}
   ${OsqpEigen_LIBRARIES}
   )
+
+add_executable(robstride_bridge
+  src/utils/robstride_bridge.cpp)
+target_link_libraries(robstride_bridge
+  ${catkin_LIBRARIES}
+  )
