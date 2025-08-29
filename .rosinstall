@@ -22,3 +22,8 @@
     local-name: crocoddyl
     uri: https://github.com/loco-3d/crocoddyl.git
     version: devel
+
+- git:
+    local-name: robstride_actuator_bridge
+    uri: https://github.com/sugikazu75/robstride_actuator_bridge.git
+    version: master
