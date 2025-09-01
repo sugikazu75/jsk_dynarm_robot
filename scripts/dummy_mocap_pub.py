@@ -17,7 +17,7 @@ class DummyMocapPub:
             pose_msg.header.frame_id = "world"
             pose_msg.pose.position.x = 0.0
             pose_msg.pose.position.y = 0.0
-            pose_msg.pose.position.z = 1.0
+            pose_msg.pose.position.z = 1.5
             pose_msg.pose.orientation.x = 0.0
             pose_msg.pose.orientation.y = 0.0
             pose_msg.pose.orientation.z = 0.0
