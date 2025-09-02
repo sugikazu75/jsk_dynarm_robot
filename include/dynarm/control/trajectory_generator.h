@@ -84,8 +84,9 @@ private:
   std::string robot_ns_;
   int rotor_wrench_pub_index_;
 
-  // nlp param
+  // inverse dynamics param
   bool nonlinear_mode_;
+  bool quasi_static_mode_;
 
   void loadGimbalNames();
   void rosParamInit();

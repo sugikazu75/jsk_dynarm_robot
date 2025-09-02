@@ -40,6 +40,7 @@ void TrajectoryGenerator::rosParamInit()
 {
   ros::NodeHandle control_nh(nh_, "controller");
   getParam<bool>(control_nh, "nonlinear_mode", nonlinear_mode_, true);
+  getParam<bool>(control_nh, "quasi_static_mode", quasi_static_mode_, false);
 }
 
 void TrajectoryGenerator::loadGimbalNames()
@@ -83,6 +84,12 @@ void TrajectoryGenerator::update()
 
   if (!nonlinear_mode_)
     q = joint_trajectory_generator_->getGimbalNominalAngles(q);
+
+  if (quasi_static_mode_)
+  {
+    dq = Eigen::VectorXd::Zero(pinocchio_model_->nv);
+    ddq = Eigen::VectorXd::Zero(pinocchio_model_->nv);
+  }
 
   solveInverseDynamics(q, dq, ddq);
 }
