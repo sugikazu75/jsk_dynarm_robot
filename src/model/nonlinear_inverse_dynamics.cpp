@@ -11,15 +11,14 @@ double torqueThrustMinimize(const std::vector<double>& x, std::vector<double>& g
      nv ~ nv + nr: thrust
      nv + nr ~ nv + nr + gimbal_num: gimbal angles
   */
-  NonlinearInverseDynamics* robot_model = reinterpret_cast<NonlinearInverseDynamics*>(ptr);
+  NonlinearInverseDynamics* solver = reinterpret_cast<NonlinearInverseDynamics*>(ptr);
 
-  std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model =
-      robot_model->getPinocchioRobotModel();
-  std::shared_ptr<pinocchio::Model> pinocchio_model = robot_model->getPinocchioModel();
-  std::shared_ptr<pinocchio::Data> pinocchio_data = robot_model->getPinocchioData();
+  std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model = solver->getPinocchioRobotModel();
+  std::shared_ptr<pinocchio::Model> pinocchio_model = solver->getPinocchioModel();
+  std::shared_ptr<pinocchio::Data> pinocchio_data = solver->getPinocchioData();
 
-  int gimbal_num = robot_model->getGimbalNames().size();
-  Eigen::VectorXd hessian_trace = robot_model->getHessianTrace();
+  int gimbal_num = solver->getGimbalNames().size();
+  Eigen::VectorXd hessian_trace = solver->getHessianTrace();
 
   double cost = 0.0;
 
@@ -57,19 +56,18 @@ void rneaConstraint(unsigned m, double* result, unsigned n, const double* x, dou
   /* constraints (m)
      0 ~ nv: 0 = rnea - generalized_force - tauext
   */
-  NonlinearInverseDynamics* robot_model = reinterpret_cast<NonlinearInverseDynamics*>(ptr);
+  NonlinearInverseDynamics* solver = reinterpret_cast<NonlinearInverseDynamics*>(ptr);
 
-  std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model =
-      robot_model->getPinocchioRobotModel();
-  std::shared_ptr<pinocchio::Model> pinocchio_model = robot_model->getPinocchioModel();
-  std::shared_ptr<pinocchio::Data> pinocchio_data = robot_model->getPinocchioData();
+  std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model = solver->getPinocchioRobotModel();
+  std::shared_ptr<pinocchio::Model> pinocchio_model = solver->getPinocchioModel();
+  std::shared_ptr<pinocchio::Data> pinocchio_data = solver->getPinocchioData();
 
-  Eigen::VectorXd curr_target_q = robot_model->getCurrentTargetQForOpt();
-  Eigen::VectorXd curr_target_dq = robot_model->getCurrentTargetDqForOpt();
-  Eigen::VectorXd curr_target_ddq = robot_model->getCurrentTargetDdqForOpt();
+  Eigen::VectorXd curr_target_q = solver->getCurrentTargetQForOpt();
+  Eigen::VectorXd curr_target_dq = solver->getCurrentTargetDqForOpt();
+  Eigen::VectorXd curr_target_ddq = solver->getCurrentTargetDdqForOpt();
 
   // overwrite q with current gimbal angles
-  std::vector<std::string> gimbal_names = robot_model->getGimbalNames();
+  std::vector<std::string> gimbal_names = solver->getGimbalNames();
   int gimbal_num = gimbal_names.size();
   std::vector<int> gimbal_q_indices(0);
   std::vector<int> gimbal_v_indices(0);

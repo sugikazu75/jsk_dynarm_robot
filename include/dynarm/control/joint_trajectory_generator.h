@@ -124,6 +124,7 @@ private:
   Eigen::Vector3d target_ee_vel_;
   Eigen::Vector3d target_ee_acc_;
 
+  bool quasi_static_mode_;
   Eigen::MatrixXd ctm_p_gain_;
   Eigen::MatrixXd ctm_d_gain_;
 

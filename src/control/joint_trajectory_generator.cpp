@@ -75,7 +75,11 @@ void jointTrajectoryGenerator::rosParamInit()
   ctm_p_gain_ =
       Eigen::MatrixXd::Identity(pinocchio_robot_model_->getModel()->nv, pinocchio_robot_model_->getModel()->nv);
   ctm_p_gain_ *= ctm_gain;
+
+  getParam<bool>(control_nh, "quasi_static_mode", quasi_static_mode_, false);
   getParam<double>(control_nh, "ctm_d_gain", ctm_gain, 1.0);
+  if (quasi_static_mode_)
+    ctm_gain = 0.0;  // set d gain to zero in quasi-static mode
   ctm_d_gain_ =
       Eigen::MatrixXd::Identity(pinocchio_robot_model_->getModel()->nv, pinocchio_robot_model_->getModel()->nv);
   ctm_d_gain_ *= ctm_gain;
@@ -272,6 +276,12 @@ void jointTrajectoryGenerator::generateJointTrajectory()
   curr_target_ddq_ = curr_target_ddq_ +
                      ctm_p_gain_ * pinocchio::difference(*pinocchio_model_, curr_q_, curr_target_q_) +
                      ctm_d_gain_ * (curr_target_dq_ - curr_dq_);
+
+  if (quasi_static_mode_)
+  {
+    curr_target_dq_ = Eigen::VectorXd::Zero(pinocchio_model_->nv);
+    curr_target_ddq_ = Eigen::VectorXd::Zero(pinocchio_model_->nv);
+  }
 }
 
 void jointTrajectoryGenerator::stateTransition()
