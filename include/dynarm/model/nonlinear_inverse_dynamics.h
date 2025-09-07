@@ -51,6 +51,11 @@ public:
     return nlp_curr_target_ddq_;
   }
 
+  const Eigen::VectorXd getHessianTrace()
+  {
+    return nlp_hessian_trace_;
+  }
+
   const double getSolveTime()
   {
     return solve_time_;
@@ -73,6 +78,8 @@ private:
   std::vector<double> nlp_ub_;
   int nlp_n_variables_;
   int nlp_n_constraints_;
+
+  Eigen::VectorXd nlp_hessian_trace_;
 
   Eigen::VectorXd nlp_last_solution_;
   Eigen::VectorXd nlp_curr_target_q_;
