@@ -6,8 +6,8 @@ robstride:
     type: Robstride03
     name: joint0_roll
     reduction: -1.0
-    kp: 50.0
-    kd: 5.0
+    kp: 200.0
+    kd: 10.0
 
   controller2:
     id: 123
@@ -15,8 +15,8 @@ robstride:
     type: Robstride03
     name: joint0_pitch
     reduction: 1.0
-    kp: 50.0
-    kd: 5.0
+    kp: 200.0
+    kd: 10.0
 
   controller3:
     id: 124
@@ -24,8 +24,8 @@ robstride:
     type: Robstride00
     name: joint1_yaw
     reduction: -4.0
-    kp: 50.0
-    kd: 5.0
+    kp: 200.0
+    kd: 10.0
 
   controller4:
     id: 125
@@ -33,8 +33,8 @@ robstride:
     type: Robstride00
     name: joint1_pitch
     reduction: -4.0
-    kp: 50.0
-    kd: 5.0
+    kp: 200.0
+    kd: 10.0
 
   controller5:
     id: 126
@@ -42,8 +42,8 @@ robstride:
     type: Robstride00
     name: joint2_yaw
     reduction: -4.0
-    kp: 50.0
-    kd: 5.0
+    kp: 200.0
+    kd: 10.0
 
   controller6:
     id: 127
@@ -51,5 +51,5 @@ robstride:
     type: Robstride00
     name: joint2_pitch
     reduction: -4.0
-    kp: 50.0
-    kd: 5.0
+    kp: 200.0
+    kd: 10.0
