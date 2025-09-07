@@ -19,17 +19,18 @@ double torqueThrustMinimize(const std::vector<double>& x, std::vector<double>& g
   std::shared_ptr<pinocchio::Data> pinocchio_data = robot_model->getPinocchioData();
 
   int gimbal_num = robot_model->getGimbalNames().size();
-  double thrust_hessian_weight = pinocchio_robot_model->getThrustHessianWeight();
+  Eigen::VectorXd hessian_trace = robot_model->getHessianTrace();
 
   double cost = 0.0;
 
   // torque
   for (int i = 0; i < pinocchio_model->nv; i++)
-    cost += x[i] * x[i];  // minimize joint torque
+    cost += 0.5 * hessian_trace(i) * x[i] * x[i];  // minimize joint torque
 
   // thrust
   for (int i = 0; i < pinocchio_robot_model->getRotorNum(); i++)
-    cost += thrust_hessian_weight * x[pinocchio_model->nv + i] * x[pinocchio_model->nv + i];  // minimize thrust
+    cost += 0.5 * hessian_trace(pinocchio_model->nv + i) * x[pinocchio_model->nv + i] *
+            x[pinocchio_model->nv + i];  // minimize thrust
 
   if (grad.empty())
     return cost;
@@ -37,11 +38,11 @@ double torqueThrustMinimize(const std::vector<double>& x, std::vector<double>& g
   // gradient
   // torque
   for (int i = 0; i < pinocchio_model->nv; i++)
-    grad[i] = 2.0 * x[i];
+    grad[i] = hessian_trace(i) * x[i];
 
   // thrust
   for (int i = 0; i < pinocchio_robot_model->getRotorNum(); i++)
-    grad[pinocchio_model->nv + i] = 2.0 * thrust_hessian_weight * x[pinocchio_model->nv + i];
+    grad[pinocchio_model->nv + i] = hessian_trace(pinocchio_model->nv + i) * x[pinocchio_model->nv + i];
 
   // gimbal angles
   for (int i = 0; i < gimbal_num; i++)
@@ -160,13 +161,15 @@ NonlinearInverseDynamics::NonlinearInverseDynamics(
   pinocchio_model_ = pinocchio_robot_model_->getModel();
   pinocchio_data_ = pinocchio_robot_model_->getData();
 
-  rosParamInit();
   loadJointNames();
   loadGimbalNames();
 
   nlp_n_variables_ = pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() +
                      gimbal_names_.size();    // generalized_force + thrust + gimbal_angles
   nlp_n_constraints_ = pinocchio_model_->nv;  // rnea
+
+  rosParamInit();
+
   nlp_lb_.resize(nlp_n_variables_, -std::numeric_limits<double>::infinity());
   nlp_ub_.resize(nlp_n_variables_, std::numeric_limits<double>::infinity());
   Eigen::VectorXd joint_torque_limits = pinocchio_robot_model_->getJointTorqueLimits();
@@ -205,8 +208,24 @@ void NonlinearInverseDynamics::rosParamInit()
 {
   ros::NodeHandle control_nh(nh_, "controller");
   getParam<double>(control_nh, "gimbal_delta_max", gimbal_delta_max_, M_PI);
-
   std::cout << "gimbal_delta_max: " << gimbal_delta_max_ << std::endl;
+
+  ros::NodeHandle dynamics_nh(nh_, "dynamics");
+  std::vector<double> hessian_trace;
+  dynamics_nh.getParam("hessian_trace", hessian_trace);
+  if (hessian_trace.size() != nlp_n_variables_)
+  {
+    ROS_ERROR("nlp_hessian_trace size does not match the number of variables.");
+    nlp_hessian_trace_ = Eigen::VectorXd::Ones(nlp_n_variables_);
+    nlp_hessian_trace_.segment(pinocchio_model_->nv, pinocchio_robot_model_->getRotorNum()) *=
+        pinocchio_robot_model_->getThrustHessianWeight();
+    nlp_hessian_trace_.tail(gimbal_names_.size()) *= 0.0;  // gimbal angles do not contribute to the cost
+  }
+  else
+  {
+    nlp_hessian_trace_ = Eigen::Map<Eigen::VectorXd>(hessian_trace.data(), hessian_trace.size());
+  }
+  std::cout << "nlp_hessian_trace: " << nlp_hessian_trace_.transpose() << std::endl;
 }
 
 void NonlinearInverseDynamics::loadJointNames()
