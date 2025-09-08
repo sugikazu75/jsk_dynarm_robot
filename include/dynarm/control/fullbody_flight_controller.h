@@ -11,7 +11,9 @@
 #include <Eigen/Core>
 
 #include <geometry_msgs/TransformStamped.h>
+#include <geometry_msgs/Vector3.h>
 #include <sensor_msgs/JointState.h>
+#include <std_msgs/Float32MultiArray.h>
 #include <spinal/FourAxisCommand.h>
 #include <tf/transform_broadcaster.h>
 
@@ -35,7 +37,9 @@ private:
   ros::Publisher four_axis_command_pub_;     // for spinal
   ros::Publisher rotor_wrench_pub_;          // for debug
   ros::Subscriber joint_state_sub_;
-  ros::Subscriber state_command_sub_;
+  ros::Subscriber joint_command_sub_;
+  ros::Subscriber root_pos_command_sub_;
+  ros::Subscriber circle_trajectory_command_sub_;
 
   std::string robot_ns_;
   int rotor_wrench_pub_index_;
@@ -52,6 +56,7 @@ private:
   std::vector<Eigen::VectorXd> xs_init_;
   std::vector<Eigen::VectorXd> us_init_;
 
+  Eigen::VectorXd xref_;
   Eigen::VectorXd curr_q_;
   Eigen::VectorXd curr_dq_;
   Eigen::VectorXd curr_target_q_;
@@ -59,12 +64,22 @@ private:
 
   Eigen::VectorXd control_input_;
 
+  // circle trajectory flight
+  bool circle_trajectory_flight_flag_ = false;
+  double circle_radius_;
+  double circle_omega_;
+  Eigen::Vector3d circle_center_;
+  double circle_trajectory_start_time_;
+  double circle_trajectory_end_time_;
+  double circle_trajectory_pitch_max_ = 1.0;
+
   void rosParamInit();
   void DDPProblemInit();
   virtual void activate() override;
   virtual bool update() override;
   virtual void reset() override;
   void controlCore();
+  Eigen::VectorXd getCurrentX();
   void sendCmd();
   void publish();
   void sendFourAxisCommand();
@@ -72,6 +87,8 @@ private:
   void sendGimbalCommand();
   void jointStateCallback(const sensor_msgs::JointStateConstPtr& msg);
   void publishDDPTrajectory();
-  void stateCommandCallback(const sensor_msgs::JointStateConstPtr& msg);
+  void jointCommandCallback(const sensor_msgs::JointStateConstPtr& msg);
+  void rootPosCommandCallback(const geometry_msgs::Vector3ConstPtr& msg);
+  void circleTrajectoryCommandCallback(const std_msgs::Float32MultiArrayConstPtr& msg);
 };
 }  // namespace aerial_robot_control
