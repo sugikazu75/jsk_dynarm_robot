@@ -1,0 +1,4 @@
+<library path="lib/libfull_vectoring_navigation">
+  <class name="aerial_robot_navigation/full_vectoring_navigation" type="aerial_robot_navigation::FullVectoringNavigator" base_class_type="aerial_robot_navigation::BaseNavigator">
+  </class>
+</library>

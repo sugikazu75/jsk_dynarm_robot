@@ -43,6 +43,7 @@
   <export>
     <aerial_robot_control plugin="${prefix}/plugins/control_plugin.xml" />
     <aerial_robot_model   plugin="${prefix}/plugins/model_plugin.xml"/>
+    <aerial_robot_control plugin="${prefix}/plugins/navigation_plugin.xml"/>
   </export>
 
 </package>
