@@ -3,8 +3,7 @@
   ###########  launch config  ###########
   <arg name="real_machine" default="True" />
   <arg name="simulation" default="False" />
-  <arg name="type" default="quad" />
-  <arg name="onboards_model" default="euclid_201709" />
+  <arg name="full_vectoring_mode" default="False"/>
   <arg name="estimate_mode"  default= "1" />
   <arg name="sim_estimate_mode"  default= "2" />
   <arg name="headless" default="True" />
@@ -50,8 +49,16 @@
     ###########  Control  ###########
     <rosparam file="$(find dynarm)/config/$(arg version)/ManipulatorControl.yaml" command="load" if="$(eval arg('root_fix'))"/>
     <rosparam file="$(find dynarm)/config/$(arg version)/ManipulatorModel.yaml" command="load" if="$(eval arg('root_fix'))"/>
-    <rosparam file="$(find dynarm)/config/$(arg version)/FullbodyFlightControl.yaml" command="load" if="$(eval not arg('root_fix'))"/>
-    <rosparam file="$(find dynarm)/config/$(arg version)/FullbodyFlightModel.yaml" command="load" if="$(eval not arg('root_fix'))"/>
+
+    <group if="$(arg full_vectoring_mode)">
+      <param name="flight_navigation_plugin_name" value="aerial_robot_navigation/full_vectoring_navigation" />
+      <rosparam file="$(find dynarm)/config/$(arg version)/FullVectoringControlConfig.yaml" command="load"/>
+      <rosparam file="$(find dynarm)/config/$(arg version)/FullVectoringRobotModel.yaml" command="load"/>
+    </group>
+    <group unless="$(arg full_vectoring_mode)">
+      <rosparam file="$(find dynarm)/config/$(arg version)/FullbodyFlightControl.yaml" command="load" if="$(eval not arg('root_fix'))"/>
+      <rosparam file="$(find dynarm)/config/$(arg version)/FullbodyFlightModel.yaml" command="load" if="$(eval not arg('root_fix'))"/>
+    </group>
 
     ###########  robot description for pinocchio ###########
     <node name="pinocchio_robot_description_generator" pkg="dynarm" type="pinocchio_robot_description_generator.py" output="screen"/>
