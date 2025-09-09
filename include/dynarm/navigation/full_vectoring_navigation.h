@@ -2,6 +2,8 @@
 
 #include <aerial_robot_control/flight_navigation.h>
 #include <geometry_msgs/Vector3Stamped.h>
+#include <geometry_msgs/PoseStamped.h>
+#include <nav_msgs/Path.h>
 #include <spinal/DesireCoord.h>
 #include <std_msgs/Float32MultiArray.h>
 
@@ -22,6 +24,7 @@ public:
   void reset() override;
 
 private:
+  ros::Publisher path_pub_;  // for debug
   ros::Subscriber desire_coordinate_sub_;
   ros::Subscriber circle_trajectory_command_sub_;
 
