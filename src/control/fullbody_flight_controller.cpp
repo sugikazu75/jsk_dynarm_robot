@@ -24,6 +24,7 @@ void FullbodyFlightController::initialize(ros::NodeHandle nh, ros::NodeHandle nh
   gimbals_control_pub_ = nh_.advertise<sensor_msgs::JointState>("gimbals_ctrl", 1);
   rotor_wrench_pub_ = nh_.advertise<geometry_msgs::WrenchStamped>("rotor_wrench", 1);
   path_pub_ = nh_.advertise<nav_msgs::Path>("circle_trajectory_path", 1);
+  ddp_solve_time_pub_ = nh_.advertise<std_msgs::Float64>("debug/ddp_solve_time", 1);
 
   joint_command_sub_ = nh_.subscribe("joint_command", 1, &FullbodyFlightController::jointCommandCallback, this);
   root_pos_command_sub_ = nh_.subscribe("root_pos_command", 1, &FullbodyFlightController::rootPosCommandCallback, this);
@@ -297,7 +298,7 @@ void FullbodyFlightController::controlCore()
 
   crocoddyl::Timer timer;
   ddp_solver_->solve(xs_init_, us_init_);
-  double time = timer.get_duration();
+  ddp_solve_time_ = timer.get_duration();
 
   xs_init_ = ddp_solver_->get_xs();
   us_init_ = ddp_solver_->get_us();
@@ -350,6 +351,12 @@ void FullbodyFlightController::publish()
                                      pinocchio_robot_model_->getMFRate() * curr_target_thrust(rotor_wrench_pub_index_);
   rotor_wrench_pub_.publish(rotor_wrench_msg);
   rotor_wrench_pub_index_ = (rotor_wrench_pub_index_ + 1) % pinocchio_robot_model_->getRotorNum();
+
+  std_msgs::Float64 ddp_solve_time_msg;
+  ddp_solve_time_msg.data = ddp_solve_time_;
+  ddp_solve_time_pub_.publish(ddp_solve_time_msg);
+
+  nonlinear_inverse_dynamics_solver_->publish();
 }
 
 void FullbodyFlightController::sendFourAxisCommand()
