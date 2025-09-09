@@ -23,6 +23,7 @@ void FullbodyFlightController::initialize(ros::NodeHandle nh, ros::NodeHandle nh
   joints_control_pub_ = nh_.advertise<sensor_msgs::JointState>("joints_ctrl", 1);
   gimbals_control_pub_ = nh_.advertise<sensor_msgs::JointState>("gimbals_ctrl", 1);
   rotor_wrench_pub_ = nh_.advertise<geometry_msgs::WrenchStamped>("rotor_wrench", 1);
+  path_pub_ = nh_.advertise<nav_msgs::Path>("circle_trajectory_path", 1);
 
   joint_command_sub_ = nh_.subscribe("joint_command", 1, &FullbodyFlightController::jointCommandCallback, this);
   root_pos_command_sub_ = nh_.subscribe("root_pos_command", 1, &FullbodyFlightController::rootPosCommandCallback, this);
@@ -538,6 +539,24 @@ void FullbodyFlightController::circleTrajectoryCommandCallback(const std_msgs::F
 
     ROS_INFO_STREAM("[navigation] circle trajectory center: " << circle_center_.transpose()
                                                               << ", radius: " << circle_radius_);
+
+    nav_msgs::Path path_msg;
+    path_msg.header.stamp = ros::Time::now();
+    path_msg.header.frame_id = "world";
+    int N = 120;
+    for (int i = 0; i < N; i++)
+    {
+      geometry_msgs::PoseStamped pose;
+      pose.pose.position.x = circle_center_.x() + circle_radius_ * cos(2 * M_PI * i / N);
+      pose.pose.position.y = circle_center_.y() + circle_radius_ * sin(2 * M_PI * i / N);
+      pose.pose.position.z = circle_center_.z();
+      pose.pose.orientation.x = 0.0;
+      pose.pose.orientation.y = 0.0;
+      pose.pose.orientation.z = 0.0;
+      pose.pose.orientation.w = 1.0;
+      path_msg.poses.push_back(pose);
+    }
+    path_pub_.publish(path_msg);
   }
 }
 

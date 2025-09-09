@@ -10,8 +10,10 @@
 #include <ros/ros.h>
 #include <Eigen/Core>
 
+#include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <geometry_msgs/Vector3.h>
+#include <nav_msgs/Path.h>
 #include <sensor_msgs/JointState.h>
 #include <std_msgs/Float32MultiArray.h>
 #include <spinal/FourAxisCommand.h>
@@ -36,6 +38,7 @@ private:
   ros::Publisher gimbals_control_pub_;       // for servo bridge
   ros::Publisher four_axis_command_pub_;     // for spinal
   ros::Publisher rotor_wrench_pub_;          // for debug
+  ros::Publisher path_pub_;                  // for debug
   ros::Subscriber joint_state_sub_;
   ros::Subscriber joint_command_sub_;
   ros::Subscriber root_pos_command_sub_;
