@@ -81,8 +81,9 @@ private:
   virtual void activate() override;
   virtual bool update() override;
   virtual void reset() override;
-  void controlCore();
   Eigen::VectorXd getCurrentX();
+  void controlCore();
+  void circleTrajectoryGeneration();
   void sendCmd();
   void publish();
   void sendFourAxisCommand();
