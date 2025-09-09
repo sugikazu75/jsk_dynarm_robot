@@ -479,9 +479,18 @@ void FullbodyFlightController::jointCommandCallback(const sensor_msgs::JointStat
   }
 
   // set the reference for state residuals
-  Eigen::VectorXd reference_x = Eigen::VectorXd::Zero(pinocchio_model_->nq + pinocchio_model_->nv);
-  reference_x.head(pinocchio_model_->nq) = curr_target_q_;   // root pose and joint positions
-  reference_x.tail(pinocchio_model_->nv) = curr_target_dq_;  // root linear and angular velocities
+  Eigen::VectorXd reference_x = hovering_->state_residuals_.at(0)->get_reference();
+  std::vector<std::string> joint_names = nonlinear_inverse_dynamics_solver_->getJointNames();
+  for (int i = 0; i < joint_names.size(); i++)
+  {
+    if (joint_names.at(i).find("root") != std::string::npos)
+      continue;  // skip root joint
+    int joint_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_names.at(i))].idx_q();
+    int joint_index_v = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_names.at(i))].idx_v();
+
+    reference_x(joint_index_q) = curr_target_q_(joint_index_q);
+    reference_x(pinocchio_model_->nq + joint_index_v) = curr_target_dq_(joint_index_v);
+  }
   xref_ = reference_x;
 }
 
