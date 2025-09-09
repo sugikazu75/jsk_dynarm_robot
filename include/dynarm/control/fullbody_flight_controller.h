@@ -16,6 +16,7 @@
 #include <nav_msgs/Path.h>
 #include <sensor_msgs/JointState.h>
 #include <std_msgs/Float32MultiArray.h>
+#include <std_msgs/Float64.h>
 #include <spinal/FourAxisCommand.h>
 #include <tf/transform_broadcaster.h>
 
@@ -39,6 +40,7 @@ private:
   ros::Publisher four_axis_command_pub_;     // for spinal
   ros::Publisher rotor_wrench_pub_;          // for debug
   ros::Publisher path_pub_;                  // for debug
+  ros::Publisher ddp_solve_time_pub_;        // for debug
   ros::Subscriber joint_state_sub_;
   ros::Subscriber joint_command_sub_;
   ros::Subscriber root_pos_command_sub_;
@@ -55,9 +57,11 @@ private:
   std::shared_ptr<DDPHoveringProblem> hovering_;
   std::shared_ptr<crocoddyl::ShootingProblem> ddp_problem_;
   std::shared_ptr<crocoddyl::SolverAbstract> ddp_solver_;
-  std::shared_ptr<aerial_robot_model::NonlinearInverseDynamics> nonlinear_inverse_dynamics_solver_;
   std::vector<Eigen::VectorXd> xs_init_;
   std::vector<Eigen::VectorXd> us_init_;
+  double ddp_solve_time_ = 0.0;
+
+  std::shared_ptr<aerial_robot_model::NonlinearInverseDynamics> nonlinear_inverse_dynamics_solver_;
 
   Eigen::VectorXd xref_;
   Eigen::VectorXd curr_q_;
