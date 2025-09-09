@@ -1,4 +1,5 @@
 #include <dynarm/model/nonlinear_inverse_dynamics.h>
+#include <std_msgs/Float64.h>
 
 using namespace aerial_robot_model;
 
@@ -159,6 +160,8 @@ NonlinearInverseDynamics::NonlinearInverseDynamics(
   pinocchio_model_ = pinocchio_robot_model_->getModel();
   pinocchio_data_ = pinocchio_robot_model_->getData();
 
+  nlp_solve_time_pub_ = nh_.advertise<std_msgs::Float64>("debug/nonlinear_id_solve_time", 1);
+
   loadJointNames();
   loadGimbalNames();
 
@@ -255,6 +258,8 @@ void NonlinearInverseDynamics::loadGimbalNames()
 bool NonlinearInverseDynamics::solve(const Eigen::VectorXd& q, const Eigen::VectorXd& v, const Eigen::VectorXd& a,
                                      Eigen::VectorXd& tau)
 {
+  auto start = std::chrono::high_resolution_clock::now();
+
   // store current state for optimization
   nlp_curr_target_q_ = q;
   nlp_curr_target_dq_ = v;
@@ -306,11 +311,7 @@ bool NonlinearInverseDynamics::solve(const Eigen::VectorXd& q, const Eigen::Vect
   nlopt::result result;
   try
   {
-    auto start = std::chrono::high_resolution_clock::now();
     result = nlp_solver_.optimize(x, minf);
-    auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    solve_time_ = duration.count();  // microseconds
   }
   catch (std::runtime_error error)
   {
@@ -327,5 +328,16 @@ bool NonlinearInverseDynamics::solve(const Eigen::VectorXd& q, const Eigen::Vect
 
   nlp_last_solution_ = tau;
 
+  auto end = std::chrono::high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+  solve_time_ = duration.count();  // microseconds
+
   return (result >= 0) ? true : false;
+}
+
+void NonlinearInverseDynamics::publish()
+{
+  std_msgs::Float64 solve_time_msg;
+  solve_time_msg.data = solve_time_ * 1e-3;  // ms
+  nlp_solve_time_pub_.publish(solve_time_msg);
 }

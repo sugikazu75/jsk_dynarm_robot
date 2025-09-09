@@ -64,9 +64,11 @@ public:
   void reset();
   bool solve(const Eigen::VectorXd& q, const Eigen::VectorXd& v, const Eigen::VectorXd& a,
              Eigen::VectorXd& tau_thrust_gimbal);
+  void publish();
 
 private:
   ros::NodeHandle nh_;
+  ros::Publisher nlp_solve_time_pub_;
   std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model_;
   std::shared_ptr<pinocchio::Model> pinocchio_model_;
   std::shared_ptr<pinocchio::Data> pinocchio_data_;
