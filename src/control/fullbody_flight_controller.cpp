@@ -25,9 +25,12 @@ void FullbodyFlightController::initialize(ros::NodeHandle nh, ros::NodeHandle nh
   rotor_wrench_pub_ = nh_.advertise<geometry_msgs::WrenchStamped>("rotor_wrench", 1);
   path_pub_ = nh_.advertise<nav_msgs::Path>("circle_trajectory_path", 1);
   ddp_solve_time_pub_ = nh_.advertise<std_msgs::Float64>("debug/ddp_solve_time", 1);
+  ddp_iteration_pub_ = nh_.advertise<std_msgs::UInt8>("debug/ddp_iteration", 1);
 
   joint_command_sub_ = nh_.subscribe("joint_command", 1, &FullbodyFlightController::jointCommandCallback, this);
   root_pos_command_sub_ = nh_.subscribe("root_pos_command", 1, &FullbodyFlightController::rootPosCommandCallback, this);
+  root_pose_command_sub_ =
+      nh_.subscribe("root_pose_command", 1, &FullbodyFlightController::rootPoseCommandCallback, this);
   circle_trajectory_command_sub_ =
       nh_.subscribe("circle_trajectory_command", 1, &FullbodyFlightController::circleTrajectoryCommandCallback, this);
 
@@ -356,6 +359,10 @@ void FullbodyFlightController::publish()
   ddp_solve_time_msg.data = ddp_solve_time_;
   ddp_solve_time_pub_.publish(ddp_solve_time_msg);
 
+  std_msgs::UInt8 ddp_iteration_msg;
+  ddp_iteration_msg.data = ddp_solver_->get_iter();
+  ddp_iteration_pub_.publish(ddp_iteration_msg);
+
   nonlinear_inverse_dynamics_solver_->publish();
 }
 
@@ -497,6 +504,12 @@ void FullbodyFlightController::jointCommandCallback(const sensor_msgs::JointStat
 void FullbodyFlightController::rootPosCommandCallback(const geometry_msgs::Vector3ConstPtr& msg)
 {
   xref_.head(3) << msg->x, msg->y, msg->z;
+}
+
+void FullbodyFlightController::rootPoseCommandCallback(const geometry_msgs::PoseConstPtr& msg)
+{
+  xref_.head(3) << msg->position.x, msg->position.y, msg->position.z;
+  xref_.segment(3, 4) << msg->orientation.x, msg->orientation.y, msg->orientation.z, msg->orientation.w;
 }
 
 void FullbodyFlightController::circleTrajectoryCommandCallback(const std_msgs::Float32MultiArrayConstPtr& msg)

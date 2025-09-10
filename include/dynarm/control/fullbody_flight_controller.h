@@ -10,6 +10,7 @@
 #include <ros/ros.h>
 #include <Eigen/Core>
 
+#include <geometry_msgs/Pose.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <geometry_msgs/Vector3.h>
@@ -17,6 +18,7 @@
 #include <sensor_msgs/JointState.h>
 #include <std_msgs/Float32MultiArray.h>
 #include <std_msgs/Float64.h>
+#include <std_msgs/UInt8.h>
 #include <spinal/FourAxisCommand.h>
 #include <tf/transform_broadcaster.h>
 
@@ -41,9 +43,11 @@ private:
   ros::Publisher rotor_wrench_pub_;          // for debug
   ros::Publisher path_pub_;                  // for debug
   ros::Publisher ddp_solve_time_pub_;        // for debug
+  ros::Publisher ddp_iteration_pub_;         // for debug
   ros::Subscriber joint_state_sub_;
   ros::Subscriber joint_command_sub_;
   ros::Subscriber root_pos_command_sub_;
+  ros::Subscriber root_pose_command_sub_;
   ros::Subscriber circle_trajectory_command_sub_;
 
   std::string robot_ns_;
@@ -97,6 +101,7 @@ private:
   void publishDDPTrajectory();
   void jointCommandCallback(const sensor_msgs::JointStateConstPtr& msg);
   void rootPosCommandCallback(const geometry_msgs::Vector3ConstPtr& msg);
+  void rootPoseCommandCallback(const geometry_msgs::PoseConstPtr& msg);
   void circleTrajectoryCommandCallback(const std_msgs::Float32MultiArrayConstPtr& msg);
 };
 }  // namespace aerial_robot_control
