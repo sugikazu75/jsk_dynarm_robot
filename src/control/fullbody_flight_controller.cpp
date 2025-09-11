@@ -23,7 +23,7 @@ void FullbodyFlightController::initialize(ros::NodeHandle nh, ros::NodeHandle nh
   joints_control_pub_ = nh_.advertise<sensor_msgs::JointState>("joints_ctrl", 1);
   gimbals_control_pub_ = nh_.advertise<sensor_msgs::JointState>("gimbals_ctrl", 1);
   rotor_wrench_pub_ = nh_.advertise<geometry_msgs::WrenchStamped>("rotor_wrench", 1);
-  path_pub_ = nh_.advertise<nav_msgs::Path>("circle_trajectory_path", 1);
+  path_pub_ = nh_.advertise<nav_msgs::Path>("trajectory_path", 1);
   ddp_solve_time_pub_ = nh_.advertise<std_msgs::Float64>("debug/ddp_solve_time", 1);
   ddp_iteration_pub_ = nh_.advertise<std_msgs::UInt8>("debug/ddp_iteration", 1);
   target_root_pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("debug/target_root_pose", 1);

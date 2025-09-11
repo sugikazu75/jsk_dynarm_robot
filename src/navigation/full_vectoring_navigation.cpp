@@ -16,7 +16,7 @@ void FullVectoringNavigator::initialize(ros::NodeHandle nh, ros::NodeHandle nhp,
 
   rosParamInit();
 
-  path_pub_ = nh_.advertise<nav_msgs::Path>("circle_trajectory_path", 1);
+  path_pub_ = nh_.advertise<nav_msgs::Path>("trajectory_path", 1);
   desire_coordinate_sub_ =
       nh_.subscribe("desire_coordinate", 1, &FullVectoringNavigator::desireCoordinateCallback, this);
   circle_trajectory_command_sub_ =
