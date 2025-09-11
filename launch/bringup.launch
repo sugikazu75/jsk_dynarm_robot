@@ -130,4 +130,7 @@
     <arg name="spawn_yaw" value="$(arg spawn_yaw)" />
   </include>
 
+  ########## Visualization of logging #########
+  <node pkg="jsk_rviz_plugins" type="rosconsole_overlay_text.py" name="rosconsole_overlay_text"/>
+
 </launch>
