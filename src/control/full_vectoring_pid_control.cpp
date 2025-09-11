@@ -17,12 +17,17 @@ void FullVectoringPIDController::initialize(ros::NodeHandle nh, ros::NodeHandle 
 
   full_vectoring_robot_model_ = boost::dynamic_pointer_cast<FullVectoringRobotModel>(robot_model);
 
-  /* initialize the gimbal target angles */
   gimbal_control_pub_ = nh_.advertise<sensor_msgs::JointState>("gimbals_ctrl", 1);
   flight_cmd_pub_ = nh_.advertise<spinal::FourAxisCommand>("four_axes/command", 1);
+  rotor_wrench_pub_ = nh_.advertise<geometry_msgs::WrenchStamped>("rotor_wrench", 1);
 
   target_base_thrust_.resize(motor_num_, 0.0);
   target_gimbal_angles_.resize(motor_num_ * 2, 0.0);
+
+  robot_ns_ = ros::this_node::getNamespace();
+  if (!robot_ns_.empty() && robot_ns_[0] == '/')
+    robot_ns_ = robot_ns_.substr(1);
+  rotor_wrench_pub_index_ = 0;
 }
 
 void FullVectoringPIDController::rosParamInit()
@@ -109,6 +114,22 @@ void FullVectoringPIDController::sendCmd()
   for (int i = 0; i < motor_num_ * 2; i++)
     gimbal_control_msg.position.push_back(target_gimbal_angles_.at(i));
   gimbal_control_pub_.publish(gimbal_control_msg);
+
+  // for debug: rotor wrench
+  double m_f_rate = robot_model_->getMFRate();
+  auto rotor_direction = robot_model_->getRotorDirection();
+  geometry_msgs::WrenchStamped rotor_wrench_msg;
+  rotor_wrench_msg.header.stamp = ros::Time::now();
+  rotor_wrench_msg.header.frame_id = robot_ns_ + "/thrust" + std::to_string(rotor_wrench_pub_index_ + 1);
+  rotor_wrench_msg.wrench.force.x = 0.0;
+  rotor_wrench_msg.wrench.force.y = 0.0;
+  rotor_wrench_msg.wrench.force.z = target_base_thrust_.at(rotor_wrench_pub_index_);
+  rotor_wrench_msg.wrench.torque.x = 0.0;
+  rotor_wrench_msg.wrench.torque.y = 0.0;
+  rotor_wrench_msg.wrench.torque.z =
+      rotor_direction.at(rotor_wrench_pub_index_ + 1) * m_f_rate * target_base_thrust_.at(rotor_wrench_pub_index_);
+  rotor_wrench_pub_.publish(rotor_wrench_msg);
+  rotor_wrench_pub_index_ = (rotor_wrench_pub_index_ + 1) % robot_model_->getRotorNum();
 }
 
 /* plugin registration */
