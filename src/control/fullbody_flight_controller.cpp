@@ -26,6 +26,7 @@ void FullbodyFlightController::initialize(ros::NodeHandle nh, ros::NodeHandle nh
   path_pub_ = nh_.advertise<nav_msgs::Path>("circle_trajectory_path", 1);
   ddp_solve_time_pub_ = nh_.advertise<std_msgs::Float64>("debug/ddp_solve_time", 1);
   ddp_iteration_pub_ = nh_.advertise<std_msgs::UInt8>("debug/ddp_iteration", 1);
+  target_root_pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("debug/target_root_pose", 1);
 
   joint_command_sub_ = nh_.subscribe("joint_command", 1, &FullbodyFlightController::jointCommandCallback, this);
   root_pos_command_sub_ = nh_.subscribe("root_pos_command", 1, &FullbodyFlightController::rootPosCommandCallback, this);
@@ -298,6 +299,8 @@ void FullbodyFlightController::controlCore()
       hovering_->state_residuals_.at(i)->set_reference(xref_);
     }
   }
+  Eigen::VectorXd curr_target_x = hovering_->state_residuals_.at(0)->get_reference();
+  curr_target_q_.head(7) = curr_target_x.head(7);
 
   crocoddyl::Timer timer;
   ddp_solver_->solve(xs_init_, us_init_);
@@ -355,6 +358,20 @@ void FullbodyFlightController::publish()
   rotor_wrench_pub_.publish(rotor_wrench_msg);
   rotor_wrench_pub_index_ = (rotor_wrench_pub_index_ + 1) % pinocchio_robot_model_->getRotorNum();
 
+  // for debug: target root pose
+  geometry_msgs::PoseStamped target_root_pose_msg;
+  target_root_pose_msg.header.stamp = ros::Time::now();
+  target_root_pose_msg.header.frame_id = "world";
+  target_root_pose_msg.pose.position.x = curr_target_q_(0);
+  target_root_pose_msg.pose.position.y = curr_target_q_(1);
+  target_root_pose_msg.pose.position.z = curr_target_q_(2);
+  target_root_pose_msg.pose.orientation.x = curr_target_q_(3);
+  target_root_pose_msg.pose.orientation.y = curr_target_q_(4);
+  target_root_pose_msg.pose.orientation.z = curr_target_q_(5);
+  target_root_pose_msg.pose.orientation.w = curr_target_q_(6);
+  target_root_pose_pub_.publish(target_root_pose_msg);
+
+  // for debug: ddp solve time and iteration
   std_msgs::Float64 ddp_solve_time_msg;
   ddp_solve_time_msg.data = ddp_solve_time_;
   ddp_solve_time_pub_.publish(ddp_solve_time_msg);
@@ -363,6 +380,7 @@ void FullbodyFlightController::publish()
   ddp_iteration_msg.data = ddp_solver_->get_iter();
   ddp_iteration_pub_.publish(ddp_iteration_msg);
 
+  // publish nonlinear inverse dynamics solver info
   nonlinear_inverse_dynamics_solver_->publish();
 }
 
