@@ -44,6 +44,7 @@ private:
   ros::Publisher path_pub_;                  // for debug
   ros::Publisher ddp_solve_time_pub_;        // for debug
   ros::Publisher ddp_iteration_pub_;         // for debug
+  ros::Publisher target_root_pose_pub_;      // for debug
   ros::Subscriber joint_state_sub_;
   ros::Subscriber joint_command_sub_;
   ros::Subscriber root_pos_command_sub_;
