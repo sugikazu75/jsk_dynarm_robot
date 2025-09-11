@@ -4,7 +4,9 @@
 #include <geometry_msgs/Vector3Stamped.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <nav_msgs/Path.h>
+#include <sensor_msgs/JointState.h>
 #include <spinal/DesireCoord.h>
+#include <std_msgs/Empty.h>
 #include <std_msgs/Float32MultiArray.h>
 
 namespace aerial_robot_navigation
@@ -25,8 +27,10 @@ public:
 
 private:
   ros::Publisher path_pub_;  // for debug
+  ros::Publisher joints_control_pub_;
   ros::Subscriber desire_coordinate_sub_;
   ros::Subscriber circle_trajectory_command_sub_;
+  ros::Subscriber joint_trajectory_command_sub_;
 
   // circle trajectory flight
   bool circle_trajectory_flight_flag_ = false;
@@ -37,9 +41,20 @@ private:
   double circle_trajectory_start_time_;
   double circle_trajectory_end_time_;
 
+  // joint trajectory flight
+  bool joint_trajectory_flight_flag_ = false;
+  double joint_trajectory_duration_ = 1.0;
+  double joint_trajectory_start_time_;
+  double joint_trajectory_end_time_;
+  std::vector<std::string> joint_trajectory_names_;
+  std::vector<double> joint_trajectory_angle_start_;
+  std::vector<double> joint_trajectory_angle_end_;
+
   void circleTrajectoryGeneration();
+  void jointTrajectoryGeneration();
 
   void desireCoordinateCallback(const spinal::DesireCoordConstPtr& msg);
   void circleTrajectoryCommandCallback(const std_msgs::Float32MultiArrayConstPtr& msg);
+  void jointTrajectoryCommandCallback(const std_msgs::EmptyConstPtr& msg);
 };
 }  // namespace aerial_robot_navigation
