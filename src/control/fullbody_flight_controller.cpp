@@ -34,6 +34,8 @@ void FullbodyFlightController::initialize(ros::NodeHandle nh, ros::NodeHandle nh
       nh_.subscribe("root_pose_command", 1, &FullbodyFlightController::rootPoseCommandCallback, this);
   circle_trajectory_command_sub_ =
       nh_.subscribe("circle_trajectory_command", 1, &FullbodyFlightController::circleTrajectoryCommandCallback, this);
+  joint_trajectory_command_sub_ =
+      nh_.subscribe("joint_trajectory_command", 1, &FullbodyFlightController::jointTrajectoryCommandCallback, this);
 
   robot_ns_ = ros::this_node::getNamespace();
   if (!robot_ns_.empty() && robot_ns_[0] == '/')
@@ -285,12 +287,75 @@ void FullbodyFlightController::circleTrajectoryGeneration()
   }
 }
 
+void FullbodyFlightController::jointTrajectoryGeneration()
+{
+  if (ros::Time::now().toSec() > joint_trajectory_end_time_)
+  {
+    for (int i = 0; i < joint_trajectory_names_.size(); i++)
+    {
+      int joint_id = pinocchio_model_->getJointId(joint_trajectory_names_.at(i));
+      int joint_index_q = pinocchio_model_->joints[joint_id].idx_q();
+      int joint_index_v = pinocchio_model_->joints[joint_id].idx_v();
+      curr_target_q_(joint_index_q) = joint_trajectory_angle_start_.at(i);
+      curr_target_dq_(joint_index_v) = 0.0;
+      xref_(joint_index_q) = joint_trajectory_angle_start_.at(i);
+      xref_(pinocchio_model_->nq + joint_index_v) = 0.0;
+    }
+    joint_trajectory_flight_flag_ = false;
+    ROS_INFO_STREAM("[ddp] finish joint trajectory tracking");
+  }
+  else if (ros::Time::now().toSec() >= joint_trajectory_start_time_)
+  {
+    double t = ros::Time::now().toSec() - joint_trajectory_start_time_;
+    double omega = 2 * M_PI / joint_trajectory_duration_;
+    for (int i = 0; i < xs_init_.size(); i++)  // time step
+    {
+      double ti = t + i * hovering_->optimization_param_.dt;
+      double theta = omega * ti;
+      Eigen::VectorXd reference_i = hovering_->state_residuals_.at(i)->get_reference();
+      for (int j = 0; j < joint_trajectory_names_.size(); j++)  // joint
+      {
+        int joint_id = pinocchio_model_->getJointId(joint_trajectory_names_.at(j));
+        int joint_index_q = pinocchio_model_->joints[joint_id].idx_q();
+        int joint_index_v = pinocchio_model_->joints[joint_id].idx_v();
+        double target_q =
+            (joint_trajectory_angle_start_.at(j) + joint_trajectory_angle_end_.at(j)) / 2.0 +
+            (joint_trajectory_angle_end_.at(j) - joint_trajectory_angle_start_.at(j)) / 2.0 * (-cos(theta));
+
+        double target_dq =
+            (joint_trajectory_angle_end_.at(j) - joint_trajectory_angle_start_.at(j)) / 2.0 * omega * sin(theta);
+
+        if (i == 0)
+        {
+          curr_target_q_(joint_index_q) = target_q;
+          curr_target_dq_(joint_index_v) = target_dq;
+        }
+
+        reference_i(joint_index_q) = target_q;
+        reference_i(pinocchio_model_->nq + joint_index_v) = target_dq;
+      }
+      hovering_->state_residuals_.at(i)->set_reference(reference_i);
+    }
+  }
+  else
+  {
+    for (int i = 0; i < xs_init_.size(); i++)
+    {
+      hovering_->state_residuals_.at(i)->set_reference(xref_);
+    }
+  }
+}
+
 void FullbodyFlightController::controlCore()
 {
   // update reference state
   if (circle_trajectory_flight_flag_)
   {
     circleTrajectoryGeneration();
+  }
+  else if (joint_trajectory_flight_flag_)
+  {
+    jointTrajectoryGeneration();
   }
   else
   {
@@ -522,12 +587,14 @@ void FullbodyFlightController::jointCommandCallback(const sensor_msgs::JointStat
 void FullbodyFlightController::rootPosCommandCallback(const geometry_msgs::Vector3ConstPtr& msg)
 {
   xref_.head(3) << msg->x, msg->y, msg->z;
+  ROS_INFO_STREAM("[ddp] receive root position command: " << xref_.head(3).transpose());
 }
 
 void FullbodyFlightController::rootPoseCommandCallback(const geometry_msgs::PoseConstPtr& msg)
 {
   xref_.head(3) << msg->position.x, msg->position.y, msg->position.z;
   xref_.segment(3, 4) << msg->orientation.x, msg->orientation.y, msg->orientation.z, msg->orientation.w;
+  ROS_INFO_STREAM("[ddp] receive root pose command: " << xref_.head(7).transpose());
 }
 
 void FullbodyFlightController::circleTrajectoryCommandCallback(const std_msgs::Float32MultiArrayConstPtr& msg)
@@ -572,6 +639,40 @@ void FullbodyFlightController::circleTrajectoryCommandCallback(const std_msgs::F
     }
     path_pub_.publish(path_msg);
   }
+}
+
+void FullbodyFlightController::jointTrajectoryCommandCallback(const std_msgs::EmptyConstPtr& msg)
+{
+  ros::NodeHandle joint_traj_nh(nh_, "joint_trajectory");
+  joint_traj_nh.param("duration", joint_trajectory_duration_, 1.0);
+
+  joint_trajectory_names_ = nonlinear_inverse_dynamics_solver_->getJointNames();
+  joint_traj_nh.getParam("start_angle", joint_trajectory_angle_start_);
+  if (joint_trajectory_angle_start_.size() != joint_trajectory_names_.size())
+  {
+    ROS_ERROR("[ddp] Joint trajectory command for start angle size mismatch.");
+    return;
+  }
+
+  joint_traj_nh.getParam("end_angle", joint_trajectory_angle_end_);
+  if (joint_trajectory_angle_end_.size() != joint_trajectory_names_.size())
+  {
+    ROS_ERROR("[ddp] Joint trajectory command for end angle size mismatch.");
+    return;
+  }
+
+  for (int i = 0; i < joint_trajectory_names_.size(); i++)
+  {
+    int joint_id = pinocchio_model_->getJointId(joint_trajectory_names_.at(i));
+    int joint_index_q = pinocchio_model_->joints[joint_id].idx_q();
+    curr_target_q_(joint_index_q) = joint_trajectory_angle_start_.at(i);
+    xref_(joint_index_q) = joint_trajectory_angle_start_.at(i);
+  }
+
+  ROS_INFO_STREAM("[ddp] start joint trajectory tracking with duration: " << joint_trajectory_duration_ << " s");
+  joint_trajectory_start_time_ = ros::Time::now().toSec() + 6.0;
+  joint_trajectory_end_time_ = joint_trajectory_start_time_ + 3 * joint_trajectory_duration_;  // three loop
+  joint_trajectory_flight_flag_ = true;
 }
 
 void FullbodyFlightController::publishDDPTrajectory()

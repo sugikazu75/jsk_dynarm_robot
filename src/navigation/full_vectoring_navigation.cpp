@@ -17,10 +17,13 @@ void FullVectoringNavigator::initialize(ros::NodeHandle nh, ros::NodeHandle nhp,
   rosParamInit();
 
   path_pub_ = nh_.advertise<nav_msgs::Path>("trajectory_path", 1);
+  joints_control_pub_ = nh_.advertise<sensor_msgs::JointState>("joints_ctrl", 1);
   desire_coordinate_sub_ =
       nh_.subscribe("desire_coordinate", 1, &FullVectoringNavigator::desireCoordinateCallback, this);
   circle_trajectory_command_sub_ =
       nh_.subscribe("circle_trajectory_command", 1, &FullVectoringNavigator::circleTrajectoryCommandCallback, this);
+  joint_trajectory_command_sub_ =
+      nh_.subscribe("joint_trajectory_command", 1, &FullVectoringNavigator::jointTrajectoryCommandCallback, this);
 }
 
 void FullVectoringNavigator::reset()
@@ -34,32 +37,70 @@ void FullVectoringNavigator::update()
 {
   BaseNavigator::update();
 
-  circleTrajectoryGeneration();
+  if (circle_trajectory_flight_flag_)
+  {
+    circleTrajectoryGeneration();
+  }
+  else if (joint_trajectory_flight_flag_)
+  {
+    jointTrajectoryGeneration();
+  }
 }
 
 void FullVectoringNavigator::circleTrajectoryGeneration()
 {
-  if (circle_trajectory_flight_flag_)
+  if (ros::Time::now().toSec() > circle_trajectory_end_time_)
   {
-    if (ros::Time::now().toSec() > circle_trajectory_end_time_)
+    Eigen::Vector3d target_pos = circle_center_ + Eigen::Vector3d(circle_radius_, 0.0, 0.0);
+    setTargetPosX(target_pos(0));
+    setTargetPosY(target_pos(1));
+    setTargetVel(0, 0, 0);
+    circle_trajectory_flight_flag_ = false;
+    ROS_INFO_STREAM("[navigation] finish circle trajectory tracking");
+  }
+  else if (ros::Time::now().toSec() >= circle_trajectory_start_time_)
+  {
+    double t = ros::Time::now().toSec() - circle_trajectory_start_time_;
+    Eigen::Vector3d target_pos = circle_center_ + Eigen::Vector3d(circle_radius_ * cos(circle_omega_ * t),
+                                                                  circle_radius_ * sin(circle_omega_ * t), 0.0);
+    setTargetVel(-circle_radius_ * circle_omega_ * sin(circle_omega_ * t),
+                 circle_radius_ * circle_omega_ * cos(circle_omega_ * t), 0);
+    setTargetPosX(target_pos(0));
+    setTargetPosY(target_pos(1));
+  }
+}
+
+void FullVectoringNavigator::jointTrajectoryGeneration()
+{
+  if (ros::Time::now().toSec() > joint_trajectory_end_time_)
+  {
+    sensor_msgs::JointState joint_cmd_msg;
+    joint_cmd_msg.position = joint_trajectory_angle_start_;
+    joints_control_pub_.publish(joint_cmd_msg);
+    joint_trajectory_flight_flag_ = false;
+    ROS_INFO_STREAM("[navigation] finish joint trajectory tracking");
+  }
+  else if (ros::Time::now().toSec() >= joint_trajectory_start_time_)
+  {
+    sensor_msgs::JointState joint_cmd_msg;
+    double t = ros::Time::now().toSec() - joint_trajectory_start_time_;
+    double omega = 2 * M_PI / joint_trajectory_duration_;
+    double theta = omega * t;
+    for (int i = 0; i < joint_trajectory_angle_start_.size(); i++)
     {
-      Eigen::Vector3d target_pos = circle_center_ + Eigen::Vector3d(circle_radius_, 0.0, 0.0);
-      setTargetPosX(target_pos(0));
-      setTargetPosY(target_pos(1));
-      setTargetVel(0, 0, 0);
-      circle_trajectory_flight_flag_ = false;
-      ROS_INFO_STREAM("[navigation] finish circle trajectory tracking");
+      double target_angle =
+          (joint_trajectory_angle_start_.at(i) + joint_trajectory_angle_end_.at(i)) / 2.0 +
+          (joint_trajectory_angle_end_.at(i) - joint_trajectory_angle_start_.at(i)) / 2.0 * (-cos(theta));
+      joint_cmd_msg.position.push_back(target_angle);
     }
-    else if (ros::Time::now().toSec() >= circle_trajectory_start_time_)
-    {
-      double t = ros::Time::now().toSec() - circle_trajectory_start_time_;
-      Eigen::Vector3d target_pos = circle_center_ + Eigen::Vector3d(circle_radius_ * cos(circle_omega_ * t),
-                                                                    circle_radius_ * sin(circle_omega_ * t), 0.0);
-      setTargetVel(-circle_radius_ * circle_omega_ * sin(circle_omega_ * t),
-                   circle_radius_ * circle_omega_ * cos(circle_omega_ * t), 0);
-      setTargetPosX(target_pos(0));
-      setTargetPosY(target_pos(1));
-    }
+    joints_control_pub_.publish(joint_cmd_msg);
+  }
+  else
+  {
+    // hold the start position
+    sensor_msgs::JointState joint_cmd_msg;
+    joint_cmd_msg.position = joint_trajectory_angle_start_;
+    joints_control_pub_.publish(joint_cmd_msg);
   }
 }
 
@@ -109,6 +150,32 @@ void FullVectoringNavigator::circleTrajectoryCommandCallback(const std_msgs::Flo
     }
     path_pub_.publish(path_msg);
   }
+}
+
+void FullVectoringNavigator::jointTrajectoryCommandCallback(const std_msgs::EmptyConstPtr& msg)
+{
+  ros::NodeHandle joint_traj_nh(nh_, "joint_trajectory");
+  joint_traj_nh.param("duration", joint_trajectory_duration_, 1.0);
+
+  joint_traj_nh.getParam("joint_names", joint_trajectory_names_);
+  joint_traj_nh.getParam("start_angle", joint_trajectory_angle_start_);
+  if (joint_trajectory_angle_start_.size() != joint_trajectory_names_.size())
+  {
+    ROS_ERROR("[navigation] Joint trajectory command for start angle size mismatch.");
+    return;
+  }
+
+  joint_traj_nh.getParam("end_angle", joint_trajectory_angle_end_);
+  if (joint_trajectory_angle_end_.size() != joint_trajectory_names_.size())
+  {
+    ROS_ERROR("[navigation] Joint trajectory command for end angle size mismatch.");
+    return;
+  }
+
+  ROS_INFO_STREAM("[navigation] start joint trajectory tracking, duration: " << joint_trajectory_duration_ << " s");
+  joint_trajectory_start_time_ = ros::Time::now().toSec() + 5.0;
+  joint_trajectory_end_time_ = joint_trajectory_start_time_ + 3 * joint_trajectory_duration_;  // three loops
+  joint_trajectory_flight_flag_ = true;
 }
 
 /* plugin registration */

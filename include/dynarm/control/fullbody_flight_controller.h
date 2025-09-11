@@ -16,6 +16,7 @@
 #include <geometry_msgs/Vector3.h>
 #include <nav_msgs/Path.h>
 #include <sensor_msgs/JointState.h>
+#include <std_msgs/Empty.h>
 #include <std_msgs/Float32MultiArray.h>
 #include <std_msgs/Float64.h>
 #include <std_msgs/UInt8.h>
@@ -50,6 +51,7 @@ private:
   ros::Subscriber root_pos_command_sub_;
   ros::Subscriber root_pose_command_sub_;
   ros::Subscriber circle_trajectory_command_sub_;
+  ros::Subscriber joint_trajectory_command_sub_;
 
   std::string robot_ns_;
   int rotor_wrench_pub_index_;
@@ -85,6 +87,15 @@ private:
   double circle_trajectory_end_time_;
   double circle_trajectory_pitch_max_ = 1.0;
 
+  // joint trajectory flight
+  bool joint_trajectory_flight_flag_ = false;
+  double joint_trajectory_duration_ = 1.0;
+  double joint_trajectory_start_time_;
+  double joint_trajectory_end_time_;
+  std::vector<std::string> joint_trajectory_names_;
+  std::vector<double> joint_trajectory_angle_start_;
+  std::vector<double> joint_trajectory_angle_end_;
+
   void rosParamInit();
   void DDPProblemInit();
   virtual void activate() override;
@@ -93,6 +104,7 @@ private:
   Eigen::VectorXd getCurrentX();
   void controlCore();
   void circleTrajectoryGeneration();
+  void jointTrajectoryGeneration();
   void sendCmd();
   void publish();
   void sendFourAxisCommand();
@@ -104,5 +116,6 @@ private:
   void rootPosCommandCallback(const geometry_msgs::Vector3ConstPtr& msg);
   void rootPoseCommandCallback(const geometry_msgs::PoseConstPtr& msg);
   void circleTrajectoryCommandCallback(const std_msgs::Float32MultiArrayConstPtr& msg);
+  void jointTrajectoryCommandCallback(const std_msgs::EmptyConstPtr& msg);
 };
 }  // namespace aerial_robot_control
