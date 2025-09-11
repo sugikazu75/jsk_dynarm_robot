@@ -14,6 +14,7 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <geometry_msgs/Vector3.h>
+#include <geometry_msgs/WrenchStamped.h>
 #include <nav_msgs/Path.h>
 #include <sensor_msgs/JointState.h>
 #include <std_msgs/Empty.h>
