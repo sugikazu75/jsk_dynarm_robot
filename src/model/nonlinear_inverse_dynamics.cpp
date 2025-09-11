@@ -237,6 +237,8 @@ void NonlinearInverseDynamics::loadJointNames()
     std::string joint_name = pinocchio_model_->names[i];
     if (joint_name.find("joint") != std::string::npos)
     {
+      if (joint_name.find("root") != std::string::npos)
+        continue;  // skip root joint
       joint_names_.push_back(joint_name);
     }
   }
