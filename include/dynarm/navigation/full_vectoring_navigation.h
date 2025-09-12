@@ -1,6 +1,7 @@
 #pragma once
 
 #include <aerial_robot_control/flight_navigation.h>
+#include <aerial_robot_model/model/transformable_aerial_robot_model.h>
 #include <geometry_msgs/Vector3Stamped.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <nav_msgs/Path.h>
@@ -26,8 +27,13 @@ public:
   void reset() override;
 
 private:
-  ros::Publisher path_pub_;  // for debug
-  ros::Publisher joints_control_pub_;
+  boost::shared_ptr<aerial_robot_model::transformable::RobotModel> robot_model_for_plan_;
+  sensor_msgs::JointState joint_state_for_plan_;
+  std::map<std::string, uint32_t> joint_index_map_without_rotor_;
+
+  ros::Publisher path_pub_;              // for debug
+  ros::Publisher joints_control_pub_;    // for servo bridge
+  ros::Publisher target_root_pose_pub_;  // for debug
   ros::Subscriber desire_coordinate_sub_;
   ros::Subscriber circle_trajectory_command_sub_;
   ros::Subscriber joint_trajectory_command_sub_;
@@ -42,6 +48,7 @@ private:
   double circle_trajectory_end_time_;
 
   // joint trajectory flight
+  Eigen::Affine3d world_to_root_initial_;
   bool joint_trajectory_flight_flag_ = false;
   double joint_trajectory_duration_ = 1.0;
   double joint_trajectory_start_time_;
@@ -52,6 +59,8 @@ private:
 
   void circleTrajectoryGeneration();
   void jointTrajectoryGeneration();
+
+  void publish();
 
   void desireCoordinateCallback(const spinal::DesireCoordConstPtr& msg);
   void circleTrajectoryCommandCallback(const std_msgs::Float32MultiArrayConstPtr& msg);
