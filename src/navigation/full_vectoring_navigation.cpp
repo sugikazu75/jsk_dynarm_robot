@@ -11,19 +11,38 @@ void FullVectoringNavigator::initialize(ros::NodeHandle nh, ros::NodeHandle nhp,
                                         boost::shared_ptr<aerial_robot_estimation::StateEstimator> estimator,
                                         double loop_du)
 {
-  /* initialize the flight control */
+  /* initialize base navigator */
   BaseNavigator::initialize(nh, nhp, robot_model, estimator, loop_du);
+
+  /* make a robot model for planning */
+  std::map<std::string, uint32_t> joint_index_map = robot_model_->getJointIndexMap();
+  robot_model_for_plan_ = boost::make_shared<aerial_robot_model::transformable::RobotModel>();
+  joint_state_for_plan_.name.clear();
+  joint_state_for_plan_.position.clear();
+  joint_state_for_plan_.velocity.clear();
+  joint_state_for_plan_.effort.clear();
+  joint_state_for_plan_.name = robot_model_->getJointNames();
+  joint_state_for_plan_.position.resize(joint_state_for_plan_.name.size(), 0);
+  robot_model_for_plan_->updateRobotModel(joint_state_for_plan_);
+  for (int i = 0; i < joint_state_for_plan_.name.size(); i++)
+  {
+    joint_index_map_without_rotor_[joint_state_for_plan_.name.at(i)] = i;
+  }
 
   rosParamInit();
 
   path_pub_ = nh_.advertise<nav_msgs::Path>("trajectory_path", 1);
   joints_control_pub_ = nh_.advertise<sensor_msgs::JointState>("joints_ctrl", 1);
+  target_root_pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("debug/target_root_pose", 1);
+
   desire_coordinate_sub_ =
       nh_.subscribe("desire_coordinate", 1, &FullVectoringNavigator::desireCoordinateCallback, this);
   circle_trajectory_command_sub_ =
       nh_.subscribe("circle_trajectory_command", 1, &FullVectoringNavigator::circleTrajectoryCommandCallback, this);
   joint_trajectory_command_sub_ =
       nh_.subscribe("joint_trajectory_command", 1, &FullVectoringNavigator::jointTrajectoryCommandCallback, this);
+
+  world_to_root_initial_ = Eigen::Affine3d::Identity();
 }
 
 void FullVectoringNavigator::reset()
@@ -45,6 +64,8 @@ void FullVectoringNavigator::update()
   {
     jointTrajectoryGeneration();
   }
+
+  publish();
 }
 
 void FullVectoringNavigator::circleTrajectoryGeneration()
@@ -86,14 +107,33 @@ void FullVectoringNavigator::jointTrajectoryGeneration()
     double t = ros::Time::now().toSec() - joint_trajectory_start_time_;
     double omega = 2 * M_PI / joint_trajectory_duration_;
     double theta = omega * t;
-    for (int i = 0; i < joint_trajectory_angle_start_.size(); i++)
+    // update joint command
+    for (int i = 0; i < joint_trajectory_names_.size(); i++)
     {
+      std::string joint_name = joint_trajectory_names_.at(i);
       double target_angle =
           (joint_trajectory_angle_start_.at(i) + joint_trajectory_angle_end_.at(i)) / 2.0 +
           (joint_trajectory_angle_end_.at(i) - joint_trajectory_angle_start_.at(i)) / 2.0 * (-cos(theta));
       joint_cmd_msg.position.push_back(target_angle);
+
+      // update joint state for plan
+      uint32_t joint_index = joint_index_map_without_rotor_.at(joint_name);
+      joint_state_for_plan_.position.at(joint_index) = target_angle;
     }
+
+    // publish joint command
     joints_control_pub_.publish(joint_cmd_msg);
+
+    // update cog trajecotry
+    robot_model_for_plan_->updateRobotModel(joint_state_for_plan_);
+    Eigen::Affine3d root_to_cog = robot_model_for_plan_->getCog<Eigen::Affine3d>();
+    Eigen::Affine3d world_to_cog = world_to_root_initial_ * root_to_cog;
+    setTargetPosX(world_to_cog.translation().x());
+    setTargetPosY(world_to_cog.translation().y());
+    setTargetPosZ(world_to_cog.translation().z());
+    Eigen::Matrix3d rot = world_to_cog.rotation();
+    Eigen::Vector3d rpy = rot.eulerAngles(0, 1, 2);
+    setTargetYaw(rpy.z());
   }
   else
   {
@@ -102,6 +142,23 @@ void FullVectoringNavigator::jointTrajectoryGeneration()
     joint_cmd_msg.position = joint_trajectory_angle_start_;
     joints_control_pub_.publish(joint_cmd_msg);
   }
+}
+
+void FullVectoringNavigator::publish()
+{
+  // publish the target root pose for debug
+  geometry_msgs::PoseStamped pose_msg;
+  pose_msg.header.stamp = ros::Time::now();
+  pose_msg.header.frame_id = "world";
+  pose_msg.pose.position.x = world_to_root_initial_.translation().x();
+  pose_msg.pose.position.y = world_to_root_initial_.translation().y();
+  pose_msg.pose.position.z = world_to_root_initial_.translation().z();
+  Eigen::Quaterniond quat(world_to_root_initial_.rotation());
+  pose_msg.pose.orientation.x = quat.x();
+  pose_msg.pose.orientation.y = quat.y();
+  pose_msg.pose.orientation.z = quat.z();
+  pose_msg.pose.orientation.w = quat.w();
+  target_root_pose_pub_.publish(pose_msg);
 }
 
 void FullVectoringNavigator::desireCoordinateCallback(const spinal::DesireCoordConstPtr& msg)
@@ -171,6 +228,24 @@ void FullVectoringNavigator::jointTrajectoryCommandCallback(const std_msgs::Empt
     ROS_ERROR("[navigation] Joint trajectory command for end angle size mismatch.");
     return;
   }
+
+  for (int i = 0; i < joint_trajectory_names_.size(); i++)
+  {
+    std::string joint_name = joint_trajectory_names_.at(i);
+    double start_angle = joint_trajectory_angle_start_.at(i);
+    joint_state_for_plan_.position.at(joint_index_map_without_rotor_.at(joint_name)) = start_angle;
+  }
+  robot_model_for_plan_->updateRobotModel(joint_state_for_plan_);
+
+  Eigen::Vector3d target_pos = Eigen::Vector3d(target_pos_.x(), target_pos_.y(), target_pos_.z());
+  Eigen::Matrix3d target_rot = (Eigen::AngleAxisd(target_rpy_.z(), Eigen::Vector3d::UnitZ()) *
+                                Eigen::AngleAxisd(target_rpy_.y(), Eigen::Vector3d::UnitY()) *
+                                Eigen::AngleAxisd(target_rpy_.x(), Eigen::Vector3d::UnitX()))
+                                   .toRotationMatrix();
+  Eigen::Affine3d world_to_cog = Eigen::Translation3d(target_pos) * target_rot;
+  Eigen::Affine3d root_to_cog = robot_model_for_plan_->getCog<Eigen::Affine3d>();
+  Eigen::Affine3d world_to_root = world_to_cog * root_to_cog.inverse();
+  world_to_root_initial_ = world_to_root;
 
   ROS_INFO_STREAM("[navigation] start joint trajectory tracking, duration: " << joint_trajectory_duration_ << " s");
   joint_trajectory_start_time_ = ros::Time::now().toSec() + 5.0;
