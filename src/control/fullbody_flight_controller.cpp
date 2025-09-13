@@ -27,6 +27,7 @@ void FullbodyFlightController::initialize(ros::NodeHandle nh, ros::NodeHandle nh
   ddp_solve_time_pub_ = nh_.advertise<std_msgs::Float64>("debug/ddp_solve_time", 1);
   ddp_iteration_pub_ = nh_.advertise<std_msgs::UInt8>("debug/ddp_iteration", 1);
   target_root_pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("debug/target_root_pose", 1);
+  pid_debug_pub_ = nh_.advertise<aerial_robot_msgs::PoseControlPid>("debug/pose/pid", 1);
 
   joint_command_sub_ = nh_.subscribe("joint_command", 1, &FullbodyFlightController::jointCommandCallback, this);
   root_pos_command_sub_ = nh_.subscribe("root_pos_command", 1, &FullbodyFlightController::rootPosCommandCallback, this);
@@ -435,6 +436,18 @@ void FullbodyFlightController::publish()
   target_root_pose_msg.pose.orientation.z = curr_target_q_(5);
   target_root_pose_msg.pose.orientation.w = curr_target_q_(6);
   target_root_pose_pub_.publish(target_root_pose_msg);
+
+  Eigen::VectorXd curr_q = getCurrentX().head(pinocchio_model_->nq);
+  Eigen::VectorXd q_diff = pinocchio::difference(*pinocchio_model_, curr_q, curr_target_q_);
+  aerial_robot_msgs::PoseControlPid pid_debug_msg;
+  pid_debug_msg.header.stamp = ros::Time::now();
+  pid_debug_msg.x.err_p = q_diff(0);
+  pid_debug_msg.y.err_p = q_diff(1);
+  pid_debug_msg.z.err_p = q_diff(2);
+  pid_debug_msg.roll.err_p = q_diff(3);
+  pid_debug_msg.pitch.err_p = q_diff(4);
+  pid_debug_msg.yaw.err_p = q_diff(5);
+  pid_debug_pub_.publish(pid_debug_msg);
 
   // for debug: ddp solve time and iteration
   std_msgs::Float64 ddp_solve_time_msg;

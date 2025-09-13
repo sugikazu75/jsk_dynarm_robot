@@ -1,6 +1,7 @@
 #pragma once
 
 #include <pinocchio/fwd.hpp>
+#include <pinocchio/multibody/liegroup/liegroup.hpp>
 #include <dynarm/model/manipulator_model.h>
 #include <dynarm/model/nonlinear_inverse_dynamics.h>
 #include <dynarm/control/ddp_hovering_problem.h>
@@ -10,6 +11,7 @@
 #include <ros/ros.h>
 #include <Eigen/Core>
 
+#include <aerial_robot_msgs/PoseControlPid.h>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TransformStamped.h>
@@ -47,6 +49,7 @@ private:
   ros::Publisher ddp_solve_time_pub_;        // for debug
   ros::Publisher ddp_iteration_pub_;         // for debug
   ros::Publisher target_root_pose_pub_;      // for debug
+  ros::Publisher pid_debug_pub_;             // for debug
   ros::Subscriber joint_state_sub_;
   ros::Subscriber joint_command_sub_;
   ros::Subscriber root_pos_command_sub_;
