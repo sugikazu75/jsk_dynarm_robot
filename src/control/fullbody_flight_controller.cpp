@@ -601,6 +601,31 @@ void FullbodyFlightController::rootPosCommandCallback(const geometry_msgs::Vecto
 {
   xref_.head(3) << msg->x, msg->y, msg->z;
   ROS_INFO_STREAM("[ddp] receive root position command: " << xref_.head(3).transpose());
+
+  // visualize path
+  nav_msgs::Path path_msg;
+  path_msg.header.stamp = ros::Time::now();
+  path_msg.header.frame_id = "world";
+  geometry_msgs::PoseStamped pose;
+  // current position
+  pose.pose.position.x = estimator_->getPos(Frame::BASELINK, estimate_mode_).x();
+  pose.pose.position.y = estimator_->getPos(Frame::BASELINK, estimate_mode_).y();
+  pose.pose.position.z = estimator_->getPos(Frame::BASELINK, estimate_mode_).z();
+  pose.pose.orientation.x = 0.0;
+  pose.pose.orientation.y = 0.0;
+  pose.pose.orientation.z = 0.0;
+  pose.pose.orientation.w = 1.0;
+  path_msg.poses.push_back(pose);
+  // target position
+  pose.pose.position.x = msg->x;
+  pose.pose.position.y = msg->y;
+  pose.pose.position.z = msg->z;
+  pose.pose.orientation.x = 0.0;
+  pose.pose.orientation.y = 0.0;
+  pose.pose.orientation.z = 0.0;
+  pose.pose.orientation.w = 1.0;
+  path_msg.poses.push_back(pose);
+  path_pub_.publish(path_msg);
 }
 
 void FullbodyFlightController::rootPoseCommandCallback(const geometry_msgs::PoseConstPtr& msg)
@@ -608,6 +633,31 @@ void FullbodyFlightController::rootPoseCommandCallback(const geometry_msgs::Pose
   xref_.head(3) << msg->position.x, msg->position.y, msg->position.z;
   xref_.segment(3, 4) << msg->orientation.x, msg->orientation.y, msg->orientation.z, msg->orientation.w;
   ROS_INFO_STREAM("[ddp] receive root pose command: " << xref_.head(7).transpose());
+
+  // visualize path
+  nav_msgs::Path path_msg;
+  path_msg.header.stamp = ros::Time::now();
+  path_msg.header.frame_id = "world";
+  geometry_msgs::PoseStamped pose;
+  // current position
+  pose.pose.position.x = estimator_->getPos(Frame::BASELINK, estimate_mode_).x();
+  pose.pose.position.y = estimator_->getPos(Frame::BASELINK, estimate_mode_).y();
+  pose.pose.position.z = estimator_->getPos(Frame::BASELINK, estimate_mode_).z();
+  pose.pose.orientation.x = 0.0;
+  pose.pose.orientation.y = 0.0;
+  pose.pose.orientation.z = 0.0;
+  pose.pose.orientation.w = 1.0;
+  path_msg.poses.push_back(pose);
+  // target position
+  pose.pose.position.x = msg->position.x;
+  pose.pose.position.y = msg->position.y;
+  pose.pose.position.z = msg->position.z;
+  pose.pose.orientation.x = 0.0;
+  pose.pose.orientation.y = 0.0;
+  pose.pose.orientation.z = 0.0;
+  pose.pose.orientation.w = 1.0;
+  path_msg.poses.push_back(pose);
+  path_pub_.publish(path_msg);
 }
 
 void FullbodyFlightController::circleTrajectoryCommandCallback(const std_msgs::Float32MultiArrayConstPtr& msg)
