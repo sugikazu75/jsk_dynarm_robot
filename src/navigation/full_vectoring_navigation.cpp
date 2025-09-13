@@ -248,7 +248,7 @@ void FullVectoringNavigator::jointTrajectoryCommandCallback(const std_msgs::Empt
   world_to_root_initial_ = world_to_root;
 
   ROS_INFO_STREAM("[navigation] start joint trajectory tracking, duration: " << joint_trajectory_duration_ << " s");
-  joint_trajectory_start_time_ = ros::Time::now().toSec() + 5.0;
+  joint_trajectory_start_time_ = ros::Time::now().toSec() + 6.0;
   joint_trajectory_end_time_ = joint_trajectory_start_time_ + 3 * joint_trajectory_duration_;  // three loops
   joint_trajectory_flight_flag_ = true;
 }
