@@ -1,7 +1,7 @@
 aerial_robot_control_name: aerial_robot_control/fullbody_flight_controller
 
 controller:
-  gimbal_delta_max: 0.5  # Maximum change in gimbal angles (radians)
+  gimbal_delta_max: 3.14  # Maximum change in gimbal angles (radians)
 
 
 ddp:
