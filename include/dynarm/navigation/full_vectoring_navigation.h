@@ -41,7 +41,8 @@ private:
   // circle trajectory flight
   bool circle_trajectory_flight_flag_ = false;
   double circle_radius_;
-  double circle_omega_;
+  double circle_duration_;
+  int circle_loop_ = 3;
   Eigen::Vector3d circle_center_;
   double circle_trajectory_initial_yaw_;
   double circle_trajectory_start_time_;
@@ -63,7 +64,7 @@ private:
   void publish();
 
   void desireCoordinateCallback(const spinal::DesireCoordConstPtr& msg);
-  void circleTrajectoryCommandCallback(const std_msgs::Float32MultiArrayConstPtr& msg);
+  void circleTrajectoryCommandCallback(const std_msgs::EmptyConstPtr& msg);
   void jointTrajectoryCommandCallback(const std_msgs::EmptyConstPtr& msg);
 };
 }  // namespace aerial_robot_navigation
