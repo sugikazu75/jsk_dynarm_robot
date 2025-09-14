@@ -82,10 +82,10 @@ void FullVectoringNavigator::circleTrajectoryGeneration()
   else if (ros::Time::now().toSec() >= circle_trajectory_start_time_)
   {
     double t = ros::Time::now().toSec() - circle_trajectory_start_time_;
-    Eigen::Vector3d target_pos = circle_center_ + Eigen::Vector3d(circle_radius_ * cos(circle_omega_ * t),
-                                                                  circle_radius_ * sin(circle_omega_ * t), 0.0);
-    setTargetVel(-circle_radius_ * circle_omega_ * sin(circle_omega_ * t),
-                 circle_radius_ * circle_omega_ * cos(circle_omega_ * t), 0);
+    double omega = 2 * M_PI / circle_duration_;
+    Eigen::Vector3d target_pos =
+        circle_center_ + Eigen::Vector3d(circle_radius_ * cos(omega * t), circle_radius_ * sin(omega * t), 0.0);
+    setTargetVel(-circle_radius_ * omega * sin(omega * t), circle_radius_ * omega * cos(omega * t), 0);
     setTargetPosX(target_pos(0));
     setTargetPosY(target_pos(1));
   }
@@ -173,45 +173,43 @@ void FullVectoringNavigator::desireCoordinateCallback(const spinal::DesireCoordC
   robot_model_->setCogDesireOrientation(rot);
 }
 
-void FullVectoringNavigator::circleTrajectoryCommandCallback(const std_msgs::Float32MultiArrayConstPtr& msg)
+void FullVectoringNavigator::circleTrajectoryCommandCallback(const std_msgs::EmptyConstPtr& msg)
 {
-  if (msg->data.size() != 2)
+  ros::NodeHandle circle_traj_nh(nh_, "circle_trajectory");
+  circle_traj_nh.param("radius", circle_radius_, 1.0);
+  circle_traj_nh.param("duration", circle_duration_, M_PI);
+  circle_traj_nh.param("loop", circle_loop_, 3);
+
+  circle_trajectory_flight_flag_ = true;
+  circle_trajectory_start_time_ = ros::Time::now().toSec() + 6.0;
+  circle_trajectory_end_time_ = circle_trajectory_start_time_ + circle_loop_ * circle_duration_;
+
+  tf::Vector3 target_pos = getTargetPos();
+  circle_center_ = Eigen::Vector3d(target_pos.x() - circle_radius_, target_pos.y(), target_pos.z());
+
+  ROS_INFO_STREAM("[navigation] circle trajectory center: " << circle_center_.transpose()
+                                                            << ", radius: " << circle_radius_
+                                                            << ", duration: " << circle_duration_ << " s"
+                                                            << ", loop: " << circle_loop_);
+
+  // visualize path
+  nav_msgs::Path path_msg;
+  path_msg.header.stamp = ros::Time::now();
+  path_msg.header.frame_id = "world";
+  int N = 120;
+  for (int i = 0; i < N; i++)
   {
-    ROS_ERROR("[navigation] Circle trajectory command size mismatch.");
+    geometry_msgs::PoseStamped pose;
+    pose.pose.position.x = circle_center_.x() + circle_radius_ * cos(2 * M_PI * i / N);
+    pose.pose.position.y = circle_center_.y() + circle_radius_ * sin(2 * M_PI * i / N);
+    pose.pose.position.z = circle_center_.z();
+    pose.pose.orientation.x = 0.0;
+    pose.pose.orientation.y = 0.0;
+    pose.pose.orientation.z = 0.0;
+    pose.pose.orientation.w = 1.0;
+    path_msg.poses.push_back(pose);
   }
-  else
-  {
-    setTargetYaw(0.0);
-    circle_trajectory_flight_flag_ = true;
-    circle_radius_ = msg->data.at(0);
-    circle_omega_ = msg->data.at(1);
-    circle_trajectory_start_time_ = ros::Time::now().toSec() + 10.0;
-    circle_trajectory_end_time_ = circle_trajectory_start_time_ + 6.0 * M_PI / circle_omega_;  // three loops
-
-    tf::Vector3 target_pos = getTargetPos();
-    circle_center_ = Eigen::Vector3d(target_pos.x() - circle_radius_, target_pos.y(), target_pos.z());
-
-    ROS_INFO_STREAM("[navigation] circle trajectory center: " << circle_center_.transpose()
-                                                              << ", radius: " << circle_radius_);
-
-    nav_msgs::Path path_msg;
-    path_msg.header.stamp = ros::Time::now();
-    path_msg.header.frame_id = "world";
-    int N = 120;
-    for (int i = 0; i < N; i++)
-    {
-      geometry_msgs::PoseStamped pose;
-      pose.pose.position.x = circle_center_.x() + circle_radius_ * cos(2 * M_PI * i / N);
-      pose.pose.position.y = circle_center_.y() + circle_radius_ * sin(2 * M_PI * i / N);
-      pose.pose.position.z = circle_center_.z();
-      pose.pose.orientation.x = 0.0;
-      pose.pose.orientation.y = 0.0;
-      pose.pose.orientation.z = 0.0;
-      pose.pose.orientation.w = 1.0;
-      path_msg.poses.push_back(pose);
-    }
-    path_pub_.publish(path_msg);
-  }
+  path_pub_.publish(path_msg);
 }
 
 void FullVectoringNavigator::jointTrajectoryCommandCallback(const std_msgs::EmptyConstPtr& msg)

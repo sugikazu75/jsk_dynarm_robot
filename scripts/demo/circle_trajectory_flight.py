@@ -5,21 +5,28 @@ import rospy
 from aerial_robot_msgs.msg import FlightNav
 from geometry_msgs.msg import Vector3, Pose
 from sensor_msgs.msg import JointState
-from std_msgs.msg import Float32MultiArray
+from std_msgs.msg import Empty, Float32MultiArray
 import math
 import time
 
 
 class CircleTrajectoryFlightDemo:
     def __init__(self):
-        self.circle_trajectory_pub = rospy.Publisher("circle_trajectory_command", Float32MultiArray, queue_size=1)
+        self.circle_trajectory_pub = rospy.Publisher("circle_trajectory_command", Empty, queue_size=1)
         self.uav_nav_pub = rospy.Publisher("uav/nav", FlightNav, queue_size=1)
         self.ddp_root_pose_pub = rospy.Publisher("root_pose_command", Pose, queue_size=1)
         self.joint_command_pub = rospy.Publisher("joint_command", JointState, queue_size=1)
         self.joints_control_pub = rospy.Publisher("joints_ctrl", JointState, queue_size=1)
 
-        self.radius = 0.5
-        self.angvel = 2.0
+        radius = 0.5
+        duration = 3.0
+        loop = 3
+
+        rospy.set_param("circle_trajectory/radius", radius)
+        rospy.set_param("circle_trajectory/duration", duration)
+        rospy.set_param("circle_trajectory/loop", loop)
+
+        rospy.loginfo("set circle trajectory parameters")
 
         rospy.sleep(2.0)
 
@@ -63,9 +70,7 @@ class CircleTrajectoryFlightDemo:
         time.sleep(10.0)
 
         rospy.loginfo("send circle trajectory")
-        circle_trajectory_msg = Float32MultiArray()
-        circle_trajectory_msg.data.append(self.radius)
-        circle_trajectory_msg.data.append(self.angvel)
+        circle_trajectory_msg = Empty()
         self.circle_trajectory_pub.publish(circle_trajectory_msg)
 
 

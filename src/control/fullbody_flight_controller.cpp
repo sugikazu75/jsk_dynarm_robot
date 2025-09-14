@@ -248,17 +248,18 @@ void FullbodyFlightController::circleTrajectoryGeneration()
   else if (ros::Time::now().toSec() > circle_trajectory_start_time_)
   {
     double t = ros::Time::now().toSec() - circle_trajectory_start_time_;
+    double omega = 2 * M_PI / circle_duration_;
     for (int i = 0; i < xs_init_.size(); i++)
     {
       double ti = t + i * hovering_->optimization_param_.dt;
-      Eigen::Vector3d target_pos = circle_center_ + Eigen::Vector3d(circle_radius_ * cos(circle_omega_ * ti),
-                                                                    circle_radius_ * sin(circle_omega_ * ti), 0.0);
+      Eigen::Vector3d target_pos =
+          circle_center_ + Eigen::Vector3d(circle_radius_ * cos(omega * ti), circle_radius_ * sin(omega * ti), 0.0);
       tf::Quaternion target_root_quat(0.0, 0.0, 0.0);
       tf::Matrix3x3 target_root_rot(target_root_quat);
 
       tf::Vector3 target_vel_local =
-          target_root_rot.inverse() * tf::Vector3(-circle_radius_ * circle_omega_ * sin(circle_omega_ * ti),
-                                                  circle_radius_ * circle_omega_ * cos(circle_omega_ * ti), 0.0);
+          target_root_rot.inverse() *
+          tf::Vector3(-circle_radius_ * omega * sin(omega * ti), circle_radius_ * omega * cos(omega * ti), 0.0);
       tf::Vector3 target_omega_local(0.0, 0.0, 0.0);
 
       if (ti + circle_trajectory_start_time_ >= circle_trajectory_end_time_)
@@ -660,48 +661,44 @@ void FullbodyFlightController::rootPoseCommandCallback(const geometry_msgs::Pose
   path_pub_.publish(path_msg);
 }
 
-void FullbodyFlightController::circleTrajectoryCommandCallback(const std_msgs::Float32MultiArrayConstPtr& msg)
+void FullbodyFlightController::circleTrajectoryCommandCallback(const std_msgs::EmptyConstPtr& msg)
 {
-  if (msg->data.size() != 2)
+  ros::NodeHandle circle_traj_nh(nh_, "circle_trajectory");
+  circle_traj_nh.param("radius", circle_radius_, 1.0);
+  circle_traj_nh.param("duration", circle_duration_, M_PI);
+  circle_traj_nh.param("loop", circle_loop_, 3);
+
+  circle_trajectory_flight_flag_ = true;
+  circle_trajectory_start_time_ = ros::Time::now().toSec() + 6.0;
+  circle_trajectory_end_time_ = circle_trajectory_start_time_ + circle_loop_ * circle_duration_;  // three loop
+
+  Eigen::Vector3d target_pos = hovering_->state_residuals_.at(0)->get_reference().head(3);
+  circle_center_ = Eigen::Vector3d(target_pos(0) - circle_radius_, target_pos(1), target_pos(2));
+
+  xref_.head(3) = target_pos;
+
+  ROS_INFO_STREAM("[ddp] circle trajectory center: " << circle_center_.transpose() << ", radius: " << circle_radius_
+                                                     << ", duration: " << circle_duration_ << " s"
+                                                     << ", loop: " << circle_loop_);
+
+  // visualize path
+  nav_msgs::Path path_msg;
+  path_msg.header.stamp = ros::Time::now();
+  path_msg.header.frame_id = "world";
+  int N = 120;
+  for (int i = 0; i < N; i++)
   {
-    ROS_ERROR("[ddp] Circle trajectory command size mismatch.");
-    return;
+    geometry_msgs::PoseStamped pose;
+    pose.pose.position.x = circle_center_.x() + circle_radius_ * cos(2 * M_PI * i / N);
+    pose.pose.position.y = circle_center_.y() + circle_radius_ * sin(2 * M_PI * i / N);
+    pose.pose.position.z = circle_center_.z();
+    pose.pose.orientation.x = 0.0;
+    pose.pose.orientation.y = 0.0;
+    pose.pose.orientation.z = 0.0;
+    pose.pose.orientation.w = 1.0;
+    path_msg.poses.push_back(pose);
   }
-  else
-  {
-    circle_trajectory_flight_flag_ = true;
-    circle_radius_ = msg->data.at(0);
-    circle_omega_ = msg->data.at(1);
-    circle_trajectory_start_time_ = ros::Time::now().toSec() + 6.0;
-    circle_trajectory_end_time_ = circle_trajectory_start_time_ + 6.0 * M_PI / circle_omega_;  // three loop
-
-    Eigen::Vector3d target_pos = hovering_->state_residuals_.at(0)->get_reference().head(3);
-    circle_center_ = Eigen::Vector3d(target_pos(0) - circle_radius_, target_pos(1), target_pos(2));
-
-    xref_.head(3) = target_pos;
-    xref_.segment(3, 4) << 0, 0, 0, 1;
-
-    ROS_INFO_STREAM("[navigation] circle trajectory center: " << circle_center_.transpose()
-                                                              << ", radius: " << circle_radius_);
-
-    nav_msgs::Path path_msg;
-    path_msg.header.stamp = ros::Time::now();
-    path_msg.header.frame_id = "world";
-    int N = 120;
-    for (int i = 0; i < N; i++)
-    {
-      geometry_msgs::PoseStamped pose;
-      pose.pose.position.x = circle_center_.x() + circle_radius_ * cos(2 * M_PI * i / N);
-      pose.pose.position.y = circle_center_.y() + circle_radius_ * sin(2 * M_PI * i / N);
-      pose.pose.position.z = circle_center_.z();
-      pose.pose.orientation.x = 0.0;
-      pose.pose.orientation.y = 0.0;
-      pose.pose.orientation.z = 0.0;
-      pose.pose.orientation.w = 1.0;
-      path_msg.poses.push_back(pose);
-    }
-    path_pub_.publish(path_msg);
-  }
+  path_pub_.publish(path_msg);
 }
 
 void FullbodyFlightController::jointTrajectoryCommandCallback(const std_msgs::EmptyConstPtr& msg)

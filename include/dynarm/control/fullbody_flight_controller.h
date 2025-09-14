@@ -85,7 +85,8 @@ private:
   // circle trajectory flight
   bool circle_trajectory_flight_flag_ = false;
   double circle_radius_;
-  double circle_omega_;
+  double circle_duration_ = 3.0;
+  int circle_loop_ = 3;
   Eigen::Vector3d circle_center_;
   double circle_trajectory_start_time_;
   double circle_trajectory_end_time_;
@@ -119,7 +120,7 @@ private:
   void jointCommandCallback(const sensor_msgs::JointStateConstPtr& msg);
   void rootPosCommandCallback(const geometry_msgs::Vector3ConstPtr& msg);
   void rootPoseCommandCallback(const geometry_msgs::PoseConstPtr& msg);
-  void circleTrajectoryCommandCallback(const std_msgs::Float32MultiArrayConstPtr& msg);
+  void circleTrajectoryCommandCallback(const std_msgs::EmptyConstPtr& msg);
   void jointTrajectoryCommandCallback(const std_msgs::EmptyConstPtr& msg);
 };
 }  // namespace aerial_robot_control
