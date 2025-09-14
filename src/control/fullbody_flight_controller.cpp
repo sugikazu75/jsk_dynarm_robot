@@ -37,6 +37,8 @@ void FullbodyFlightController::initialize(ros::NodeHandle nh, ros::NodeHandle nh
       nh_.subscribe("circle_trajectory_command", 1, &FullbodyFlightController::circleTrajectoryCommandCallback, this);
   joint_trajectory_command_sub_ =
       nh_.subscribe("joint_trajectory_command", 1, &FullbodyFlightController::jointTrajectoryCommandCallback, this);
+  transforming_tracking_command_sub_ = nh_.subscribe(
+      "transforming_tracking_command", 1, &FullbodyFlightController::transformingTrackingCommandCallback, this);
 
   robot_ns_ = ros::this_node::getNamespace();
   if (!robot_ns_.empty() && robot_ns_[0] == '/')
@@ -355,7 +357,7 @@ void FullbodyFlightController::controlCore()
   {
     circleTrajectoryGeneration();
   }
-  else if (joint_trajectory_flight_flag_)
+  if (joint_trajectory_flight_flag_)
   {
     jointTrajectoryGeneration();
   }
@@ -736,6 +738,65 @@ void FullbodyFlightController::jointTrajectoryCommandCallback(const std_msgs::Em
   joint_trajectory_end_time_ =
       joint_trajectory_start_time_ + joint_trajectory_loop_ * joint_trajectory_duration_;  // three loop
   joint_trajectory_flight_flag_ = true;
+}
+
+void FullbodyFlightController::transformingTrackingCommandCallback(const std_msgs::EmptyConstPtr& msg)
+{
+  ros::NodeHandle circle_traj_nh(nh_, "circle_trajectory");
+  circle_traj_nh.param("radius", circle_radius_, 1.0);
+  circle_traj_nh.param("duration", circle_duration_, M_PI);
+  circle_traj_nh.param("loop", circle_loop_, 3);
+
+  ros::NodeHandle joint_traj_nh(nh_, "joint_trajectory");
+  joint_traj_nh.param("duration", joint_trajectory_duration_, 1.0);
+  joint_traj_nh.param("loop", joint_trajectory_loop_, 3);
+
+  // circle trajecotry of root
+  Eigen::Vector3d target_pos = hovering_->state_residuals_.at(0)->get_reference().head(3);
+  circle_center_ = Eigen::Vector3d(target_pos(0) - circle_radius_, target_pos(1), target_pos(2));
+
+  xref_.head(3) = target_pos;
+
+  ROS_INFO_STREAM("[ddp] circle trajectory center: " << circle_center_.transpose() << ", radius: " << circle_radius_
+                                                     << ", duration: " << circle_duration_ << " s"
+                                                     << ", loop: " << circle_loop_);
+
+  // joint trajecotry
+  joint_trajectory_names_ = nonlinear_inverse_dynamics_solver_->getJointNames();
+  joint_traj_nh.getParam("start_angle", joint_trajectory_angle_start_);
+  if (joint_trajectory_angle_start_.size() != joint_trajectory_names_.size())
+  {
+    ROS_ERROR("[ddp] Joint trajectory command for start angle size mismatch.");
+    return;
+  }
+
+  joint_traj_nh.getParam("end_angle", joint_trajectory_angle_end_);
+  if (joint_trajectory_angle_end_.size() != joint_trajectory_names_.size())
+  {
+    ROS_ERROR("[ddp] Joint trajectory command for end angle size mismatch.");
+    return;
+  }
+
+  for (int i = 0; i < joint_trajectory_names_.size(); i++)
+  {
+    int joint_id = pinocchio_model_->getJointId(joint_trajectory_names_.at(i));
+    int joint_index_q = pinocchio_model_->joints[joint_id].idx_q();
+    curr_target_q_(joint_index_q) = joint_trajectory_angle_start_.at(i);
+    xref_(joint_index_q) = joint_trajectory_angle_start_.at(i);
+  }
+
+  ROS_INFO_STREAM("[ddp] start joint trajectory tracking with duration: " << joint_trajectory_duration_ << " s"
+                                                                          << ", loop: " << joint_trajectory_loop_);
+
+  circle_trajectory_start_time_ = ros::Time::now().toSec();
+  +6.0;
+  circle_trajectory_end_time_ = circle_trajectory_start_time_ + circle_loop_ * circle_duration_;
+
+  joint_trajectory_start_time_ = circle_trajectory_start_time_;
+  joint_trajectory_end_time_ = joint_trajectory_start_time_ + joint_trajectory_loop_ * joint_trajectory_duration_;
+
+  joint_trajectory_flight_flag_ = true;
+  circle_trajectory_flight_flag_ = true;
 }
 
 void FullbodyFlightController::publishDDPTrajectory()
