@@ -788,8 +788,26 @@ void FullbodyFlightController::transformingTrackingCommandCallback(const std_msg
   ROS_INFO_STREAM("[ddp] start joint trajectory tracking with duration: " << joint_trajectory_duration_ << " s"
                                                                           << ", loop: " << joint_trajectory_loop_);
 
-  circle_trajectory_start_time_ = ros::Time::now().toSec();
-  +6.0;
+  // visualize path
+  nav_msgs::Path path_msg;
+  path_msg.header.stamp = ros::Time::now();
+  path_msg.header.frame_id = "world";
+  int N = 120;
+  for (int i = 0; i < N; i++)
+  {
+    geometry_msgs::PoseStamped pose;
+    pose.pose.position.x = circle_center_.x() + circle_radius_ * cos(2 * M_PI * i / N);
+    pose.pose.position.y = circle_center_.y() + circle_radius_ * sin(2 * M_PI * i / N);
+    pose.pose.position.z = circle_center_.z();
+    pose.pose.orientation.x = 0.0;
+    pose.pose.orientation.y = 0.0;
+    pose.pose.orientation.z = 0.0;
+    pose.pose.orientation.w = 1.0;
+    path_msg.poses.push_back(pose);
+  }
+  path_pub_.publish(path_msg);
+
+  circle_trajectory_start_time_ = ros::Time::now().toSec() + 6.0;
   circle_trajectory_end_time_ = circle_trajectory_start_time_ + circle_loop_ * circle_duration_;
 
   joint_trajectory_start_time_ = circle_trajectory_start_time_;
