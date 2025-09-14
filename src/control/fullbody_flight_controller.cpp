@@ -670,10 +670,6 @@ void FullbodyFlightController::circleTrajectoryCommandCallback(const std_msgs::E
   circle_traj_nh.param("duration", circle_duration_, M_PI);
   circle_traj_nh.param("loop", circle_loop_, 3);
 
-  circle_trajectory_flight_flag_ = true;
-  circle_trajectory_start_time_ = ros::Time::now().toSec() + 6.0;
-  circle_trajectory_end_time_ = circle_trajectory_start_time_ + circle_loop_ * circle_duration_;  // three loop
-
   Eigen::Vector3d target_pos = hovering_->state_residuals_.at(0)->get_reference().head(3);
   circle_center_ = Eigen::Vector3d(target_pos(0) - circle_radius_, target_pos(1), target_pos(2));
 
@@ -701,6 +697,10 @@ void FullbodyFlightController::circleTrajectoryCommandCallback(const std_msgs::E
     path_msg.poses.push_back(pose);
   }
   path_pub_.publish(path_msg);
+
+  circle_trajectory_start_time_ = ros::Time::now().toSec() + 6.0;
+  circle_trajectory_end_time_ = circle_trajectory_start_time_ + circle_loop_ * circle_duration_;
+  circle_trajectory_flight_flag_ = true;
 }
 
 void FullbodyFlightController::jointTrajectoryCommandCallback(const std_msgs::EmptyConstPtr& msg)
@@ -734,9 +734,9 @@ void FullbodyFlightController::jointTrajectoryCommandCallback(const std_msgs::Em
 
   ROS_INFO_STREAM("[ddp] start joint trajectory tracking with duration: " << joint_trajectory_duration_ << " s"
                                                                           << ", loop: " << joint_trajectory_loop_);
+
   joint_trajectory_start_time_ = ros::Time::now().toSec() + 6.0;
-  joint_trajectory_end_time_ =
-      joint_trajectory_start_time_ + joint_trajectory_loop_ * joint_trajectory_duration_;  // three loop
+  joint_trajectory_end_time_ = joint_trajectory_start_time_ + joint_trajectory_loop_ * joint_trajectory_duration_;
   joint_trajectory_flight_flag_ = true;
 }
 
