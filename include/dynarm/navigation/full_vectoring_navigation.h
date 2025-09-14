@@ -2,6 +2,7 @@
 
 #include <aerial_robot_control/flight_navigation.h>
 #include <aerial_robot_model/model/transformable_aerial_robot_model.h>
+#include <aerial_robot_msgs/PoseControlPid.h>
 #include <geometry_msgs/Vector3Stamped.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <nav_msgs/Path.h>
@@ -34,6 +35,7 @@ private:
   ros::Publisher path_pub_;              // for debug
   ros::Publisher joints_control_pub_;    // for servo bridge
   ros::Publisher target_root_pose_pub_;  // for debug
+  ros::Publisher root_pose_debug_pub_;   // for debug
   ros::Subscriber desire_coordinate_sub_;
   ros::Subscriber circle_trajectory_command_sub_;
   ros::Subscriber joint_trajectory_command_sub_;
