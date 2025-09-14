@@ -1,20 +1,17 @@
 <launch>
-  <arg
-    name="model" />
-  <param
-    name="robot_description"
-    textfile="$(find dynarm)/urdf/v1/dynarm_color.urdf" />
-  <node
-    name="joint_state_publisher_gui"
-    pkg="joint_state_publisher_gui"
-    type="joint_state_publisher_gui" />
-  <node
-    name="robot_state_publisher"
-    pkg="robot_state_publisher"
-    type="robot_state_publisher" />
-  <node
-    name="rviz"
-    pkg="rviz"
-    type="rviz"
-    args="-d $(find dynarm)/config/urdf_color.rviz"/>
+  <arg name="version" default="v1"/>
+  <arg name="robot_ns" default="dynarm"/>
+
+  <group ns="$(arg robot_ns)">
+    <param name="robot_description" textfile="$(find dynarm)/urdf/$(arg version)/dynarm_color.urdf" />
+
+    <node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" />
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+      <param name="tf_prefix" value="$(arg robot_ns)" />
+    </node>
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find dynarm)/config/rviz_config"/>
+  </group>
+
 </launch>
