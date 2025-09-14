@@ -216,6 +216,7 @@ void FullVectoringNavigator::jointTrajectoryCommandCallback(const std_msgs::Empt
 {
   ros::NodeHandle joint_traj_nh(nh_, "joint_trajectory");
   joint_traj_nh.param("duration", joint_trajectory_duration_, 1.0);
+  joint_traj_nh.param("loop", joint_trajectory_loop_, 3);
 
   joint_traj_nh.getParam("joint_names", joint_trajectory_names_);
   joint_traj_nh.getParam("start_angle", joint_trajectory_angle_start_);
@@ -250,9 +251,11 @@ void FullVectoringNavigator::jointTrajectoryCommandCallback(const std_msgs::Empt
   Eigen::Affine3d world_to_root = world_to_cog * root_to_cog.inverse();
   world_to_root_initial_ = world_to_root;
 
-  ROS_INFO_STREAM("[navigation] start joint trajectory tracking, duration: " << joint_trajectory_duration_ << " s");
+  ROS_INFO_STREAM("[navigation] start joint trajectory tracking, duration: " << joint_trajectory_duration_ << " s"
+                                                                             << ", loop: " << joint_trajectory_loop_);
   joint_trajectory_start_time_ = ros::Time::now().toSec() + 6.0;
-  joint_trajectory_end_time_ = joint_trajectory_start_time_ + 3 * joint_trajectory_duration_;  // three loops
+  joint_trajectory_end_time_ =
+      joint_trajectory_start_time_ + joint_trajectory_loop_ * joint_trajectory_duration_;  // three loops
   joint_trajectory_flight_flag_ = true;
 }
 

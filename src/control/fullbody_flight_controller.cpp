@@ -705,6 +705,7 @@ void FullbodyFlightController::jointTrajectoryCommandCallback(const std_msgs::Em
 {
   ros::NodeHandle joint_traj_nh(nh_, "joint_trajectory");
   joint_traj_nh.param("duration", joint_trajectory_duration_, 1.0);
+  joint_traj_nh.param("loop", joint_trajectory_loop_, 3);
 
   joint_trajectory_names_ = nonlinear_inverse_dynamics_solver_->getJointNames();
   joint_traj_nh.getParam("start_angle", joint_trajectory_angle_start_);
@@ -729,9 +730,11 @@ void FullbodyFlightController::jointTrajectoryCommandCallback(const std_msgs::Em
     xref_(joint_index_q) = joint_trajectory_angle_start_.at(i);
   }
 
-  ROS_INFO_STREAM("[ddp] start joint trajectory tracking with duration: " << joint_trajectory_duration_ << " s");
+  ROS_INFO_STREAM("[ddp] start joint trajectory tracking with duration: " << joint_trajectory_duration_ << " s"
+                                                                          << ", loop: " << joint_trajectory_loop_);
   joint_trajectory_start_time_ = ros::Time::now().toSec() + 6.0;
-  joint_trajectory_end_time_ = joint_trajectory_start_time_ + 3 * joint_trajectory_duration_;  // three loop
+  joint_trajectory_end_time_ =
+      joint_trajectory_start_time_ + joint_trajectory_loop_ * joint_trajectory_duration_;  // three loop
   joint_trajectory_flight_flag_ = true;
 }
 
