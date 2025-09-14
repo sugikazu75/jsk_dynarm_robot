@@ -114,7 +114,12 @@ void FullVectoringNavigator::jointTrajectoryGeneration()
       double target_angle =
           (joint_trajectory_angle_start_.at(i) + joint_trajectory_angle_end_.at(i)) / 2.0 +
           (joint_trajectory_angle_end_.at(i) - joint_trajectory_angle_start_.at(i)) / 2.0 * (-cos(theta));
+      double joint_velocity =
+          (joint_trajectory_angle_end_.at(i) - joint_trajectory_angle_start_.at(i)) / 2.0 * omega * sin(theta);
+      joint_cmd_msg.name.push_back(joint_name);
+      joint_cmd_msg.velocity.push_back(joint_velocity);
       joint_cmd_msg.position.push_back(target_angle);
+      joint_cmd_msg.effort.push_back(0.0);
 
       // update joint state for plan
       uint32_t joint_index = joint_index_map_without_rotor_.at(joint_name);
