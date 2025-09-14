@@ -34,6 +34,7 @@ void FullVectoringNavigator::initialize(ros::NodeHandle nh, ros::NodeHandle nhp,
   path_pub_ = nh_.advertise<nav_msgs::Path>("trajectory_path", 1);
   joints_control_pub_ = nh_.advertise<sensor_msgs::JointState>("joints_ctrl", 1);
   target_root_pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("debug/target_root_pose", 1);
+  root_pose_debug_pub_ = nh_.advertise<aerial_robot_msgs::PoseControlPid>("debug/root_pose_debug", 1);
 
   desire_coordinate_sub_ =
       nh_.subscribe("desire_coordinate", 1, &FullVectoringNavigator::desireCoordinateCallback, this);
@@ -167,6 +168,15 @@ void FullVectoringNavigator::publish()
   pose_msg.pose.orientation.z = quat.z();
   pose_msg.pose.orientation.w = quat.w();
   target_root_pose_pub_.publish(pose_msg);
+
+  aerial_robot_msgs::PoseControlPid debug_msg;
+  debug_msg.x.err_p =
+      world_to_root_initial_.translation().x() - estimator_->getPos(Frame::BASELINK, estimate_mode_).x();
+  debug_msg.y.err_p =
+      world_to_root_initial_.translation().y() - estimator_->getPos(Frame::BASELINK, estimate_mode_).y();
+  debug_msg.z.err_p =
+      world_to_root_initial_.translation().z() - estimator_->getPos(Frame::BASELINK, estimate_mode_).z();
+  root_pose_debug_pub_.publish(debug_msg);
 }
 
 void FullVectoringNavigator::desireCoordinateCallback(const spinal::DesireCoordConstPtr& msg)
