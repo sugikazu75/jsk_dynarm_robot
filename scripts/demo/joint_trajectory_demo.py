@@ -18,7 +18,7 @@ class JointTrajectoryDemo:
 
         joint_names = ["joint1_yaw", "joint1_pitch", "joint2_yaw", "joint2_pitch", "joint3_yaw", "joint3_pitch"]
         duration = 2.0
-        loop = 4
+        loop = 3
         start_angles = [math.pi / 2.0, 0.0, math.pi / 2.0, 0.0, math.pi / 2.0, 0.0]
         end_angles = [1.0, -0.5, 1.0, 0.5, 1.0, -0.5]
 
