@@ -133,6 +133,9 @@ void FullVectoringNavigator::jointTrajectoryGeneration()
     robot_model_for_plan_->updateRobotModel(joint_state_for_plan_);
     Eigen::Affine3d root_to_cog = robot_model_for_plan_->getCog<Eigen::Affine3d>();
     Eigen::Affine3d world_to_cog = world_to_root_initial_ * root_to_cog;
+    setTargetVelX((world_to_cog.translation().x() - getTargetPos().x()) / loop_du_);
+    setTargetVelY((world_to_cog.translation().y() - getTargetPos().y()) / loop_du_);
+    setTargetVelZ((world_to_cog.translation().z() - getTargetPos().z()) / loop_du_);
     setTargetPosX(world_to_cog.translation().x());
     setTargetPosY(world_to_cog.translation().y());
     setTargetPosZ(world_to_cog.translation().z());
