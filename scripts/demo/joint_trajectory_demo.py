@@ -17,12 +17,13 @@ class JointTrajectoryDemo:
         self.iniital_pos = [0.0, 0.0, 1.0]
 
         joint_names = ["joint1_yaw", "joint1_pitch", "joint2_yaw", "joint2_pitch", "joint3_yaw", "joint3_pitch"]
-        if mode == 0:
-            duration = 2.0
-            start_angles = [math.pi / 2.0, 0.0, math.pi / 2.0, 0.0, math.pi / 2.0, 0.0]
-            end_angles = [1.0, -0.5, 1.0, 0.5, 1.0, -0.5]
+        duration = 2.0
+        loop = 4
+        start_angles = [math.pi / 2.0, 0.0, math.pi / 2.0, 0.0, math.pi / 2.0, 0.0]
+        end_angles = [1.0, -0.5, 1.0, 0.5, 1.0, -0.5]
 
         rospy.set_param("joint_trajectory/duration", duration)
+        rospy.set_param("joint_trajectory/loop", loop)
         rospy.set_param("joint_trajectory/joint_names", joint_names)
         rospy.set_param("joint_trajectory/start_angle", start_angles)
         rospy.set_param("joint_trajectory/end_angle", end_angles)

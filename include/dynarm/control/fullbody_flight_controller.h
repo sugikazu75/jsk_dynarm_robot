@@ -95,6 +95,7 @@ private:
   // joint trajectory flight
   bool joint_trajectory_flight_flag_ = false;
   double joint_trajectory_duration_ = 1.0;
+  int joint_trajectory_loop_ = 3;
   double joint_trajectory_start_time_;
   double joint_trajectory_end_time_;
   std::vector<std::string> joint_trajectory_names_;
