@@ -176,6 +176,9 @@ void FullVectoringNavigator::publish()
       world_to_root_initial_.translation().y() - estimator_->getPos(Frame::BASELINK, estimate_mode_).y();
   debug_msg.z.err_p =
       world_to_root_initial_.translation().z() - estimator_->getPos(Frame::BASELINK, estimate_mode_).z();
+  debug_msg.roll.err_p = estimator_->getEuler(Frame::BASELINK, estimate_mode_).x();
+  debug_msg.pitch.err_p = estimator_->getEuler(Frame::BASELINK, estimate_mode_).y();
+  debug_msg.yaw.err_p = estimator_->getEuler(Frame::BASELINK, estimate_mode_).z();
   root_pose_debug_pub_.publish(debug_msg);
 }
 
