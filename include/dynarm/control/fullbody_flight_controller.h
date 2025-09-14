@@ -56,6 +56,7 @@ private:
   ros::Subscriber root_pose_command_sub_;
   ros::Subscriber circle_trajectory_command_sub_;
   ros::Subscriber joint_trajectory_command_sub_;
+  ros::Subscriber transforming_tracking_command_sub_;
 
   std::string robot_ns_;
   int rotor_wrench_pub_index_;
@@ -123,5 +124,6 @@ private:
   void rootPoseCommandCallback(const geometry_msgs::PoseConstPtr& msg);
   void circleTrajectoryCommandCallback(const std_msgs::EmptyConstPtr& msg);
   void jointTrajectoryCommandCallback(const std_msgs::EmptyConstPtr& msg);
+  void transformingTrackingCommandCallback(const std_msgs::EmptyConstPtr& msg);
 };
 }  // namespace aerial_robot_control
