@@ -361,7 +361,8 @@ void FullbodyFlightController::controlCore()
   {
     jointTrajectoryGeneration();
   }
-  else
+
+  if ((!circle_trajectory_flight_flag_) && (!joint_trajectory_flight_flag_))
   {
     for (int i = 0; i < xs_init_.size(); i++)
     {
