@@ -19,6 +19,7 @@ find_package(pinocchio REQUIRED)
 find_package(crocoddyl REQUIRED)
 find_package(OsqpEigen REQUIRED)
 find_package(NLopt REQUIRED)
+find_package(OpenMP REQUIRED)
 
 catkin_package(
  INCLUDE_DIRS include

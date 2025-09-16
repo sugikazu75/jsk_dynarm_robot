@@ -20,6 +20,7 @@
 #include <crocoddyl/core/utils/timer.hpp>
 #include <crocoddyl/multibody/actions/free-fwddyn.hpp>
 #include <crocoddyl/multibody/actions/free-invdyn.hpp>
+#include <crocoddyl/multibody/actuations/floating-base.hpp>
 #include <crocoddyl/multibody/actuations/floating-base-thrusters.hpp>
 #include <crocoddyl/multibody/states/multibody.hpp>
 #include <crocoddyl/multibody/residuals/com-position.hpp>
@@ -43,6 +44,7 @@ public:
     double horizon = 2.0;
     double dt = 0.1;
     int max_iter = 100;
+    int num_threads = 1;
   };
 
   DDPHoveringProblem(std::shared_ptr<pinocchio::Model> pinocchio_model, std::vector<crocoddyl::Thruster> thrusters,
@@ -61,7 +63,7 @@ protected:
   std::shared_ptr<pinocchio::Model> pinocchio_model_;
   std::shared_ptr<pinocchio::Data> pinocchio_data_;
   std::shared_ptr<crocoddyl::StateMultibody> state_;
-  std::shared_ptr<crocoddyl::ActuationModelFloatingBaseThrusters> actuation_;
+  std::shared_ptr<crocoddyl::ActuationModelFloatingBase> actuation_;
   bool fwddyn_;
   int nu_;
 };
