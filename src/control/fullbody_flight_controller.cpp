@@ -101,9 +101,26 @@ void FullbodyFlightController::DDPProblemInit()
     std::cout << "u_weights: " << cost_weight.u_weights.transpose() << std::endl;
   }
   DDPHoveringProblem::OptimizationParam optimization_param;
-  std::cout << "horizon: " << optimization_param.horizon << std::endl;
-  std::cout << "dt: " << optimization_param.dt << std::endl;
-  std::cout << "max_iter: " << optimization_param.max_iter << std::endl;
+  {
+    double whatever_double;
+    ddp_nh.param("horizon", whatever_double, optimization_param.horizon);
+    optimization_param.horizon = whatever_double;
+
+    ddp_nh.param("dt", whatever_double, optimization_param.dt);
+    optimization_param.dt = whatever_double;
+
+    int whatever_int;
+    ddp_nh.param("max_iter", whatever_int, optimization_param.max_iter);
+    optimization_param.max_iter = whatever_int;
+
+    ddp_nh.param("num_threads", whatever_int, optimization_param.num_threads);
+    optimization_param.num_threads = whatever_int;
+
+    std::cout << "horizon: " << optimization_param.horizon << std::endl;
+    std::cout << "dt: " << optimization_param.dt << std::endl;
+    std::cout << "max_iter: " << optimization_param.max_iter << std::endl;
+    std::cout << "num_threads: " << optimization_param.num_threads << std::endl;
+  }
 
   hovering_ =
       std::make_shared<DDPHoveringProblem>(pinocchio_model_, thrusters, fwddyn, cost_weight, optimization_param);
