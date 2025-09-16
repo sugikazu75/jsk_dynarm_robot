@@ -20,7 +20,7 @@ class CircleTrajectoryFlightDemo:
 
         radius = 0.5
         duration = 3.0
-        loop = 3
+        loop = 4
 
         rospy.set_param("circle_trajectory/radius", radius)
         rospy.set_param("circle_trajectory/duration", duration)
