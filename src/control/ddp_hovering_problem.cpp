@@ -18,10 +18,10 @@ DDPHoveringProblem::DDPHoveringProblem(std::shared_ptr<pinocchio::Model> pinocch
 {
   pinocchio_data_ = std::make_shared<pinocchio::Data>(*pinocchio_model_);
   state_ = std::make_shared<crocoddyl::StateMultibody>(pinocchio_model_);
-  actuation_ = std::make_shared<crocoddyl::ActuationModelFloatingBaseThrusters>(state_, thrusters_);
+  actuation_ = std::make_shared<crocoddyl::ActuationModelFloatingBase>(state_);
 
   if (fwddyn_)
-    nu_ = actuation_->get_nu();
+    nu_ = state_->get_nv();  // temporal change. fwddyn is not supported
   else
     nu_ = state_->get_nv();
 }
