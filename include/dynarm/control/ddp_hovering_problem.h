@@ -44,6 +44,7 @@ public:
     double horizon = 2.0;
     double dt = 0.1;
     int max_iter = 100;
+    int num_threads = 1;
   };
 
   DDPHoveringProblem(std::shared_ptr<pinocchio::Model> pinocchio_model, std::vector<crocoddyl::Thruster> thrusters,

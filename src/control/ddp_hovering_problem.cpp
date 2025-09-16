@@ -92,6 +92,8 @@ std::shared_ptr<crocoddyl::ShootingProblem> DDPHoveringProblem::createHoveringPr
   std::shared_ptr<crocoddyl::ShootingProblem> problem =
       std::make_shared<crocoddyl::ShootingProblem>(x0, action_models, terminal_model);
 
+  problem->set_nthreads(optimization_param_.num_threads);
+
   return problem;
 }
 
@@ -157,8 +159,19 @@ int main(int argc, char** argv)
     std::cout << "x_weights: " << cost_weight.x_weights.transpose() << std::endl;
     std::cout << "u_weights: " << cost_weight.u_weights.transpose() << std::endl;
   }
+  DDPHoveringProblem::OptimizationParam optimization_param;
+  {
+    nhp.param("horizon", optimization_param.horizon, optimization_param.horizon);
+    nhp.param("dt", optimization_param.dt, optimization_param.dt);
+    nhp.param("max_iter", optimization_param.max_iter, optimization_param.max_iter);
+    nhp.param("num_threads", optimization_param.num_threads, optimization_param.num_threads);
+    std::cout << "horizon: " << optimization_param.horizon << std::endl;
+    std::cout << "dt: " << optimization_param.dt << std::endl;
+    std::cout << "max_iter: " << optimization_param.max_iter << std::endl;
+    std::cout << "num_threads: " << optimization_param.num_threads << std::endl;
+  }
 
-  DDPHoveringProblem hovering(pinocchio_model, thrusters, fwddyn, cost_weight);
+  DDPHoveringProblem hovering(pinocchio_model, thrusters, fwddyn, cost_weight, optimization_param);
 
   // reference state
   Eigen::VectorXd xref = Eigen::VectorXd::Zero(pinocchio_model->nq + pinocchio_model->nv);
