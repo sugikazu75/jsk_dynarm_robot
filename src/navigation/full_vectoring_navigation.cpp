@@ -130,7 +130,7 @@ void FullVectoringNavigator::jointTrajectoryGeneration()
     // publish joint command
     joints_control_pub_.publish(joint_cmd_msg);
 
-    // update cog trajecotry
+    // update cog trajectory
     robot_model_for_plan_->updateRobotModel(joint_state_for_plan_);
     Eigen::Affine3d root_to_cog = robot_model_for_plan_->getCog<Eigen::Affine3d>();
     Eigen::Affine3d world_to_cog = world_to_root_initial_ * root_to_cog;
