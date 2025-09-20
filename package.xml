@@ -31,6 +31,7 @@
   <exec_depend>aerial_robot_msgs</exec_depend>
   <exec_depend>aerial_robot_simulation</exec_depend>
   <exec_depend>crocoddyl</exec_depend>
+  <exec_depend>gazebo_ros_link_attacher</exec_depend>
   <exec_depend>motion_planning</exec_depend>
   <exec_depend>nlopt</exec_depend>
   <exec_depend>osqp-eigen</exec_depend>
