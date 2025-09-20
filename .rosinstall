@@ -20,5 +20,5 @@
 
 - git:
     local-name: crocoddyl
-    uri: https://github.com/sugikazu75/crocoddyl.git
-    version: develop/articulated_aerial_robot
+    uri: https://github.com/loco-3d/crocoddyl.git
+    version: devel

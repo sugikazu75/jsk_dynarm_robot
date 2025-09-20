@@ -6,24 +6,15 @@
 #include <ros/ros.h>
 #include <tf/transform_broadcaster.h>
 
-DDPHoveringProblem::DDPHoveringProblem(std::shared_ptr<pinocchio::Model> pinocchio_model,
-                                       std::vector<crocoddyl::Thruster> thrusters, bool fwddyn,
-                                       const CostWeight& cost_weight,
+DDPHoveringProblem::DDPHoveringProblem(std::shared_ptr<pinocchio::Model> pinocchio_model, const CostWeight& cost_weight,
                                        const OptimizationParam& optimization_param = OptimizationParam())
-  : pinocchio_model_(pinocchio_model)
-  , thrusters_(thrusters)
-  , fwddyn_(fwddyn)
-  , cost_weight_(cost_weight)
-  , optimization_param_(optimization_param)
+  : pinocchio_model_(pinocchio_model), cost_weight_(cost_weight), optimization_param_(optimization_param)
 {
   pinocchio_data_ = std::make_shared<pinocchio::Data>(*pinocchio_model_);
   state_ = std::make_shared<crocoddyl::StateMultibody>(pinocchio_model_);
   actuation_ = std::make_shared<crocoddyl::ActuationModelFloatingBase>(state_);
 
-  if (fwddyn_)
-    nu_ = state_->get_nv();  // temporal change. fwddyn is not supported
-  else
-    nu_ = state_->get_nv();
+  nu_ = state_->get_nv();
 }
 
 std::shared_ptr<crocoddyl::ActionModelAbstract> DDPHoveringProblem::createActionModel(Eigen::VectorXd x0,
@@ -66,10 +57,7 @@ std::shared_ptr<crocoddyl::ActionModelAbstract> DDPHoveringProblem::createAction
   }
 
   std::shared_ptr<crocoddyl::DifferentialActionModelAbstract> dmodel;
-  if (fwddyn_)
-    dmodel = std::make_shared<crocoddyl::DifferentialActionModelFreeFwdDynamics>(state_, actuation_, cost_model);
-  else
-    dmodel = std::make_shared<crocoddyl::DifferentialActionModelFreeInvDynamics>(state_, actuation_, cost_model);
+  dmodel = std::make_shared<crocoddyl::DifferentialActionModelFreeInvDynamics>(state_, actuation_, cost_model);
 
   std::shared_ptr<crocoddyl::ActionModelAbstract> action_model =
       std::make_shared<crocoddyl::IntegratedActionModelEuler>(dmodel, optimization_param_.dt);
@@ -112,25 +100,6 @@ int main(int argc, char** argv)
       std::make_shared<aerial_robot_dynamics::PinocchioRobotModel>(true);
   std::shared_ptr<pinocchio::Model> pinocchio_model = pinocchio_robot_model->getModel();
 
-  std::vector<int> rotor_frame_indices = pinocchio_robot_model->getRotorFrameIndices();
-  double m_f_rate = pinocchio_robot_model->getMFRate();
-
-  std::vector<crocoddyl::Thruster> thrusters;
-  for (int i = 0; i < rotor_frame_indices.size(); i++)
-  {
-    int rotor_direction = pinocchio_robot_model->getRotorDirection(i);
-    double thrust_lower_limit = pinocchio_robot_model->getThrustLowerLimits()(i);
-    double thrust_upper_limit = pinocchio_robot_model->getThrustUpperLimits()(i);
-    thrusters.emplace_back(rotor_frame_indices.at(i), (float)(abs(m_f_rate)),
-                           ((rotor_direction == 1) ? crocoddyl::ThrusterType::CCW : crocoddyl::ThrusterType::CW),
-                           (float)thrust_lower_limit, (float)thrust_upper_limit);
-  }
-
-  bool fwddyn;
-  {
-    nhp.getParam("fwddyn", fwddyn);
-    std::cout << "fwddyn: " << fwddyn << std::endl;
-  }
   DDPHoveringProblem::CostWeight cost_weight;
   {
     double whatever_double;
@@ -147,10 +116,7 @@ int main(int argc, char** argv)
     nhp.getParam("x_state_weights", whatever_vector);
     cost_weight.x_weights = Eigen::Map<Eigen::VectorXd>(whatever_vector.data(), whatever_vector.size());
 
-    if (fwddyn)
-      nhp.getParam("u_weight_fwddyn", whatever_vector);
-    else
-      nhp.getParam("u_weight_invdyn", whatever_vector);
+    nhp.getParam("u_weight_invdyn", whatever_vector);
     cost_weight.u_weights = Eigen::Map<Eigen::VectorXd>(whatever_vector.data(), whatever_vector.size());
 
     std::cout << "state_weight: " << cost_weight.state_weight << std::endl;
@@ -171,7 +137,7 @@ int main(int argc, char** argv)
     std::cout << "num_threads: " << optimization_param.num_threads << std::endl;
   }
 
-  DDPHoveringProblem hovering(pinocchio_model, thrusters, fwddyn, cost_weight, optimization_param);
+  DDPHoveringProblem hovering(pinocchio_model, cost_weight, optimization_param);
 
   // reference state
   Eigen::VectorXd xref = Eigen::VectorXd::Zero(pinocchio_model->nq + pinocchio_model->nv);
@@ -229,31 +195,14 @@ int main(int argc, char** argv)
 
     std::cout << "q: " << xs_init.at(1).head(pinocchio_model->nq).transpose() << std::endl;
     std::cout << "v: " << xs_init.at(1).tail(pinocchio_model->nv).transpose() << std::endl;
-    if (fwddyn)
-    {
-      std::cout << "thrust: " << us_init.at(0).head(pinocchio_robot_model->getRotorNum()).transpose() << std::endl;
-      std::cout << "joint torque: " << us_init.at(0).tail(pinocchio_model->nv - 6).transpose() << std::endl;
-    }
-    else
-    {
-      std::cout << "root ddq: " << us_init.at(0).head(6).transpose() << std::endl;
-      std::cout << "joint ddq: " << us_init.at(0).tail(us_init.at(0).size() - 6).transpose() << std::endl;
-    }
+    std::cout << "root ddq: " << us_init.at(0).head(6).transpose() << std::endl;
+    std::cout << "joint ddq: " << us_init.at(0).tail(us_init.at(0).size() - 6).transpose() << std::endl;
     std::cout << std::endl;
 
     std::cout << "q final: " << xs_init.back().head(pinocchio_model->nq).transpose() << std::endl;
     std::cout << "v final: " << xs_init.back().tail(pinocchio_model->nv).transpose() << std::endl;
-    if (fwddyn)
-    {
-      std::cout << "thrust final: " << us_init.back().head(pinocchio_robot_model->getRotorNum()).transpose()
-                << std::endl;
-      std::cout << "joint torque final: " << us_init.back().tail(pinocchio_model->nv - 6).transpose() << std::endl;
-    }
-    else
-    {
-      std::cout << "root ddq final: " << us_init.back().head(6).transpose() << std::endl;
-      std::cout << "joint ddq final: " << us_init.back().tail(us_init.back().size() - 6).transpose() << std::endl;
-    }
+    std::cout << "root ddq final: " << us_init.back().head(6).transpose() << std::endl;
+    std::cout << "joint ddq final: " << us_init.back().tail(us_init.back().size() - 6).transpose() << std::endl;
     std::cout << std::endl;
     std::cout << std::endl;
 

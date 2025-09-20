@@ -47,8 +47,8 @@ public:
     int num_threads = 1;
   };
 
-  DDPHoveringProblem(std::shared_ptr<pinocchio::Model> pinocchio_model, std::vector<crocoddyl::Thruster> thrusters,
-                     bool fwddyn, const CostWeight& cost_weight, const OptimizationParam& optimization_param);
+  DDPHoveringProblem(std::shared_ptr<pinocchio::Model> pinocchio_model, const CostWeight& cost_weight,
+                     const OptimizationParam& optimization_param);
   ~DDPHoveringProblem(){};
 
   std::shared_ptr<crocoddyl::ActionModelAbstract> createActionModel(Eigen::VectorXd x0, Eigen::VectorXd xref);
@@ -59,11 +59,9 @@ public:
   std::vector<std::shared_ptr<crocoddyl::ResidualModelState>> state_residuals_;
 
 protected:
-  std::vector<crocoddyl::Thruster> thrusters_;
   std::shared_ptr<pinocchio::Model> pinocchio_model_;
   std::shared_ptr<pinocchio::Data> pinocchio_data_;
   std::shared_ptr<crocoddyl::StateMultibody> state_;
   std::shared_ptr<crocoddyl::ActuationModelFloatingBase> actuation_;
-  bool fwddyn_;
   int nu_;
 };
