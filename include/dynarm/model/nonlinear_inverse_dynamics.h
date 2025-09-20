@@ -56,6 +56,16 @@ public:
     return nlp_hessian_trace_;
   }
 
+  int getLastIteration()
+  {
+    return nlp_last_iteration_;
+  }
+
+  void setLastIteration(int iter)
+  {
+    nlp_last_iteration_ = iter;
+  }
+
   const double getSolveTime()
   {
     return solve_time_;
@@ -68,6 +78,7 @@ public:
 
 private:
   ros::NodeHandle nh_;
+  ros::Publisher nlp_iteration_pub_;
   ros::Publisher nlp_solve_time_pub_;
   std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model_;
   std::shared_ptr<pinocchio::Model> pinocchio_model_;
@@ -83,6 +94,7 @@ private:
 
   Eigen::VectorXd nlp_hessian_trace_;
 
+  int nlp_last_iteration_ = 0;
   Eigen::VectorXd nlp_last_solution_;
   Eigen::VectorXd nlp_curr_target_q_;
   Eigen::VectorXd nlp_curr_target_dq_;
