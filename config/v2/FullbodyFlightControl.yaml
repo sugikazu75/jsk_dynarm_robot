@@ -9,7 +9,7 @@ ddp:
   state_weight: 1.0
   state_bound_weight: 100.0
   control_weight: 1.0
-  horizon: 1.0
+  horizon: 2.0
   dt: 0.05
   max_iter: 100
   num_threads: 4
