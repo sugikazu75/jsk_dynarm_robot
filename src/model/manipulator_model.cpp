@@ -26,8 +26,6 @@ void ManipulatorRobotModel::updateRobotModelImpl(const KDL::JntArray& joint_posi
   aerial_robot_model::RobotModel::updateRobotModelImpl(joint_positions);
 
   Eigen::VectorXd curr_q = parseJointState(joint_positions);
-
-  pinocchio::framesForwardKinematics(*pinocchio_model_, *pinocchio_data_, curr_q_);
 }
 
 Eigen::VectorXd ManipulatorRobotModel::parseJointState(const sensor_msgs::JointState& joint_state)
