@@ -33,8 +33,8 @@ class CircleTrajectoryFlightDemo:
     def main(self):
         rospy.loginfo("start main process")
         rospy.loginfo("send initial joint angle")
-        joint_comnmand_msg = JointState()
-        joint_comnmand_msg.name = [
+        joint_command_msg = JointState()
+        joint_command_msg.name = [
             "joint1_yaw",
             "joint1_pitch",
             "joint2_yaw",
@@ -42,9 +42,9 @@ class CircleTrajectoryFlightDemo:
             "joint3_yaw",
             "joint3_pitch",
         ]
-        joint_comnmand_msg.position = [math.pi / 2.0, 0.0, math.pi / 2.0, 0.0, math.pi / 2.0, 0.0]
-        self.joint_command_pub.publish(joint_comnmand_msg)
-        self.joints_control_pub.publish(joint_comnmand_msg)
+        joint_command_msg.position = [math.pi / 2.0, 0.0, math.pi / 2.0, 0.0, math.pi / 2.0, 0.0]
+        self.joint_command_pub.publish(joint_command_msg)
+        self.joints_control_pub.publish(joint_command_msg)
         time.sleep(5.0)
 
         rospy.loginfo("move to start position")

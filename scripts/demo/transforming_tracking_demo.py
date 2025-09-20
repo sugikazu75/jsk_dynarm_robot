@@ -20,7 +20,7 @@ class TransformingTrackingDemo:
 
         self.iniital_pos = [0.0, 0.0, 1.0]
 
-        circcle_radius = 0.5
+        circle_radius = 0.5
         circle_duration = 3.0
         circle_loop = 4
 
@@ -30,7 +30,7 @@ class TransformingTrackingDemo:
         start_angles = [math.pi / 2.0, 0.0, math.pi / 2.0, 0.0, math.pi / 2.0, 0.0]
         end_angles = [1.0, -0.5, 1.0, 0.5, 1.0, -0.5]
 
-        rospy.set_param("circle_trajectory/radius", circcle_radius)
+        rospy.set_param("circle_trajectory/radius", circle_radius)
         rospy.set_param("circle_trajectory/duration", circle_duration)
         rospy.set_param("circle_trajectory/loop", circle_loop)
 
