@@ -66,25 +66,7 @@ void FullbodyFlightController::rosParamInit()
 
 void FullbodyFlightController::DDPProblemInit()
 {
-  std::vector<int> rotor_frame_indices = pinocchio_robot_model_->getRotorFrameIndices();
-  double m_f_rate = pinocchio_robot_model_->getMFRate();
-  std::vector<crocoddyl::Thruster> thrusters;
-  for (int i = 0; i < rotor_frame_indices.size(); i++)
-  {
-    int rotor_direction = pinocchio_robot_model_->getRotorDirection(i);
-    double thrust_lower_limit = pinocchio_robot_model_->getThrustLowerLimits()(i);
-    double thrust_upper_limit = pinocchio_robot_model_->getThrustUpperLimits()(i);
-    thrusters.emplace_back(rotor_frame_indices.at(i), (float)(abs(m_f_rate)),
-                           ((rotor_direction == 1) ? crocoddyl::ThrusterType::CCW : crocoddyl::ThrusterType::CW),
-                           (float)thrust_lower_limit, (float)thrust_upper_limit);
-  }
-
   ros::NodeHandle ddp_nh(nh_, "ddp");
-  bool fwddyn;
-  {
-    ddp_nh.getParam("fwddyn", fwddyn);
-    std::cout << "fwddyn: " << fwddyn << std::endl;
-  }
 
   DDPHoveringProblem::CostWeight cost_weight;
   {
@@ -102,10 +84,7 @@ void FullbodyFlightController::DDPProblemInit()
     ddp_nh.getParam("x_state_weights", whatever_vector);
     cost_weight.x_weights = Eigen::Map<Eigen::VectorXd>(whatever_vector.data(), whatever_vector.size());
 
-    if (fwddyn)
-      ddp_nh.getParam("u_weight_fwddyn", whatever_vector);
-    else
-      ddp_nh.getParam("u_weight_invdyn", whatever_vector);
+    ddp_nh.getParam("u_weight_invdyn", whatever_vector);
     cost_weight.u_weights = Eigen::Map<Eigen::VectorXd>(whatever_vector.data(), whatever_vector.size());
 
     std::cout << "state_weight: " << cost_weight.state_weight << std::endl;
@@ -136,8 +115,7 @@ void FullbodyFlightController::DDPProblemInit()
     std::cout << "num_threads: " << optimization_param.num_threads << std::endl;
   }
 
-  hovering_ =
-      std::make_shared<DDPHoveringProblem>(pinocchio_model_, thrusters, fwddyn, cost_weight, optimization_param);
+  hovering_ = std::make_shared<DDPHoveringProblem>(pinocchio_model_, cost_weight, optimization_param);
 }
 
 void FullbodyFlightController::activate()
