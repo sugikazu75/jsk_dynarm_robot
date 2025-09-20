@@ -91,7 +91,7 @@ void ManipulatorController::sendCmd()
   tau_by_thrust_msg.header.stamp = ros::Time::now();
   // sensor_msgs::JointState rnea_solution_msg;
   // rnea_solution_msg.header.stamp = ros::Time::now();
-  Eigen::VectorXd curr_q = dragon_arm_robot_model_->getCurrentJointPositions();
+  Eigen::VectorXd curr_q = joint_trajectory_generator_->getCurrentQ();
   Eigen::VectorXd curr_target_thrust = trajectory_generator_->getCurrentTargetThrust();
   Eigen::VectorXd tau_by_thrust = pinocchio_robot_model_->computeTauExtByThrustDerivative(curr_q) * curr_target_thrust;
 
