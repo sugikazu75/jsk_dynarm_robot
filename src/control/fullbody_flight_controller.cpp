@@ -23,8 +23,22 @@ void FullbodyFlightController::initialize(ros::NodeHandle nh, ros::NodeHandle nh
   joints_control_pub_ = nh_.advertise<sensor_msgs::JointState>("joints_ctrl", 1);
   gimbals_control_pub_ = nh_.advertise<sensor_msgs::JointState>("gimbals_ctrl", 1);
   rotor_wrench_pub_ = nh_.advertise<geometry_msgs::WrenchStamped>("rotor_wrench", 1);
+  path_pub_ = nh_.advertise<nav_msgs::Path>("trajectory_path", 1);
+  ddp_solve_time_pub_ = nh_.advertise<std_msgs::Float64>("debug/ddp_solve_time", 1);
+  ddp_iteration_pub_ = nh_.advertise<std_msgs::UInt8>("debug/ddp_iteration", 1);
+  target_root_pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("debug/target_root_pose", 1);
+  pid_debug_pub_ = nh_.advertise<aerial_robot_msgs::PoseControlPid>("debug/pose/pid", 1);
 
-  state_command_sub_ = nh_.subscribe("state_command", 1, &FullbodyFlightController::stateCommandCallback, this);
+  joint_command_sub_ = nh_.subscribe("joint_command", 1, &FullbodyFlightController::jointCommandCallback, this);
+  root_pos_command_sub_ = nh_.subscribe("root_pos_command", 1, &FullbodyFlightController::rootPosCommandCallback, this);
+  root_pose_command_sub_ =
+      nh_.subscribe("root_pose_command", 1, &FullbodyFlightController::rootPoseCommandCallback, this);
+  circle_trajectory_command_sub_ =
+      nh_.subscribe("circle_trajectory_command", 1, &FullbodyFlightController::circleTrajectoryCommandCallback, this);
+  joint_trajectory_command_sub_ =
+      nh_.subscribe("joint_trajectory_command", 1, &FullbodyFlightController::jointTrajectoryCommandCallback, this);
+  transforming_tracking_command_sub_ = nh_.subscribe(
+      "transforming_tracking_command", 1, &FullbodyFlightController::transformingTrackingCommandCallback, this);
 
   robot_ns_ = ros::this_node::getNamespace();
   if (!robot_ns_.empty() && robot_ns_[0] == '/')
@@ -145,20 +159,13 @@ void FullbodyFlightController::reset()
   control_input_ = Eigen::VectorXd::Zero(pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() +
                                          nonlinear_inverse_dynamics_solver_->getGimbalNames().size());
 
-  Eigen::VectorXd x0 = Eigen::VectorXd::Zero(pinocchio_model_->nq + pinocchio_model_->nv);
-  Eigen::VectorXd curr_q = dragon_arm_robot_model_->getCurrentJointPositions();
-  x0.head(pinocchio_model_->nq) = curr_q;  // includes root pose and joint positions
-  x0.head(3) << estimator_->getPos(Frame::BASELINK, estimate_mode_).x(),
-      estimator_->getPos(Frame::BASELINK, estimate_mode_).y(),
-      estimator_->getPos(Frame::BASELINK, estimate_mode_).z();  // root position
-  tf::Matrix3x3 root_rot = estimator_->getOrientation(Frame::BASELINK, estimate_mode_);
-  tf::Quaternion root_quat;
-  root_rot.getRotation(root_quat);
-  x0.segment(3, 4) << root_quat.x(), root_quat.y(), root_quat.z(), root_quat.w();  // root rotation
+  // initial state
+  Eigen::VectorXd x0 = getCurrentX();
   std::cout << "[ddp] x0: " << x0.transpose() << std::endl;
 
+  // reference state
   Eigen::VectorXd xref = Eigen::VectorXd::Zero(pinocchio_model_->nq + pinocchio_model_->nv);
-  xref.head(pinocchio_model_->nq) = curr_q;  // includes root pose and joint positions
+  xref.head(pinocchio_model_->nq) = curr_q_;  // includes root pose and joint positions
   xref.head(3) << estimator_->getPos(Frame::BASELINK, estimate_mode_).x(),
       estimator_->getPos(Frame::BASELINK, estimate_mode_).y(), navigator_->getTargetPos().z();  // root position
   tf::Quaternion root_quat_des(navigator_->getTargetRPY().x(), navigator_->getTargetRPY().y(),
@@ -171,6 +178,7 @@ void FullbodyFlightController::reset()
     int gimbal_index_q = pinocchio_model_->joints[gimbal_id].idx_q();
     xref(gimbal_index_q) = 0.0;  // set target gimbal angles to 0
   }
+  xref_ = xref;
   std::cout << "[ddp] xref: " << xref.transpose() << std::endl;
 
   curr_target_q_ = xref.head(pinocchio_model_->nq);
@@ -183,6 +191,8 @@ void FullbodyFlightController::reset()
   xs_init_.resize(N, x0);
   us_init_ = ddp_solver_->get_problem()->quasiStatic_xs(xs_init_);
   xs_init_.push_back(x0);
+
+  circle_trajectory_flight_flag_ = false;
 }
 
 bool FullbodyFlightController::update()
@@ -196,32 +206,8 @@ bool FullbodyFlightController::update()
   return true;
 }
 
-void FullbodyFlightController::controlCore()
+Eigen::VectorXd FullbodyFlightController::getCurrentX()
 {
-  crocoddyl::Timer timer;
-  std::cout << "q0: " << ddp_problem_->get_x0().head(pinocchio_model_->nq).transpose() << std::endl;
-  std::cout << "v0: " << ddp_problem_->get_x0().tail(pinocchio_model_->nv).transpose() << std::endl;
-  ddp_solver_->solve(xs_init_, us_init_);
-  double time = timer.get_duration();
-  std::cout << "total calculation time: " << time << "[ms]" << std::endl;
-  std::cout << "Number of iterations: " << ddp_solver_->get_iter() << std::endl;
-  std::cout << "time per iterate: " << time / ddp_solver_->get_iter() << std::endl;
-  std::cout << "Total cost: " << ddp_solver_->get_cost() << std::endl;
-  std::cout << "Gradient norm: " << ddp_solver_->get_stop() << std::endl;
-
-  xs_init_ = ddp_solver_->get_xs();
-  us_init_ = ddp_solver_->get_us();
-
-  std::cout << "root ddq: " << us_init_.at(0).head(6).transpose() << std::endl;
-  std::cout << "joint ddq: " << us_init_.at(0).tail(us_init_.at(0).size() - 6).transpose() << std::endl;
-  std::cout << std::endl;
-  std::cout << "q final: " << xs_init_.back().head(pinocchio_model_->nq).transpose() << std::endl;
-  std::cout << "v final: " << xs_init_.back().tail(pinocchio_model_->nv).transpose() << std::endl;
-  std::cout << "root ddq final: " << us_init_.back().head(6).transpose() << std::endl;
-  std::cout << "joint ddq final: " << us_init_.back().tail(us_init_.back().size() - 6).transpose() << std::endl;
-  std::cout << std::endl;
-
-  // set current state as next initial state
   Eigen::VectorXd current_x = Eigen::VectorXd::Zero(pinocchio_model_->nq + pinocchio_model_->nv);
 
   // joint positions
@@ -249,6 +235,151 @@ void FullbodyFlightController::controlCore()
       estimator_->getAngularVel(Frame::BASELINK, estimate_mode_).y(),
       estimator_->getAngularVel(Frame::BASELINK, estimate_mode_).z();
 
+  return current_x;
+}
+
+void FullbodyFlightController::circleTrajectoryGeneration()
+{
+  if (ros::Time::now().toSec() > circle_trajectory_end_time_)
+  {
+    xref_.head(3) = circle_center_ + Eigen::Vector3d(circle_radius_, 0.0, 0.0);
+    xref_.segment(3, 4) << 0, 0, 0, 1;
+    circle_trajectory_flight_flag_ = false;
+    ROS_INFO_STREAM("[ddp] finish circle trajectory tracking");
+  }
+  else if (ros::Time::now().toSec() > circle_trajectory_start_time_)
+  {
+    double t = ros::Time::now().toSec() - circle_trajectory_start_time_;
+    double omega = 2 * M_PI / circle_duration_;
+    for (int i = 0; i < xs_init_.size(); i++)
+    {
+      double ti = t + i * hovering_->optimization_param_.dt;
+      Eigen::Vector3d target_pos =
+          circle_center_ + Eigen::Vector3d(circle_radius_ * cos(omega * ti), circle_radius_ * sin(omega * ti), 0.0);
+      tf::Quaternion target_root_quat(0.0, 0.0, 0.0);
+      tf::Matrix3x3 target_root_rot(target_root_quat);
+
+      tf::Vector3 target_vel_local =
+          target_root_rot.inverse() *
+          tf::Vector3(-circle_radius_ * omega * sin(omega * ti), circle_radius_ * omega * cos(omega * ti), 0.0);
+      tf::Vector3 target_omega_local(0.0, 0.0, 0.0);
+
+      if (ti + circle_trajectory_start_time_ >= circle_trajectory_end_time_)
+      {
+        target_pos = circle_center_ + Eigen::Vector3d(circle_radius_, 0, 0);
+        target_root_quat = tf::Quaternion(0, 0, 0);
+        target_vel_local.setZero();
+        target_omega_local.setZero();
+      }
+
+      Eigen::VectorXd reference_i = hovering_->state_residuals_.at(i)->get_reference();
+      reference_i.head(3) = target_pos;
+      reference_i.segment(3, 4) << target_root_quat.x(), target_root_quat.y(), target_root_quat.z(),
+          target_root_quat.w();
+      reference_i.segment(pinocchio_model_->nq, 3) << target_vel_local.x(), target_vel_local.y(), target_vel_local.z();
+      reference_i.segment(pinocchio_model_->nq + 3, 3) << target_omega_local.x(), target_omega_local.y(),
+          target_omega_local.z();
+      hovering_->state_residuals_.at(i)->set_reference(reference_i);
+    }
+  }
+  else
+  {
+    for (int i = 0; i < xs_init_.size(); i++)
+    {
+      hovering_->state_residuals_.at(i)->set_reference(xref_);
+    }
+  }
+}
+
+void FullbodyFlightController::jointTrajectoryGeneration()
+{
+  if (ros::Time::now().toSec() > joint_trajectory_end_time_)
+  {
+    for (int i = 0; i < joint_trajectory_names_.size(); i++)
+    {
+      int joint_id = pinocchio_model_->getJointId(joint_trajectory_names_.at(i));
+      int joint_index_q = pinocchio_model_->joints[joint_id].idx_q();
+      int joint_index_v = pinocchio_model_->joints[joint_id].idx_v();
+      curr_target_q_(joint_index_q) = joint_trajectory_angle_start_.at(i);
+      curr_target_dq_(joint_index_v) = 0.0;
+      xref_(joint_index_q) = joint_trajectory_angle_start_.at(i);
+      xref_(pinocchio_model_->nq + joint_index_v) = 0.0;
+    }
+    joint_trajectory_flight_flag_ = false;
+    ROS_INFO_STREAM("[ddp] finish joint trajectory tracking");
+  }
+  else if (ros::Time::now().toSec() >= joint_trajectory_start_time_)
+  {
+    double t = ros::Time::now().toSec() - joint_trajectory_start_time_;
+    double omega = 2 * M_PI / joint_trajectory_duration_;
+    for (int i = 0; i < xs_init_.size(); i++)  // time step
+    {
+      double ti = t + i * hovering_->optimization_param_.dt;
+      double theta = omega * ti;
+      Eigen::VectorXd reference_i = hovering_->state_residuals_.at(i)->get_reference();
+      for (int j = 0; j < joint_trajectory_names_.size(); j++)  // joint
+      {
+        int joint_id = pinocchio_model_->getJointId(joint_trajectory_names_.at(j));
+        int joint_index_q = pinocchio_model_->joints[joint_id].idx_q();
+        int joint_index_v = pinocchio_model_->joints[joint_id].idx_v();
+        double target_q =
+            (joint_trajectory_angle_start_.at(j) + joint_trajectory_angle_end_.at(j)) / 2.0 +
+            (joint_trajectory_angle_end_.at(j) - joint_trajectory_angle_start_.at(j)) / 2.0 * (-cos(theta));
+
+        double target_dq =
+            (joint_trajectory_angle_end_.at(j) - joint_trajectory_angle_start_.at(j)) / 2.0 * omega * sin(theta);
+
+        if (i == 0)
+        {
+          curr_target_q_(joint_index_q) = target_q;
+          curr_target_dq_(joint_index_v) = target_dq;
+        }
+
+        reference_i(joint_index_q) = target_q;
+        reference_i(pinocchio_model_->nq + joint_index_v) = target_dq;
+      }
+      hovering_->state_residuals_.at(i)->set_reference(reference_i);
+    }
+  }
+  else
+  {
+    for (int i = 0; i < xs_init_.size(); i++)
+    {
+      hovering_->state_residuals_.at(i)->set_reference(xref_);
+    }
+  }
+}
+
+void FullbodyFlightController::controlCore()
+{
+  // update reference state
+  if (circle_trajectory_flight_flag_)
+  {
+    circleTrajectoryGeneration();
+  }
+  if (joint_trajectory_flight_flag_)
+  {
+    jointTrajectoryGeneration();
+  }
+
+  if ((!circle_trajectory_flight_flag_) && (!joint_trajectory_flight_flag_))
+  {
+    for (int i = 0; i < xs_init_.size(); i++)
+    {
+      hovering_->state_residuals_.at(i)->set_reference(xref_);
+    }
+  }
+  Eigen::VectorXd curr_target_x = hovering_->state_residuals_.at(0)->get_reference();
+  curr_target_q_.head(7) = curr_target_x.head(7);
+
+  crocoddyl::Timer timer;
+  ddp_solver_->solve(xs_init_, us_init_);
+  ddp_solve_time_ = timer.get_duration();
+
+  xs_init_ = ddp_solver_->get_xs();
+  us_init_ = ddp_solver_->get_us();
+
+  Eigen::VectorXd current_x = getCurrentX();
   ddp_problem_->set_x0(current_x);
 
   // initial guess in next loop
@@ -267,16 +398,7 @@ void FullbodyFlightController::controlCore()
     ROS_ERROR("[ddp] Nonlinear inverse dynamics solver failed to solve.");
     return;
   }
-  std::cout << "generalized force: " << control_input.head(pinocchio_model_->nv).transpose() << std::endl;
-  std::cout << "thrust:"
-            << control_input.segment(pinocchio_model_->nv, pinocchio_robot_model_->getRotorNum()).transpose()
-            << std::endl;
-  std::cout << "gimbal angles: "
-            << control_input.tail(nonlinear_inverse_dynamics_solver_->getGimbalNames().size()).transpose() << std::endl;
   control_input_ = control_input;
-  std::cout << std::endl;
-  std::cout << std::endl;
-  std::cout << std::endl;
 }
 
 void FullbodyFlightController::sendCmd()
@@ -305,6 +427,43 @@ void FullbodyFlightController::publish()
                                      pinocchio_robot_model_->getMFRate() * curr_target_thrust(rotor_wrench_pub_index_);
   rotor_wrench_pub_.publish(rotor_wrench_msg);
   rotor_wrench_pub_index_ = (rotor_wrench_pub_index_ + 1) % pinocchio_robot_model_->getRotorNum();
+
+  // for debug: target root pose
+  geometry_msgs::PoseStamped target_root_pose_msg;
+  target_root_pose_msg.header.stamp = ros::Time::now();
+  target_root_pose_msg.header.frame_id = "world";
+  target_root_pose_msg.pose.position.x = curr_target_q_(0);
+  target_root_pose_msg.pose.position.y = curr_target_q_(1);
+  target_root_pose_msg.pose.position.z = curr_target_q_(2);
+  target_root_pose_msg.pose.orientation.x = curr_target_q_(3);
+  target_root_pose_msg.pose.orientation.y = curr_target_q_(4);
+  target_root_pose_msg.pose.orientation.z = curr_target_q_(5);
+  target_root_pose_msg.pose.orientation.w = curr_target_q_(6);
+  target_root_pose_pub_.publish(target_root_pose_msg);
+
+  Eigen::VectorXd curr_q = getCurrentX().head(pinocchio_model_->nq);
+  Eigen::VectorXd q_diff = pinocchio::difference(*pinocchio_model_, curr_q, curr_target_q_);
+  aerial_robot_msgs::PoseControlPid pid_debug_msg;
+  pid_debug_msg.header.stamp = ros::Time::now();
+  pid_debug_msg.x.err_p = q_diff(0);
+  pid_debug_msg.y.err_p = q_diff(1);
+  pid_debug_msg.z.err_p = q_diff(2);
+  pid_debug_msg.roll.err_p = q_diff(3);
+  pid_debug_msg.pitch.err_p = q_diff(4);
+  pid_debug_msg.yaw.err_p = q_diff(5);
+  pid_debug_pub_.publish(pid_debug_msg);
+
+  // for debug: ddp solve time and iteration
+  std_msgs::Float64 ddp_solve_time_msg;
+  ddp_solve_time_msg.data = ddp_solve_time_;
+  ddp_solve_time_pub_.publish(ddp_solve_time_msg);
+
+  std_msgs::UInt8 ddp_iteration_msg;
+  ddp_iteration_msg.data = ddp_solver_->get_iter();
+  ddp_iteration_pub_.publish(ddp_iteration_msg);
+
+  // publish nonlinear inverse dynamics solver info
+  nonlinear_inverse_dynamics_solver_->publish();
 }
 
 void FullbodyFlightController::sendFourAxisCommand()
@@ -389,7 +548,7 @@ void FullbodyFlightController::jointStateCallback(const sensor_msgs::JointStateC
   }
 }
 
-void FullbodyFlightController::stateCommandCallback(const sensor_msgs::JointStateConstPtr& msg)
+void FullbodyFlightController::jointCommandCallback(const sensor_msgs::JointStateConstPtr& msg)
 {
   if (msg->name.size() != msg->position.size())
   {
@@ -427,13 +586,236 @@ void FullbodyFlightController::stateCommandCallback(const sensor_msgs::JointStat
   }
 
   // set the reference for state residuals
-  Eigen::VectorXd reference_x = Eigen::VectorXd::Zero(pinocchio_model_->nq + pinocchio_model_->nv);
-  reference_x.head(pinocchio_model_->nq) = curr_target_q_;   // root pose and joint positions
-  reference_x.tail(pinocchio_model_->nv) = curr_target_dq_;  // root linear and angular velocities
-  for (int i = 0; i < hovering_->state_residuals_.size(); i++)
+  Eigen::VectorXd reference_x = hovering_->state_residuals_.at(0)->get_reference();
+  std::vector<std::string> joint_names = nonlinear_inverse_dynamics_solver_->getJointNames();
+  for (int i = 0; i < joint_names.size(); i++)
   {
-    hovering_->state_residuals_.at(i)->set_reference(reference_x);
+    if (joint_names.at(i).find("root") != std::string::npos)
+      continue;  // skip root joint
+    int joint_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_names.at(i))].idx_q();
+    int joint_index_v = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_names.at(i))].idx_v();
+
+    reference_x(joint_index_q) = curr_target_q_(joint_index_q);
+    reference_x(pinocchio_model_->nq + joint_index_v) = curr_target_dq_(joint_index_v);
   }
+  xref_ = reference_x;
+}
+
+void FullbodyFlightController::rootPosCommandCallback(const geometry_msgs::Vector3ConstPtr& msg)
+{
+  xref_.head(3) << msg->x, msg->y, msg->z;
+  ROS_INFO_STREAM("[ddp] receive root position command: " << xref_.head(3).transpose());
+
+  // visualize path
+  nav_msgs::Path path_msg;
+  path_msg.header.stamp = ros::Time::now();
+  path_msg.header.frame_id = "world";
+  geometry_msgs::PoseStamped pose;
+  // current position
+  pose.pose.position.x = estimator_->getPos(Frame::BASELINK, estimate_mode_).x();
+  pose.pose.position.y = estimator_->getPos(Frame::BASELINK, estimate_mode_).y();
+  pose.pose.position.z = estimator_->getPos(Frame::BASELINK, estimate_mode_).z();
+  pose.pose.orientation.x = 0.0;
+  pose.pose.orientation.y = 0.0;
+  pose.pose.orientation.z = 0.0;
+  pose.pose.orientation.w = 1.0;
+  path_msg.poses.push_back(pose);
+  // target position
+  pose.pose.position.x = msg->x;
+  pose.pose.position.y = msg->y;
+  pose.pose.position.z = msg->z;
+  pose.pose.orientation.x = 0.0;
+  pose.pose.orientation.y = 0.0;
+  pose.pose.orientation.z = 0.0;
+  pose.pose.orientation.w = 1.0;
+  path_msg.poses.push_back(pose);
+  path_pub_.publish(path_msg);
+}
+
+void FullbodyFlightController::rootPoseCommandCallback(const geometry_msgs::PoseConstPtr& msg)
+{
+  xref_.head(3) << msg->position.x, msg->position.y, msg->position.z;
+  xref_.segment(3, 4) << msg->orientation.x, msg->orientation.y, msg->orientation.z, msg->orientation.w;
+  ROS_INFO_STREAM("[ddp] receive root pose command: " << xref_.head(7).transpose());
+
+  // visualize path
+  nav_msgs::Path path_msg;
+  path_msg.header.stamp = ros::Time::now();
+  path_msg.header.frame_id = "world";
+  geometry_msgs::PoseStamped pose;
+  // current position
+  pose.pose.position.x = estimator_->getPos(Frame::BASELINK, estimate_mode_).x();
+  pose.pose.position.y = estimator_->getPos(Frame::BASELINK, estimate_mode_).y();
+  pose.pose.position.z = estimator_->getPos(Frame::BASELINK, estimate_mode_).z();
+  pose.pose.orientation.x = 0.0;
+  pose.pose.orientation.y = 0.0;
+  pose.pose.orientation.z = 0.0;
+  pose.pose.orientation.w = 1.0;
+  path_msg.poses.push_back(pose);
+  // target position
+  pose.pose.position.x = msg->position.x;
+  pose.pose.position.y = msg->position.y;
+  pose.pose.position.z = msg->position.z;
+  pose.pose.orientation.x = 0.0;
+  pose.pose.orientation.y = 0.0;
+  pose.pose.orientation.z = 0.0;
+  pose.pose.orientation.w = 1.0;
+  path_msg.poses.push_back(pose);
+  path_pub_.publish(path_msg);
+}
+
+void FullbodyFlightController::circleTrajectoryCommandCallback(const std_msgs::EmptyConstPtr& msg)
+{
+  ros::NodeHandle circle_traj_nh(nh_, "circle_trajectory");
+  circle_traj_nh.param("radius", circle_radius_, 1.0);
+  circle_traj_nh.param("duration", circle_duration_, M_PI);
+  circle_traj_nh.param("loop", circle_loop_, 3);
+
+  Eigen::Vector3d target_pos = hovering_->state_residuals_.at(0)->get_reference().head(3);
+  circle_center_ = Eigen::Vector3d(target_pos(0) - circle_radius_, target_pos(1), target_pos(2));
+
+  xref_.head(3) = target_pos;
+
+  ROS_INFO_STREAM("[ddp] circle trajectory center: " << circle_center_.transpose() << ", radius: " << circle_radius_
+                                                     << ", duration: " << circle_duration_ << " s"
+                                                     << ", loop: " << circle_loop_);
+
+  // visualize path
+  nav_msgs::Path path_msg;
+  path_msg.header.stamp = ros::Time::now();
+  path_msg.header.frame_id = "world";
+  int N = 120;
+  for (int i = 0; i < N; i++)
+  {
+    geometry_msgs::PoseStamped pose;
+    pose.pose.position.x = circle_center_.x() + circle_radius_ * cos(2 * M_PI * i / N);
+    pose.pose.position.y = circle_center_.y() + circle_radius_ * sin(2 * M_PI * i / N);
+    pose.pose.position.z = circle_center_.z();
+    pose.pose.orientation.x = 0.0;
+    pose.pose.orientation.y = 0.0;
+    pose.pose.orientation.z = 0.0;
+    pose.pose.orientation.w = 1.0;
+    path_msg.poses.push_back(pose);
+  }
+  path_pub_.publish(path_msg);
+
+  circle_trajectory_start_time_ = ros::Time::now().toSec() + 6.0;
+  circle_trajectory_end_time_ = circle_trajectory_start_time_ + circle_loop_ * circle_duration_;
+  circle_trajectory_flight_flag_ = true;
+}
+
+void FullbodyFlightController::jointTrajectoryCommandCallback(const std_msgs::EmptyConstPtr& msg)
+{
+  ros::NodeHandle joint_traj_nh(nh_, "joint_trajectory");
+  joint_traj_nh.param("duration", joint_trajectory_duration_, 1.0);
+  joint_traj_nh.param("loop", joint_trajectory_loop_, 3);
+
+  joint_trajectory_names_ = nonlinear_inverse_dynamics_solver_->getJointNames();
+  joint_traj_nh.getParam("start_angle", joint_trajectory_angle_start_);
+  if (joint_trajectory_angle_start_.size() != joint_trajectory_names_.size())
+  {
+    ROS_ERROR("[ddp] Joint trajectory command for start angle size mismatch.");
+    return;
+  }
+
+  joint_traj_nh.getParam("end_angle", joint_trajectory_angle_end_);
+  if (joint_trajectory_angle_end_.size() != joint_trajectory_names_.size())
+  {
+    ROS_ERROR("[ddp] Joint trajectory command for end angle size mismatch.");
+    return;
+  }
+
+  for (int i = 0; i < joint_trajectory_names_.size(); i++)
+  {
+    int joint_id = pinocchio_model_->getJointId(joint_trajectory_names_.at(i));
+    int joint_index_q = pinocchio_model_->joints[joint_id].idx_q();
+    curr_target_q_(joint_index_q) = joint_trajectory_angle_start_.at(i);
+    xref_(joint_index_q) = joint_trajectory_angle_start_.at(i);
+  }
+
+  ROS_INFO_STREAM("[ddp] start joint trajectory tracking with duration: " << joint_trajectory_duration_ << " s"
+                                                                          << ", loop: " << joint_trajectory_loop_);
+
+  joint_trajectory_start_time_ = ros::Time::now().toSec() + 6.0;
+  joint_trajectory_end_time_ = joint_trajectory_start_time_ + joint_trajectory_loop_ * joint_trajectory_duration_;
+  joint_trajectory_flight_flag_ = true;
+}
+
+void FullbodyFlightController::transformingTrackingCommandCallback(const std_msgs::EmptyConstPtr& msg)
+{
+  ros::NodeHandle circle_traj_nh(nh_, "circle_trajectory");
+  circle_traj_nh.param("radius", circle_radius_, 1.0);
+  circle_traj_nh.param("duration", circle_duration_, M_PI);
+  circle_traj_nh.param("loop", circle_loop_, 3);
+
+  ros::NodeHandle joint_traj_nh(nh_, "joint_trajectory");
+  joint_traj_nh.param("duration", joint_trajectory_duration_, 1.0);
+  joint_traj_nh.param("loop", joint_trajectory_loop_, 3);
+
+  // circle trajecotry of root
+  Eigen::Vector3d target_pos = hovering_->state_residuals_.at(0)->get_reference().head(3);
+  circle_center_ = Eigen::Vector3d(target_pos(0) - circle_radius_, target_pos(1), target_pos(2));
+
+  xref_.head(3) = target_pos;
+
+  ROS_INFO_STREAM("[ddp] circle trajectory center: " << circle_center_.transpose() << ", radius: " << circle_radius_
+                                                     << ", duration: " << circle_duration_ << " s"
+                                                     << ", loop: " << circle_loop_);
+
+  // joint trajecotry
+  joint_trajectory_names_ = nonlinear_inverse_dynamics_solver_->getJointNames();
+  joint_traj_nh.getParam("start_angle", joint_trajectory_angle_start_);
+  if (joint_trajectory_angle_start_.size() != joint_trajectory_names_.size())
+  {
+    ROS_ERROR("[ddp] Joint trajectory command for start angle size mismatch.");
+    return;
+  }
+
+  joint_traj_nh.getParam("end_angle", joint_trajectory_angle_end_);
+  if (joint_trajectory_angle_end_.size() != joint_trajectory_names_.size())
+  {
+    ROS_ERROR("[ddp] Joint trajectory command for end angle size mismatch.");
+    return;
+  }
+
+  for (int i = 0; i < joint_trajectory_names_.size(); i++)
+  {
+    int joint_id = pinocchio_model_->getJointId(joint_trajectory_names_.at(i));
+    int joint_index_q = pinocchio_model_->joints[joint_id].idx_q();
+    curr_target_q_(joint_index_q) = joint_trajectory_angle_start_.at(i);
+    xref_(joint_index_q) = joint_trajectory_angle_start_.at(i);
+  }
+
+  ROS_INFO_STREAM("[ddp] start joint trajectory tracking with duration: " << joint_trajectory_duration_ << " s"
+                                                                          << ", loop: " << joint_trajectory_loop_);
+
+  // visualize path
+  nav_msgs::Path path_msg;
+  path_msg.header.stamp = ros::Time::now();
+  path_msg.header.frame_id = "world";
+  int N = 120;
+  for (int i = 0; i < N; i++)
+  {
+    geometry_msgs::PoseStamped pose;
+    pose.pose.position.x = circle_center_.x() + circle_radius_ * cos(2 * M_PI * i / N);
+    pose.pose.position.y = circle_center_.y() + circle_radius_ * sin(2 * M_PI * i / N);
+    pose.pose.position.z = circle_center_.z();
+    pose.pose.orientation.x = 0.0;
+    pose.pose.orientation.y = 0.0;
+    pose.pose.orientation.z = 0.0;
+    pose.pose.orientation.w = 1.0;
+    path_msg.poses.push_back(pose);
+  }
+  path_pub_.publish(path_msg);
+
+  circle_trajectory_start_time_ = ros::Time::now().toSec() + 6.0;
+  circle_trajectory_end_time_ = circle_trajectory_start_time_ + circle_loop_ * circle_duration_;
+
+  joint_trajectory_start_time_ = circle_trajectory_start_time_;
+  joint_trajectory_end_time_ = joint_trajectory_start_time_ + joint_trajectory_loop_ * joint_trajectory_duration_;
+
+  joint_trajectory_flight_flag_ = true;
+  circle_trajectory_flight_flag_ = true;
 }
 
 void FullbodyFlightController::publishDDPTrajectory()

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <pinocchio/fwd.hpp>
+#include <pinocchio/multibody/liegroup/liegroup.hpp>
 #include <dynarm/model/manipulator_model.h>
 #include <dynarm/model/nonlinear_inverse_dynamics.h>
 #include <dynarm/control/ddp_hovering_problem.h>
@@ -10,8 +11,18 @@
 #include <ros/ros.h>
 #include <Eigen/Core>
 
+#include <aerial_robot_msgs/PoseControlPid.h>
+#include <geometry_msgs/Pose.h>
+#include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TransformStamped.h>
+#include <geometry_msgs/Vector3.h>
+#include <geometry_msgs/WrenchStamped.h>
+#include <nav_msgs/Path.h>
 #include <sensor_msgs/JointState.h>
+#include <std_msgs/Empty.h>
+#include <std_msgs/Float32MultiArray.h>
+#include <std_msgs/Float64.h>
+#include <std_msgs/UInt8.h>
 #include <spinal/FourAxisCommand.h>
 #include <tf/transform_broadcaster.h>
 
@@ -34,8 +45,18 @@ private:
   ros::Publisher gimbals_control_pub_;       // for servo bridge
   ros::Publisher four_axis_command_pub_;     // for spinal
   ros::Publisher rotor_wrench_pub_;          // for debug
+  ros::Publisher path_pub_;                  // for debug
+  ros::Publisher ddp_solve_time_pub_;        // for debug
+  ros::Publisher ddp_iteration_pub_;         // for debug
+  ros::Publisher target_root_pose_pub_;      // for debug
+  ros::Publisher pid_debug_pub_;             // for debug
   ros::Subscriber joint_state_sub_;
-  ros::Subscriber state_command_sub_;
+  ros::Subscriber joint_command_sub_;
+  ros::Subscriber root_pos_command_sub_;
+  ros::Subscriber root_pose_command_sub_;
+  ros::Subscriber circle_trajectory_command_sub_;
+  ros::Subscriber joint_trajectory_command_sub_;
+  ros::Subscriber transforming_tracking_command_sub_;
 
   std::string robot_ns_;
   int rotor_wrench_pub_index_;
@@ -48,10 +69,13 @@ private:
   std::shared_ptr<DDPHoveringProblem> hovering_;
   std::shared_ptr<crocoddyl::ShootingProblem> ddp_problem_;
   std::shared_ptr<crocoddyl::SolverAbstract> ddp_solver_;
-  std::shared_ptr<aerial_robot_model::NonlinearInverseDynamics> nonlinear_inverse_dynamics_solver_;
   std::vector<Eigen::VectorXd> xs_init_;
   std::vector<Eigen::VectorXd> us_init_;
+  double ddp_solve_time_ = 0.0;
 
+  std::shared_ptr<aerial_robot_model::NonlinearInverseDynamics> nonlinear_inverse_dynamics_solver_;
+
+  Eigen::VectorXd xref_;
   Eigen::VectorXd curr_q_;
   Eigen::VectorXd curr_dq_;
   Eigen::VectorXd curr_target_q_;
@@ -59,12 +83,35 @@ private:
 
   Eigen::VectorXd control_input_;
 
+  // circle trajectory flight
+  bool circle_trajectory_flight_flag_ = false;
+  double circle_radius_;
+  double circle_duration_ = 3.0;
+  int circle_loop_ = 3;
+  Eigen::Vector3d circle_center_;
+  double circle_trajectory_start_time_;
+  double circle_trajectory_end_time_;
+  double circle_trajectory_pitch_max_ = 1.0;
+
+  // joint trajectory flight
+  bool joint_trajectory_flight_flag_ = false;
+  double joint_trajectory_duration_ = 1.0;
+  int joint_trajectory_loop_ = 3;
+  double joint_trajectory_start_time_;
+  double joint_trajectory_end_time_;
+  std::vector<std::string> joint_trajectory_names_;
+  std::vector<double> joint_trajectory_angle_start_;
+  std::vector<double> joint_trajectory_angle_end_;
+
   void rosParamInit();
   void DDPProblemInit();
   virtual void activate() override;
   virtual bool update() override;
   virtual void reset() override;
+  Eigen::VectorXd getCurrentX();
   void controlCore();
+  void circleTrajectoryGeneration();
+  void jointTrajectoryGeneration();
   void sendCmd();
   void publish();
   void sendFourAxisCommand();
@@ -72,6 +119,11 @@ private:
   void sendGimbalCommand();
   void jointStateCallback(const sensor_msgs::JointStateConstPtr& msg);
   void publishDDPTrajectory();
-  void stateCommandCallback(const sensor_msgs::JointStateConstPtr& msg);
+  void jointCommandCallback(const sensor_msgs::JointStateConstPtr& msg);
+  void rootPosCommandCallback(const geometry_msgs::Vector3ConstPtr& msg);
+  void rootPoseCommandCallback(const geometry_msgs::PoseConstPtr& msg);
+  void circleTrajectoryCommandCallback(const std_msgs::EmptyConstPtr& msg);
+  void jointTrajectoryCommandCallback(const std_msgs::EmptyConstPtr& msg);
+  void transformingTrackingCommandCallback(const std_msgs::EmptyConstPtr& msg);
 };
 }  // namespace aerial_robot_control

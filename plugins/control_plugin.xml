@@ -4,4 +4,6 @@
 
   <class name="aerial_robot_control/fullbody_flight_controller" type="aerial_robot_control::FullbodyFlightController" base_class_type="aerial_robot_control::ControlBase">
   </class>
+
+  <class name="aerial_robot_control/full_vectoring_pid_controller" type="aerial_robot_control::FullVectoringPIDController" base_class_type="aerial_robot_control::ControlBase"/>
 </library>

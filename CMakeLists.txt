@@ -79,13 +79,21 @@ target_link_libraries(trajectory_generator_test
   )
 
 add_library(manipulator_model
-  src/model/manipulator_model.cpp)
+  src/model/manipulator_model.cpp
+  src/model/full_vectoring_model.cpp)
 target_link_libraries(manipulator_model
   ${catkin_LIBRARIES}
   pinocchio::pinocchio
   ${Eigen3_LIBRARIES}
   ${OsqpEigen_LIBRARIES}
   ${NLOPT_LIBRARIES}
+  )
+
+add_library(full_vectoring_navigation
+  src/navigation/full_vectoring_navigation.cpp)
+target_link_libraries(full_vectoring_navigation
+  ${catkin_LIBRARIES}
+  ${Eigen3_LIBRARIES}
   )
 
 add_library(ddp_hovering_problem
@@ -111,7 +119,8 @@ target_link_libraries(ddp_hovering_problem_test
 
 add_library(dynarm_controllib
   src/control/fullbody_flight_controller.cpp
-  src/control/manipulator_controller.cpp)
+  src/control/manipulator_controller.cpp
+  src/control/full_vectoring_pid_control.cpp)
 target_link_libraries(dynarm_controllib
   ddp_hovering_problem
   joint_trajectory_generator

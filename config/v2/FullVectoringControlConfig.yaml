@@ -1,0 +1,29 @@
+aerial_robot_control_name: aerial_robot_control/full_vectoring_pid_controller
+
+controller:
+
+  control_verbose: false
+
+  xy:
+    p_gain: 5.0
+    i_gain: 0.03
+    d_gain: 4.0
+    force_landing_descending_rate: -1.0
+
+  z:
+    p_gain: 3.0
+    i_gain: 1.0
+    d_gain: 3.0
+    landing_err_z: -0.4
+    force_landing_descending_rate: -0.5
+
+  roll_pitch:
+    p_gain: 15.0
+    i_gain: 0.3
+    d_gain: 5.0
+
+  yaw:
+    p_gain: 10.0
+    i_gain: 0.1
+    d_gain: 5.0
+    need_d_control: true

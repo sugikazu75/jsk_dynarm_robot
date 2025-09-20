@@ -23,7 +23,7 @@
     </node>
 
     <!-- visualization -->
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find dynarm)/config/rviz_config" unless="$(arg headless)"/>
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find dynarm)/config/$(arg version)/rviz_config" unless="$(arg headless)"/>
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
       <param name="tf_prefix" value="$(arg robot_ns)" />

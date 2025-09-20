@@ -11,7 +11,7 @@
       <param name="tf_prefix" value="$(arg robot_ns)" />
     </node>
 
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find dynarm)/config/rviz_config"/>
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find dynarm)/config/$(arg version)/rviz_config"/>
   </group>
 
 </launch>

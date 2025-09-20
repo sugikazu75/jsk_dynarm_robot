@@ -1,4 +1,6 @@
 #include <dynarm/model/nonlinear_inverse_dynamics.h>
+#include <std_msgs/Float64.h>
+#include <std_msgs/UInt16.h>
 
 using namespace aerial_robot_model;
 
@@ -16,6 +18,8 @@ double torqueThrustMinimize(const std::vector<double>& x, std::vector<double>& g
   std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model = solver->getPinocchioRobotModel();
   std::shared_ptr<pinocchio::Model> pinocchio_model = solver->getPinocchioModel();
   std::shared_ptr<pinocchio::Data> pinocchio_data = solver->getPinocchioData();
+
+  solver->setLastIteration(solver->getLastIteration() + 1);
 
   int gimbal_num = solver->getGimbalNames().size();
   Eigen::VectorXd hessian_trace = solver->getHessianTrace();
@@ -159,6 +163,9 @@ NonlinearInverseDynamics::NonlinearInverseDynamics(
   pinocchio_model_ = pinocchio_robot_model_->getModel();
   pinocchio_data_ = pinocchio_robot_model_->getData();
 
+  nlp_iteration_pub_ = nh_.advertise<std_msgs::UInt16>("debug/nonlinear_id_iteration", 1);
+  nlp_solve_time_pub_ = nh_.advertise<std_msgs::Float64>("debug/nonlinear_id_solve_time", 1);
+
   loadJointNames();
   loadGimbalNames();
 
@@ -234,6 +241,8 @@ void NonlinearInverseDynamics::loadJointNames()
     std::string joint_name = pinocchio_model_->names[i];
     if (joint_name.find("joint") != std::string::npos)
     {
+      if (joint_name.find("root") != std::string::npos)
+        continue;  // skip root joint
       joint_names_.push_back(joint_name);
     }
   }
@@ -255,6 +264,8 @@ void NonlinearInverseDynamics::loadGimbalNames()
 bool NonlinearInverseDynamics::solve(const Eigen::VectorXd& q, const Eigen::VectorXd& v, const Eigen::VectorXd& a,
                                      Eigen::VectorXd& tau)
 {
+  auto start = std::chrono::high_resolution_clock::now();
+
   // store current state for optimization
   nlp_curr_target_q_ = q;
   nlp_curr_target_dq_ = v;
@@ -304,13 +315,10 @@ bool NonlinearInverseDynamics::solve(const Eigen::VectorXd& q, const Eigen::Vect
   // Solve the optimization problem
   double minf;
   nlopt::result result;
+  nlp_last_iteration_ = 0;
   try
   {
-    auto start = std::chrono::high_resolution_clock::now();
     result = nlp_solver_.optimize(x, minf);
-    auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    solve_time_ = duration.count();  // microseconds
   }
   catch (std::runtime_error error)
   {
@@ -327,5 +335,20 @@ bool NonlinearInverseDynamics::solve(const Eigen::VectorXd& q, const Eigen::Vect
 
   nlp_last_solution_ = tau;
 
+  auto end = std::chrono::high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+  solve_time_ = duration.count();  // microseconds
+
   return (result >= 0) ? true : false;
+}
+
+void NonlinearInverseDynamics::publish()
+{
+  std_msgs::Float64 solve_time_msg;
+  solve_time_msg.data = solve_time_ * 1e-3;  // ms
+  nlp_solve_time_pub_.publish(solve_time_msg);
+
+  std_msgs::UInt16 iteration_msg;
+  iteration_msg.data = nlp_last_iteration_;
+  nlp_iteration_pub_.publish(iteration_msg);
 }
