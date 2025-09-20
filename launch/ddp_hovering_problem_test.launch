@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="version" default="v1"/>
+  <arg name="version" default="v2"/>
   <arg name="robot_ns" default="dynarm"/>
   <arg name="headless" default="true"/>
 
