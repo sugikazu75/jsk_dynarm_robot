@@ -169,7 +169,8 @@ void jointTrajectoryGenerator::generateJointTrajectory()
 
     // calculate target dq
     Eigen::MatrixXd J6 = Eigen::MatrixXd::Zero(6, pinocchio_model_->nv);
-    pinocchio::computeFrameJacobian(*pinocchio_model_, *pinocchio_data_, curr_q_, frame_id, pinocchio::WORLD,
+    pinocchio::computeFrameJacobian(*pinocchio_model_, *pinocchio_data_, curr_q_, frame_id,
+                                    pinocchio::LOCAL_WORLD_ALIGNED,
                                     J6);  // world frame. q is (target or current)
     Eigen::MatrixXd J = J6.topRows(3);    // position
     Eigen::MatrixXd JJt = J * J.transpose() + 1e-12 * Eigen::MatrixXd::Identity(3, 3);
@@ -181,7 +182,8 @@ void jointTrajectoryGenerator::generateJointTrajectory()
     pinocchio::computeJointJacobiansTimeVariation(*pinocchio_model_, *pinocchio_data_, curr_q_,
                                                   curr_dq_);  // q is (target or current)
     Eigen::MatrixXd Jdot6 = Eigen::MatrixXd::Zero(6, pinocchio_model_->nv);
-    pinocchio::getFrameJacobianTimeVariation(*pinocchio_model_, *pinocchio_data_, frame_id, pinocchio::WORLD, Jdot6);
+    pinocchio::getFrameJacobianTimeVariation(*pinocchio_model_, *pinocchio_data_, frame_id,
+                                             pinocchio::LOCAL_WORLD_ALIGNED, Jdot6);
     Eigen::MatrixXd Jdot = Jdot6.topRows(3);  // position
     curr_target_ddq_ = J.transpose() * JJt.ldlt().solve(target_ee_acc_ - Jdot * curr_dq_);
   }
