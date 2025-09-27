@@ -1,27 +1,19 @@
 <?xml version="1.0"?>
 <launch>
   ###########  launch config  ###########
-  <arg name="real_machine" default="True" />
-  <arg name="simulation" default="False" />
-  <arg name="headless" default="True" />
   <arg name="version" default="v1"/>
   <arg name="root_fix" default="True"/>
   <arg name="full_vectoring_mode" default="False"/>
 
-  <arg name="estimate_mode" default="1"/>
-  <arg name="sim_estimate_mode" default="2"/>
-  <arg name="spawn_x" default="0.0"/>
-  <arg name="spawn_y" default="0.0"/>
-  <arg name="spawn_z" default="1.5"/>
-  <arg name="spawn_yaw" default="0.0"/>
   <arg name="robot_ns" value="dynarm" />
+  <arg name="spawn_z" default="1.5"/>
+  <arg name="sim_estimate_mode"  default= "2" />
 
   ###########  UAV Config  ###########
   <group ns="$(arg robot_ns)">
 
     ###########  Basic Param  ###########
-    <param name="estimation/mode" value= "$(arg sim_estimate_mode)" if="$(arg simulation)" />
-    <param name="estimation/mode" value= "$(arg estimate_mode)" if="$(arg real_machine)"/>
+    <param name="estimation/mode" value= "$(arg sim_estimate_mode)"/>
 
     ###########  Motor Config  ###########
     <rosparam file="$(find dynarm)/config/$(arg version)/MotorInfo.yaml" command="load" />
@@ -34,8 +26,8 @@
 
     ###########  Sensor Fusion  ###########
     <rosparam file="$(find dynarm)/config/StateEstimation.yaml" command="load"/>
-    <rosparam file="$(find dynarm)/config/$(arg version)/SimulationFixed.yaml" command="load" if="$(eval arg('simulation') and not arg('real_machine') and arg('root_fix'))"/>
-    <rosparam file="$(find dynarm)/config/$(arg version)/SimulationFloating.yaml" command="load" if="$(eval arg('simulation') and not arg('real_machine') and not arg('root_fix'))"/>
+    <rosparam file="$(find dynarm)/config/$(arg version)/SimulationFixed.yaml" command="load" if="$(eval arg('root_fix'))"/>
+    <rosparam file="$(find dynarm)/config/$(arg version)/SimulationFloating.yaml" command="load" if="$(eval not arg('root_fix'))"/>
 
     ###########  Navigation  ###########
     <rosparam file="$(find dynarm)/config/$(arg version)/NavigationConfig.yaml" command="load"/>
@@ -82,43 +74,8 @@
     <param name="main_rate" value="100"/>
   </node>
 
-  ###########  Robot Model  ###########
-  <arg name="description_mode" value="urdf" unless="$(arg simulation)" />
-  <arg name="description_mode" value="gazebo" if="$(arg simulation)" />
-  <include file="$(find aerial_robot_model)/launch/aerial_robot_model.launch" >
-    <arg name="headless" value="$(arg headless)" />
-    <arg name="robot_model" value="$(find dynarm)/robots/$(arg version)/dynarm.$(arg description_mode).xacro"/>
-    <arg name="robot_ns" value="$(arg robot_ns)" />
-    <arg name="rviz_config" value="$(find dynarm)/config/$(arg version)/rviz_config" />
-    <arg name="rviz_init_pose" value="$(find dynarm)/config/$(arg version)/RvizInit.yaml" />
-    <arg name="need_joint_state" value="false" if ="$(eval arg('simulation') or arg('real_machine'))"/>
-  </include >
-
-  ###########  Sensors  ###########
-  <!-- <include file="$(find dynarm)/launch/includes/sensors.launch.xml" > -->
-  <!--   <arg name="real_machine" value="$(arg real_machine)" /> -->
-  <!--   <arg name="simulation" value="$(arg simulation)" /> -->
-  <!--   <arg name="robot_ns" value="$(arg robot_ns)" /> -->
-  <!-- </include > -->
-
   ###########  Servo Bridge  ###########
   <node pkg="aerial_robot_model" type="servo_bridge_node" name="servo_bridge"  output="screen" ns="$(arg robot_ns)"/>
-
-  ########### Fix root link to world ###########
-  <node pkg="dynarm" type="root_fix.py" name="root_fix_node">
-    <param name="root_fix" value="$(arg root_fix)"/>
-  </node>
-
-  ########## Simulation in Gazebo #########
-  <include file="$(find aerial_robot_simulation)/launch/gazebo.launch" if = "$(eval arg('simulation') and not arg('real_machine'))" >
-    <arg name="robot_ns" default="$(arg robot_ns)" />
-    <arg name="gui" default="false" if="$(arg headless)" />
-    <arg name="headless" default="$(arg headless)" />
-    <arg name="spawn_x" value="$(arg spawn_x)" />
-    <arg name="spawn_y" value="$(arg spawn_y)" />
-    <arg name="spawn_z" value="$(arg spawn_z)" />
-    <arg name="spawn_yaw" value="$(arg spawn_yaw)" />
-  </include>
 
   ########## Visualization of logging #########
   <node pkg="jsk_rviz_plugins" type="rosconsole_overlay_text.py" name="rosconsole_overlay_text"/>
