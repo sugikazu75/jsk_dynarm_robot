@@ -12,6 +12,6 @@ wstool update -t src
 wstool merge -t src src/jsk_aerial_robot/aerial_robot_${ROS_DISTRO}.rosinstall
 wstool update -t src
 rosdep install -y -r --from-paths src --ignore-src --rosdistro $ROS_DISTRO
-catkin config  --cmake-args -DCMAKE_BUILD_TYPE=Release  -DBUILD_TESTING=OFF -DBUILD_PYTHON_INTERFACE=OFF -DBUILD_BENCHMARK=OFF -DBUILD_WITH_COLLISION_SUPPORT=OFF
+catkin config  --cmake-args -DCMAKE_BUILD_TYPE=Release  -DBUILD_TESTING=OFF -DBUILD_TEST=OFF -DBUILD_PYTHON_INTERFACE=OFF -DBUILD_BENCHMARK=OFF -DBUILD_WITH_COLLISION_SUPPORT=OFF -DBUILD_WITH_MULTITHREADS=ON -DBUILD_EXAMPLES=OFF
 catkin build
 ```
