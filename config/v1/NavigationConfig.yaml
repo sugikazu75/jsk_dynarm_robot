@@ -2,3 +2,4 @@ navigation:
   xy_control_mode: 0
   takeoff_height: 2.0
   joy_udp: false
+  teleop_local_frame: fc

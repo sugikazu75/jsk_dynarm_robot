@@ -1,5 +1,6 @@
 #include <dynarm/control/joint_trajectory_generator.h>
 #include <dynarm/model/manipulator_model.h>
+#include <aerial_robot_control/util/joy_parser.h>
 
 using namespace aerial_robot_control;
 
@@ -31,6 +32,7 @@ jointTrajectoryGenerator::jointTrajectoryGenerator(
       nh_.subscribe("circle_trajectory", 1, &jointTrajectoryGenerator::circleTrajectoryCallback, this);
   direct_joint_angle_sub_ =
       nh_.subscribe("direct_joint_angle", 1, &jointTrajectoryGenerator::directJointAngleCallback, this);
+  joy_sub_ = nh_.subscribe("joy", 1, &jointTrajectoryGenerator::joyCallback, this);
 
   curr_q_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nq);
   curr_dq_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv);
@@ -175,6 +177,8 @@ void jointTrajectoryGenerator::generateEndEffectorTrajectory()
   {
     case 0:  // no transform
     {
+      target_ee_vel_.setZero();
+      target_ee_acc_.setZero();
       break;
     }
     case 1:  // linear transform
@@ -208,6 +212,13 @@ void jointTrajectoryGenerator::generateEndEffectorTrajectory()
     case 3: {
       break;
     }
+    case 4: {  // joy control
+      target_ee_vel_(0) = joy_msg_.axes[JOY_AXIS_STICK_LEFT_UPWARDS];
+      target_ee_vel_(1) = joy_msg_.axes[JOY_AXIS_STICK_LEFT_LEFTWARDS];
+      target_ee_vel_(2) = joy_msg_.axes[JOY_AXIS_STICK_RIGHT_UPWARDS];
+      target_ee_pos_ = target_ee_pos_ + target_ee_vel_ * ctrl_loop_du_;
+      break;
+    }
     default:
       ROS_ERROR_STREAM("[dragon_arm][control] is_transforming_ is not valid: " << is_transforming_);
       break;
@@ -221,8 +232,8 @@ void jointTrajectoryGenerator::generateJointTrajectory()
     curr_target_dq_ = Eigen::VectorXd::Zero(pinocchio_model_->nv);
     curr_target_ddq_ = Eigen::VectorXd::Zero(pinocchio_model_->nv);
   }
-  else if ((is_transforming_ == 1) ||
-           (is_transforming_ == 2))  // solve IK and generate dq, ddq from target end-effector trajectory
+  else if ((is_transforming_ == 1) || (is_transforming_ == 2) ||
+           (is_transforming_ == 4))  // solve IK and generate dq, ddq from target end-effector trajectory
   {
     Eigen::VectorXd ik_initial_q = curr_target_q_;
     bool solved =
@@ -489,4 +500,34 @@ void jointTrajectoryGenerator::directJointAngleCallback(const sensor_msgs::Joint
 
   is_transforming_ = 3;
   transform_start_time_ = ros::Time::now().toSec();
+}
+
+void jointTrajectoryGenerator::joyCallback(const sensor_msgs::JoyConstPtr& msg)
+{
+  sensor_msgs::Joy joy_cmd = joyParse(*msg);
+  joy_msg_ = joy_cmd;
+  if (joy_cmd.axes.size() == 0 || joy_cmd.buttons.size() == 0)
+  {
+    ROS_WARN("[dynarm] the joystick type is not supported (buttons: %d, axes: %d)", (int)msg->buttons.size(),
+             (int)msg->axes.size());
+    return;
+  }
+
+  /* mode switch */
+  if (joy_cmd.buttons[JOY_BUTTON_REAR_RIGHT_2])
+  {
+    if (is_transforming_ != 4)
+    {
+      is_transforming_ = 4;  // joy control mode
+      ROS_INFO_STREAM("[dynarm][control] switch to joy control mode");
+    }
+  }
+  else
+  {
+    if (is_transforming_ == 4)
+    {
+      is_transforming_ = 0;  // not transforming
+      ROS_INFO_STREAM("[dynarm][control] switch back to no transform mode");
+    }
+  }
 }

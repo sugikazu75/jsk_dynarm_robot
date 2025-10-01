@@ -8,6 +8,7 @@
 #include <Eigen/Core>
 #include <geometry_msgs/Vector3Stamped.h>
 #include <sensor_msgs/JointState.h>
+#include <sensor_msgs/Joy.h>
 #include <std_msgs/Float32.h>
 #include <std_msgs/Float32MultiArray.h>
 #include <std_msgs/UInt8.h>
@@ -102,6 +103,7 @@ private:
   ros::Subscriber target_end_effector_final_pos_sub_;
   ros::Subscriber circle_trajectory_sub_;
   ros::Subscriber direct_joint_angle_sub_;
+  ros::Subscriber joy_sub_;
 
   double ctrl_loop_du_;
   int is_transforming_ = 0;  // 0: not transforming, 1: linear transform, 2: circle trajectory
@@ -138,6 +140,9 @@ private:
   double circle_trajectory_angular_velocity_;
   Eigen::Vector3d circle_trajectory_center_;
 
+  // joy control
+  sensor_msgs::Joy joy_msg_;
+
   void loadJointNames();
   void loadGimbalNames();
   void rosParamInit();
@@ -146,6 +151,7 @@ private:
   void targetEndEffectorPosCallback(const geometry_msgs::Vector3StampedConstPtr& msg);
   void circleTrajectoryCallback(const std_msgs::Float32MultiArrayConstPtr& msg);
   void directJointAngleCallback(const sensor_msgs::JointStateConstPtr& msg);
+  void joyCallback(const sensor_msgs::JoyConstPtr& msg);
 
   template <class T>
   void getParam(ros::NodeHandle nh, std::string param_name, T& param, T default_value)
