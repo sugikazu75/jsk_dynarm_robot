@@ -7,5 +7,6 @@ controller:
   nonlinear_mode: true
   quasi_static_mode: false
   gimbal_delta_max: 0.5  # Maximum change in gimbal angles (radians)
+  ctrl_loop_du: 0.01
   ctm_p_gain: 10.0
   ctm_d_gain: 2.0

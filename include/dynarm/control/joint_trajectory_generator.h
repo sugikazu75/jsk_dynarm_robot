@@ -103,6 +103,7 @@ private:
   ros::Subscriber circle_trajectory_sub_;
   ros::Subscriber direct_joint_angle_sub_;
 
+  double ctrl_loop_du_;
   int is_transforming_ = 0;  // 0: not transforming, 1: linear transform, 2: circle trajectory
 
   std::vector<std::string> joint_names_;

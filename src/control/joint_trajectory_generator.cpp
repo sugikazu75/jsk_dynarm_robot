@@ -69,6 +69,10 @@ void jointTrajectoryGenerator::rosParamInit()
   ros::NodeHandle control_nh(nh_, "controller");
   getParam<std::string>(control_nh, "end_effector_name", end_effector_name_, "");
   getParam<double>(control_nh, "transform_duration", transform_duration_, 1.0);
+  if (!control_nh.getParam("ctrl_loop_du", ctrl_loop_du_))
+  {
+    ROS_ERROR_STREAM("[dynarm][joint_trajectory_generator] Failed to get ctrl_loop_du from ros parameter server");
+  }
 
   double ctm_gain;
   getParam<double>(control_nh, "ctm_p_gain", ctm_gain, 1.0);
