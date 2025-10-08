@@ -1,6 +1,8 @@
 #pragma once
 
 #include <aerial_robot_control/flight_navigation.h>
+#include <spinal/ServoTorqueCmd.h>
+#include <numeric>
 
 namespace aerial_robot_navigation
 {
@@ -17,6 +19,7 @@ public:
   void halt() override;
 
 private:
+  ros::Publisher dynamixel_torque_enable_pub_;
   ros::Publisher robstride_servo_on_pub_;
   ros::Publisher robstride_servo_off_pub_;
 };
