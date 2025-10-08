@@ -1,4 +1,7 @@
-<library path="lib/libfull_vectoring_navigation">
+<library path="lib/libdynarm_navigation_lib">
   <class name="aerial_robot_navigation/full_vectoring_navigation" type="aerial_robot_navigation::FullVectoringNavigator" base_class_type="aerial_robot_navigation::BaseNavigator">
+  </class>
+
+  <class name="aerial_robot_navigation/manipulator_navigation" type="aerial_robot_navigation::ManipulatorNavigator" base_class_type="aerial_robot_navigation::BaseNavigator">
   </class>
 </library>

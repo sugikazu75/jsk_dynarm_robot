@@ -1,0 +1,25 @@
+servo_controller:
+  gimbals:
+    angle_sgn: 1
+    angle_scale: 0.001534
+    zero_point_offset: 2047
+    torque_scale: 0.01
+
+    controller1:
+      id: 0
+      name: gimbal1_roll
+    controller2:
+      id: 1
+      name: gimbal1_pitch
+    controller3:
+      id: 2
+      name: gimbal2_roll
+    controller4:
+      id: 3
+      name: gimbal2_pitch
+    controller5:
+      id: 4
+      name: gimbal3_roll
+    controller6:
+      id: 5
+      name: gimbal3_pitch

@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   aerial_robot_msgs
   motion_planning
   pluginlib
+  robstride_actuator_bridge
   roscpp
   sensor_msgs
   spinal
@@ -24,7 +25,7 @@ find_package(OpenMP REQUIRED)
 catkin_package(
  INCLUDE_DIRS include
  LIBRARIES manipulator_controller manipulator_model
- CATKIN_DEPENDS aerial_robot_control aerial_robot_dynamics aerial_robot_estimation aerial_robot_model aerial_robot_msgs motion_planning pluginlib roscpp sensor_msgs
+ CATKIN_DEPENDS aerial_robot_control aerial_robot_dynamics aerial_robot_estimation aerial_robot_model aerial_robot_msgs motion_planning pluginlib robstride_actuator_bridge roscpp sensor_msgs
 )
 
 include_directories(
@@ -89,9 +90,10 @@ target_link_libraries(manipulator_model
   ${NLOPT_LIBRARIES}
   )
 
-add_library(full_vectoring_navigation
-  src/navigation/full_vectoring_navigation.cpp)
-target_link_libraries(full_vectoring_navigation
+add_library(dynarm_navigation_lib
+  src/navigation/full_vectoring_navigation.cpp
+  src/navigation/manipulator_navigator.cpp)
+target_link_libraries(dynarm_navigation_lib
   ${catkin_LIBRARIES}
   ${Eigen3_LIBRARIES}
   )
@@ -131,4 +133,10 @@ target_link_libraries(dynarm_controllib
   pinocchio::pinocchio
   ${Eigen3_LIBRARIES}
   ${OsqpEigen_LIBRARIES}
+  )
+
+add_executable(robstride_bridge
+  src/utils/robstride_bridge.cpp)
+target_link_libraries(robstride_bridge
+  ${catkin_LIBRARIES}
   )

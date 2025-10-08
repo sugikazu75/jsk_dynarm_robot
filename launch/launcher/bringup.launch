@@ -27,7 +27,8 @@
     <rosparam file="$(find dynarm)/config/$(arg version)/MotorInfo.yaml" command="load" />
 
     ###########  Servo Config  ###########
-    <rosparam file="$(find dynarm)/config/$(arg version)/Servo.yaml" command="load" />
+    <rosparam file="$(find dynarm)/config/$(arg version)/Servo.yaml" command="load" if="$(eval arg('simulation') and not arg('real_machine'))"/>
+    <rosparam file="$(find dynarm)/config/$(arg version)/Dynamixel.yaml" command="load" if="$(eval not arg('simulation') and arg('real_machine'))"/>
 
     ###########  Battery Config  ###########
     <rosparam file="$(find dynarm)/config/$(arg version)/Battery.yaml" command="load" />
@@ -41,17 +42,22 @@
     <rosparam file="$(find dynarm)/config/$(arg version)/NavigationConfig.yaml" command="load"/>
 
     ###########  Control  ###########
-    <rosparam file="$(find dynarm)/config/$(arg version)/ManipulatorControl.yaml" command="load" if="$(eval arg('root_fix'))"/>
-    <rosparam file="$(find dynarm)/config/$(arg version)/ManipulatorModel.yaml" command="load" if="$(eval arg('root_fix'))"/>
-
-    <group if="$(arg full_vectoring_mode)">
-      <param name="flight_navigation_plugin_name" value="aerial_robot_navigation/full_vectoring_navigation" />
-      <rosparam file="$(find dynarm)/config/$(arg version)/FullVectoringControlConfig.yaml" command="load"/>
-      <rosparam file="$(find dynarm)/config/$(arg version)/FullVectoringRobotModel.yaml" command="load"/>
+    <group if="$(arg root_fix)">
+      <param name="flight_navigation_plugin_name" value="aerial_robot_navigation/manipulator_navigation" />
+      <rosparam file="$(find dynarm)/config/$(arg version)/ManipulatorControl.yaml" command="load"/>
+      <rosparam file="$(find dynarm)/config/$(arg version)/ManipulatorModel.yaml" command="load"/>
     </group>
-    <group unless="$(arg full_vectoring_mode)">
-      <rosparam file="$(find dynarm)/config/$(arg version)/FullbodyFlightControl.yaml" command="load" if="$(eval not arg('root_fix'))"/>
-      <rosparam file="$(find dynarm)/config/$(arg version)/FullbodyFlightModel.yaml" command="load" if="$(eval not arg('root_fix'))"/>
+
+    <group unless="$(arg root_fix)">
+      <group if="$(arg full_vectoring_mode)">
+        <param name="flight_navigation_plugin_name" value="aerial_robot_navigation/full_vectoring_navigation" />
+        <rosparam file="$(find dynarm)/config/$(arg version)/FullVectoringControlConfig.yaml" command="load"/>
+        <rosparam file="$(find dynarm)/config/$(arg version)/FullVectoringRobotModel.yaml" command="load"/>
+      </group>
+      <group unless="$(arg full_vectoring_mode)">
+        <rosparam file="$(find dynarm)/config/$(arg version)/FullbodyFlightControl.yaml" command="load"/>
+        <rosparam file="$(find dynarm)/config/$(arg version)/FullbodyFlightModel.yaml" command="load" />
+      </group>
     </group>
 
     ###########  robot description for pinocchio ###########
@@ -95,19 +101,32 @@
   </include >
 
   ###########  Sensors  ###########
-  <!-- <include file="$(find dynarm)/launch/includes/sensors.launch.xml" > -->
-  <!--   <arg name="real_machine" value="$(arg real_machine)" /> -->
-  <!--   <arg name="simulation" value="$(arg simulation)" /> -->
-  <!--   <arg name="robot_ns" value="$(arg robot_ns)" /> -->
-  <!-- </include > -->
+  <include file="$(find dynarm)/launch/includes/sensors.launch" >
+    <arg name="real_machine" value="$(arg real_machine)" />
+    <arg name="simulation" value="$(arg simulation)" />
+    <arg name="robot_ns" value="$(arg robot_ns)" />
+  </include>
+
+  ###########  Actuators  ###########
+  <group if="$(arg real_machine)">
+    <group unless="$(arg simulation)">
+      <include file="$(find dynarm)/launch/includes/robstride.launch">
+        <arg name="version" value="$(arg version)"/>
+      </include>
+    </group>
+  </group>
 
   ###########  Servo Bridge  ###########
   <node pkg="aerial_robot_model" type="servo_bridge_node" name="servo_bridge"  output="screen" ns="$(arg robot_ns)"/>
 
   ########### Fix root link to world ###########
-  <node pkg="dynarm" type="root_fix.py" name="root_fix_node">
-    <param name="root_fix" value="$(arg root_fix)"/>
-  </node>
+  <group unless="$(arg real_machine)">
+    <group if="$(arg simulation)">
+      <node pkg="dynarm" type="root_fix.py" name="root_fix_node">
+        <param name="root_fix" value="$(arg root_fix)"/>
+      </node>
+    </group>
+  </group>
 
   ########## Simulation in Gazebo #########
   <include file="$(find aerial_robot_simulation)/launch/gazebo.launch" if = "$(eval arg('simulation') and not arg('real_machine'))" >

@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="real_machine" default="false" />
+  <arg name="simulation" default="false" />
+  <arg name="robot_ns" default=""/>
+
+  <group ns="$(arg robot_ns)">
+
+    <group if="$(arg real_machine)">
+      <group unless="$(arg simulation)">
+
+        <!-- spinal -->
+        <include file="$(find spinal)/launch/bridge.launch" >
+          <arg name="mode" value="serial" />
+          <arg name="serial_port" value="/dev/flight_controller" />
+          <arg name="serial_baud" value="921600" />
+        </include>
+
+        <!-- dummy mocap -->
+        <node pkg="dynarm" type="dummy_mocap_pub.py" name="dummy_mocap_pub" output="screen"/>
+        <!-- <include file="$(find aerial_robot_base)/launch/external_module/mocap.launch" /> -->
+
+      </group>
+    </group>
+
+    <rosparam file="$(find aerial_robot_base)/config/sensors/imu/spinal.yaml" command="load" />
+    <rosparam file="$(find aerial_robot_base)/config/sensors/mocap.yaml" command="load" />
+
+  </group>
+
+</launch>

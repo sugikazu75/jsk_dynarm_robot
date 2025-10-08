@@ -26,11 +26,14 @@ void ManipulatorController::initialize(ros::NodeHandle nh, ros::NodeHandle nhp,
 
   four_axis_command_pub_ = nh_.advertise<spinal::FourAxisCommand>("four_axes/command", 1);
   joints_control_pub_ = nh_.advertise<sensor_msgs::JointState>("joints_ctrl", 1);
+  dynamixel_torque_enable_pub_ = nh_.advertise<spinal::ServoTorqueCmd>("servo/torque_enable", 1);
   gimbals_control_pub_ = nh_.advertise<sensor_msgs::JointState>("gimbals_ctrl", 1);
+  robstride_servo_on_pub_ = nh_.advertise<std_msgs::Empty>("robstride_servo_on", 1);
   tau_by_thrust_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/id_debug/tau_by_thrust", 1);
   rnea_solution_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/id_debug/rnea_solution", 1);
 
   loadJointNames();
+  loadGimbalNames();
 }
 
 void ManipulatorController::loadJointNames()
@@ -46,6 +49,19 @@ void ManipulatorController::loadJointNames()
   }
 }
 
+void ManipulatorController::loadGimbalNames()
+{
+  gimbal_names_.clear();
+  for (int i = 0; i < pinocchio_model_->njoints; i++)
+  {
+    std::string joint_name = pinocchio_model_->names[i];
+    if (joint_name.find("gimbal") != std::string::npos)
+    {
+      gimbal_names_.push_back(joint_name);
+    }
+  }
+}
+
 void ManipulatorController::rosParamInit()
 {
 }
@@ -54,8 +70,22 @@ void ManipulatorController::reset()
 {
   ControlBase::reset();
   trajectory_generator_->reset();
+}
 
-  ROS_INFO_STREAM("[dynarm][control] reset");
+void ManipulatorController::activate()
+{
+  ControlBase::activate();
+
+  spinal::ServoTorqueCmd gimbal_torque_enable_msg;
+  gimbal_torque_enable_msg.index.resize(gimbal_names_.size());
+  gimbal_torque_enable_msg.torque_enable.resize(gimbal_names_.size());
+  std::iota(gimbal_torque_enable_msg.index.begin(), gimbal_torque_enable_msg.index.end(), 0);
+  std::fill(gimbal_torque_enable_msg.torque_enable.begin(), gimbal_torque_enable_msg.torque_enable.end(), 1);
+  dynamixel_torque_enable_pub_.publish(gimbal_torque_enable_msg);
+  ROS_INFO_STREAM("[dynarm][control] torque for " << gimbal_names_.size() << " gimbals enabled");
+
+  robstride_servo_on_pub_.publish(std_msgs::Empty());
+  ROS_INFO("[dynarm][control] robstride servo on command sent");
 }
 
 bool ManipulatorController::update()
