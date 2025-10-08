@@ -90,9 +90,10 @@ target_link_libraries(manipulator_model
   ${NLOPT_LIBRARIES}
   )
 
-add_library(full_vectoring_navigation
-  src/navigation/full_vectoring_navigation.cpp)
-target_link_libraries(full_vectoring_navigation
+add_library(dynarm_navigation_lib
+  src/navigation/full_vectoring_navigation.cpp
+  src/navigation/manipulator_navigator.cpp)
+target_link_libraries(dynarm_navigation_lib
   ${catkin_LIBRARIES}
   ${Eigen3_LIBRARIES}
   )
