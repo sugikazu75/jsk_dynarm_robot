@@ -14,6 +14,7 @@
 #include <geometry_msgs/Vector3Stamped.h>
 #include <sensor_msgs/JointState.h>
 #include <spinal/FourAxisCommand.h>
+#include <spinal/ServoTorqueCmd.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/Float32.h>
 #include <std_msgs/Float32MultiArray.h>
@@ -32,14 +33,17 @@ public:
                           boost::shared_ptr<aerial_robot_navigation::BaseNavigator> navigator, double ctrl_loop_du);
 
 private:
-  ros::Publisher four_axis_command_pub_;  // for spinal
-  ros::Publisher joints_control_pub_;     // for servo bridge
-  ros::Publisher gimbals_control_pub_;    // for servo bridge
-  ros::Publisher tau_by_thrust_pub_;      // for debug
-  ros::Publisher rnea_solution_pub_;      // for debug
+  ros::Publisher four_axis_command_pub_;        // for spinal
+  ros::Publisher joints_control_pub_;           // for servo bridge
+  ros::Publisher dynamixel_torque_enable_pub_;  // for spinal
+  ros::Publisher gimbals_control_pub_;          // for servo bridge
+  ros::Publisher robstride_servo_on_pub_;       // for robstride bridge
+  ros::Publisher tau_by_thrust_pub_;            // for debug
+  ros::Publisher rnea_solution_pub_;            // for debug
 
   // robot parameter
   std::vector<std::string> joint_names_;
+  std::vector<std::string> gimbal_names_;
 
   boost::shared_ptr<aerial_robot_model::ManipulatorRobotModel> dragon_arm_robot_model_;
   std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model_;
@@ -50,8 +54,10 @@ private:
 
   virtual bool update() override;
   virtual void reset() override;
+  virtual void activate() override;
   void rosParamInit();
   void loadJointNames();
+  void loadGimbalNames();
   void controlCore();
   void sendCmd();
   void sendFourAxisCommand();
