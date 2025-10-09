@@ -41,77 +41,45 @@
   </link>
 
   <!-- link support metal sheet -->
-  <link name="link1_center">
-    <xacro:virtual_inertial/>
-  </link>
-  <joint name="link1_center_joint" type="fixed">
-    <child link="link1_center"/>
-    <parent link="link1"/>
-    <origin xyz="0.2925 0 0" rpy="0 0 0"/>
-    <axis xyz="0 0 0"/>
-  </joint>
+  <xacro:macro name="support" params="parent x:=0 y:=0 z:=0">
+    <link name="${parent}_center">
+      <xacro:virtual_inertial/>
+    </link>
+    <joint name="${parent}_center_joint" type="fixed">
+      <child link="${parent}_center"/>
+      <parent link="${parent}"/>
+      <origin xyz="${x} ${y} ${z}" rpy="0 0 0"/>
+      <axis xyz="0 0 0"/>
+    </joint>
 
-  <link name="link1_support">
-    <inertial>
-      <origin xyz="0 0 0.11653150"/>
-      <mass value="0.28997581"/>
-      <inertia
-          ixx="0.00157585" ixy="0.0" ixz="0.0"
-          iyy="0.00773925" iyz="-0.00000013"
-          izz=" 0.00628956"/>
-    </inertial>
-    <visual>
+    <link name="${parent}_support">
+      <inertial>
+        <origin xyz="0 0 0.11653150"/>
+        <mass value="0.28997581"/>
+        <inertia
+            ixx="0.00157585" ixy="0.0" ixz="0.0"
+            iyy="0.00773925" iyz="-0.00000013"
+            izz=" 0.00628956"/>
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://dynarm/meshes/v1/link_support_bridge_module.STL"/>
+        </geometry>
+        <material name="">
+          <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
+        </material>
+      </visual>
+    </link>
+    <joint name="${parent}_support_joint" type="fixed">
+      <child link="${parent}_support"/>
+      <parent link="${parent}_center"/>
       <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <mesh filename="package://dynarm/meshes/v1/link_support_bridge_module.STL"/>
-      </geometry>
-      <material name="">
-        <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
-      </material>
-    </visual>
-  </link>
-  <joint name="link1_support_joint" type="fixed">
-    <child link="link1_support"/>
-    <parent link="link1_center"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <axis xyz="0 0 0"/>
-  </joint>
+      <axis xyz="0 0 0"/>
+    </joint>
+  </xacro:macro>
 
-  <link name="link2_center">
-    <xacro:virtual_inertial/>
-  </link>
-  <joint name="link2_center_joint" type="fixed">
-    <child link="link2_center"/>
-    <parent link="link2"/>
-    <origin xyz="0.2405 0 0" rpy="0 0 0"/>
-    <axis xyz="0 0 0"/>
-  </joint>
-
-
-  <link name="link2_support">
-    <inertial>
-      <origin xyz="0 0 0.11653150"/>
-      <mass value="0.28997581"/>
-      <inertia
-          ixx="0.00157585" ixy="0.0" ixz="0.0"
-          iyy="0.00773925" iyz="-0.00000013"
-          izz=" 0.00628956"/>
-    </inertial>
-    <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <mesh filename="package://dynarm/meshes/v1/link_support_bridge_module.STL"/>
-      </geometry>
-      <material name="">
-        <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
-      </material>
-    </visual>
-  </link>
-  <joint name="link2_support_joint" type="fixed">
-    <child link="link2_support"/>
-    <parent link="link2_center"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <axis xyz="0 0 0"/>
-  </joint>
+  <xacro:support parent="link1" x="0.2925"/>
+  <xacro:support parent="link2" x="0.2405"/>
 
 </robot>
