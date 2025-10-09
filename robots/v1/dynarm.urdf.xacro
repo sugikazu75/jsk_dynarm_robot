@@ -39,4 +39,47 @@
   <link name="link3_tip">
     <xacro:virtual_inertial/>
   </link>
+
+  <!-- link support metal sheet -->
+  <xacro:macro name="support" params="parent x:=0 y:=0 z:=0">
+    <link name="${parent}_center">
+      <xacro:virtual_inertial/>
+    </link>
+    <joint name="${parent}_center_joint" type="fixed">
+      <child link="${parent}_center"/>
+      <parent link="${parent}"/>
+      <origin xyz="${x} ${y} ${z}" rpy="0 0 0"/>
+      <axis xyz="0 0 0"/>
+    </joint>
+
+    <link name="${parent}_support">
+      <inertial>
+        <origin xyz="0 0 0.11653150"/>
+        <mass value="0.28997581"/>
+        <inertia
+            ixx="0.00157585" ixy="0.0" ixz="0.0"
+            iyy="0.00773925" iyz="-0.00000013"
+            izz=" 0.00628956"/>
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://dynarm/meshes/v1/link_support_bridge_module.STL"/>
+        </geometry>
+        <material name="">
+          <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1"/>
+        </material>
+      </visual>
+    </link>
+    <joint name="${parent}_support_joint" type="fixed">
+      <child link="${parent}_support"/>
+      <parent link="${parent}_center"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <axis xyz="0 0 0"/>
+    </joint>
+  </xacro:macro>
+
+  <xacro:support parent="link1" x="0.2925"/>
+  <xacro:support parent="link2" x="0.2405"/>
+
 </robot>
