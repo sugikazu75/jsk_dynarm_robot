@@ -18,7 +18,19 @@
 
         <!-- dummy mocap -->
         <node pkg="dynarm" type="dummy_mocap_pub.py" name="dummy_mocap_pub" output="screen"/>
-        <!-- <include file="$(find aerial_robot_base)/launch/external_module/mocap.launch" /> -->
+
+        <!-- mocap for root and end effector -->
+        <node pkg="dynarm" type="mocap_transformer.py" name="mocap_transformer" output="screen"/>
+        <group ns="root">
+          <include file="$(find aerial_robot_base)/launch/external_module/mocap.launch" >
+            <arg name="robot_id" value="1"/>
+          </include>
+        </group>
+        <group ns="end_effector">
+          <include file="$(find aerial_robot_base)/launch/external_module/mocap.launch" >
+            <arg name="robot_id" value="2"/>
+          </include>
+        </group>
 
       </group>
     </group>
