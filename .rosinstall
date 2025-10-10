@@ -27,3 +27,8 @@
     local-name: robstride_actuator_bridge
     uri: https://github.com/sugikazu75/robstride_actuator_bridge.git
     version: master
+
+- git:
+    local-name: timed_roslaunch
+    uri: https://github.com/MoriKen254/timed_roslaunch.git
+    version: melodic-devel
