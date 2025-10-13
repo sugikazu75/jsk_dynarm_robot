@@ -19,13 +19,18 @@
         <!-- dummy mocap -->
         <node pkg="dynarm" type="dummy_mocap_pub.py" name="dummy_mocap_pub" output="screen"/>
 
-        <!-- mocap for root and end effector -->
-        <node pkg="dynarm" type="mocap_transformer.py" name="mocap_transformer" output="screen"/>
+        <!-- mocap for additional frames -->
+        <!-- root frame -->
         <group ns="root">
           <include file="$(find aerial_robot_base)/launch/external_module/mocap.launch" >
             <arg name="robot_id" value="1"/>
           </include>
         </group>
+
+        <!-- end effector -->
+        <node pkg="dynarm" type="mocap_transformer.py" name="mocap_transformer" output="screen">
+          <param name="frame_name" value="end_effector"/>
+        </node>
         <group ns="end_effector">
           <include file="$(find timed_roslaunch)/launch/timed_roslaunch.launch">
             <arg name="time" value="2"/>

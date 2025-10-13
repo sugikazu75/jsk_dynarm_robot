@@ -17,18 +17,19 @@ def pose_to_matrix(pose):
 
 class MocapTransformer:
     def __init__(self):
+        self.frame_name = rospy.get_param("~frame_name")
         self.root_mocap_sub = rospy.Subscriber("root/mocap/pose", PoseStamped, self.rootMocapCallback)
-        self.ee_mocap_sub = rospy.Subscriber("end_effector/mocap/pose", PoseStamped, self.endEffectorMocapCallback)
-        self.root_to_ee_pub = rospy.Publisher("root_to_end_effector/pose", PoseStamped, queue_size=10)
+        self.frame_mocap_sub = rospy.Subscriber(self.frame_name + "/mocap/pose", PoseStamped, self.frameMocapCallback)
+        self.root_to_frame_pub = rospy.Publisher("root_to_" + self.frame_name + "/pose", PoseStamped, queue_size=10)
         self.br = tf2_ros.TransformBroadcaster()
         self.node_ns = rospy.get_namespace().strip("/")
 
         self.world_to_root = pose_to_matrix(Pose())
-        self.world_to_ee = pose_to_matrix(Pose())
+        self.world_to_frame = pose_to_matrix(Pose())
         self.received_root = False
-        self.received_ee = False
+        self.received_frame = False
 
-        self.root_to_ee = None
+        self.root_to_frame = None
 
         self.r = rospy.Rate(100)
 
@@ -36,24 +37,23 @@ class MocapTransformer:
         self.world_to_root = msg
         self.received_root = True
 
-    def endEffectorMocapCallback(self, msg):
-        self.world_to_ee = msg
-        self.received_ee = True
+    def frameMocapCallback(self, msg):
+        self.world_to_frame = msg
+        self.received_frame = True
 
     def main(self):
         while not rospy.is_shutdown():
-            if self.received_root and self.received_ee:
+            if self.received_root and self.received_frame:
                 root_matrix = pose_to_matrix(self.world_to_root.pose)
-                ee_matrix = pose_to_matrix(self.world_to_ee.pose)
+                frame_matrix = pose_to_matrix(self.world_to_frame.pose)
 
-                root_to_ee_matrix = np.linalg.inv(root_matrix).dot(ee_matrix)
+                root_to_frame_matrix = np.linalg.inv(root_matrix).dot(frame_matrix)
 
-                translation = root_to_ee_matrix[0:3, 3]
-                rotation = quaternion_from_matrix(root_to_ee_matrix)
+                translation = root_to_frame_matrix[0:3, 3]
+                rotation = quaternion_from_matrix(root_to_frame_matrix)
 
                 msg = PoseStamped()
                 msg.header.stamp = rospy.Time.now()
-                msg.header.frame_id = "root"
                 msg.pose.position.x = translation[0]
                 msg.pose.position.y = translation[1]
                 msg.pose.position.z = translation[2]
@@ -61,12 +61,12 @@ class MocapTransformer:
                 msg.pose.orientation.y = rotation[1]
                 msg.pose.orientation.z = rotation[2]
                 msg.pose.orientation.w = rotation[3]
-                self.root_to_ee_pub.publish(msg)
+                self.root_to_frame_pub.publish(msg)
 
                 tf_msg = TransformStamped()
                 tf_msg.header.stamp = rospy.Time.now()
                 tf_msg.header.frame_id = self.node_ns + "/root"
-                tf_msg.child_frame_id = self.node_ns + "/end_effector"
+                tf_msg.child_frame_id = self.node_ns + "/" + self.frame_name
                 tf_msg.transform.translation.x = translation[0]
                 tf_msg.transform.translation.y = translation[1]
                 tf_msg.transform.translation.z = translation[2]
