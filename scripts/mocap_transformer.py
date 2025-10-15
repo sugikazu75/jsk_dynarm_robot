@@ -26,8 +26,9 @@ class MocapTransformer:
 
         self.world_to_root = pose_to_matrix(Pose())
         self.world_to_frame = pose_to_matrix(Pose())
-        self.received_root = False
-        self.received_frame = False
+        self.last_root_received_time = -1
+        self.last_frame_received_time = -1
+        self.mocap_time_tolerance = 1
 
         self.root_to_frame = None
 
@@ -35,15 +36,22 @@ class MocapTransformer:
 
     def rootMocapCallback(self, msg):
         self.world_to_root = msg
-        self.received_root = True
+        self.last_root_received_time = rospy.Time.now().to_sec()
 
     def frameMocapCallback(self, msg):
         self.world_to_frame = msg
-        self.received_frame = True
+        self.last_frame_received_time = rospy.Time.now().to_sec()
 
     def main(self):
         while not rospy.is_shutdown():
-            if self.received_root and self.received_frame:
+            if (self.last_root_received_time > 0) and (self.last_frame_received_time > 0):
+                if (rospy.Time.now().to_sec() - self.last_root_received_time) > self.mocap_time_tolerance:
+                    rospy.logerr_throttle(1.0, "[%s] root mocap data timeout", self.frame_name)
+                    continue
+                if (rospy.Time.now().to_sec() - self.last_frame_received_time) > self.mocap_time_tolerance:
+                    rospy.logerr_throttle(1.0, "[%s] frame mocap data timeout", self.frame_name)
+                    continue
+
                 root_matrix = pose_to_matrix(self.world_to_root.pose)
                 frame_matrix = pose_to_matrix(self.world_to_frame.pose)
 
