@@ -28,7 +28,7 @@
         </group>
 
         <!-- end effector -->
-        <node pkg="dynarm" type="mocap_transformer.py" name="mocap_transformer" output="screen">
+        <node pkg="dynarm" type="mocap_transformer.py" name="mocap_transformer_ee" output="screen">
           <param name="frame_name" value="end_effector"/>
         </node>
         <group ns="end_effector">
@@ -39,6 +39,45 @@
             <arg name="value" value="robot_id:=2"/>
           </include>
         </group>
+
+        <!-- link1 -->
+        <node pkg="dynarm" type="mocap_transformer.py" name="mocap_transformer_link1" output="screen">
+          <param name="frame_name" value="link1_mocap"/>
+        </node>
+        <group ns="link1_mocap">
+          <include file="$(find timed_roslaunch)/launch/timed_roslaunch.launch">
+            <arg name="time" value="4"/>
+            <arg name="pkg" value="aerial_robot_base"/>
+            <arg name="file" value="mocap.launch"/>
+            <arg name="value" value="robot_id:=3"/>
+          </include>
+        </group>
+
+        <!-- link2 -->
+        <node pkg="dynarm" type="mocap_transformer.py" name="mocap_transformer_link2" output="screen">
+          <param name="frame_name" value="link2_mocap"/>
+        </node>
+        <group ns="link2_mocap">
+          <include file="$(find timed_roslaunch)/launch/timed_roslaunch.launch">
+            <arg name="time" value="6"/>
+            <arg name="pkg" value="aerial_robot_base"/>
+            <arg name="file" value="mocap.launch"/>
+            <arg name="value" value="robot_id:=4"/>
+          </include>
+        </group>
+
+        <!-- <!-\- link3 -\-> -->
+        <!-- <node pkg="dynarm" type="mocap_transformer.py" name="mocap_transformer_link3" output="screen"> -->
+        <!--   <param name="frame_name" value="link3_mocap"/> -->
+        <!-- </node> -->
+        <!-- <group ns="link3_mocap"> -->
+        <!--   <include file="$(find timed_roslaunch)/launch/timed_roslaunch.launch"> -->
+        <!--     <arg name="time" value="8"/> -->
+        <!--     <arg name="pkg" value="aerial_robot_base"/> -->
+        <!--     <arg name="file" value="mocap.launch"/> -->
+        <!--     <arg name="value" value="robot_id:=5"/> -->
+        <!--   </include> -->
+        <!-- </group> -->
 
       </group>
     </group>
