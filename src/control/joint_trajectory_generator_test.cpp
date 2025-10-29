@@ -11,6 +11,7 @@ void aerial_robot_control::jointTrajectoryGenerator::publishDummyJointState()
     int joint_index_v = pinocchio_model_->joints[pinocchio_model_->getJointId(pinocchio_model_->names[i])].idx_v();
     joint_state_msg.name.push_back(pinocchio_model_->names[i]);
     joint_state_msg.position.push_back(curr_target_q_(joint_index_q));
+    joint_state_msg.velocity.push_back(curr_target_dq_(joint_index_v));
     joint_state_msg.effort.push_back(curr_target_tau_(joint_index_v));
   }
   dummy_joint_state_pub_.publish(joint_state_msg);
