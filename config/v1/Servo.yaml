@@ -13,7 +13,8 @@ servo_controller:
 
     # for simulation
     simulation:
-      pid: {p: 400.0, i: 0.0, d: 10.0}
+      # pid: {p: 100.0, i: 0.0, d: 10.0} # fast_traj
+      pid: {p: 400.0, i: 0.0, d: 10.0} # circle_traj
       init_value: 0.0
       type: effort_controllers/JointComputeTorqueController
 
