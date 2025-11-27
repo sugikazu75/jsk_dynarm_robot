@@ -207,7 +207,7 @@ int main(int argc, char** argv)
     std::cout << std::endl;
 
     // publish the robot state
-    Eigen::VectorXd q = xs_init.at(1).head(pinocchio_model->nq);
+    Eigen::VectorXd q = xs_init.at(0).head(pinocchio_model->nq);
     geometry_msgs::TransformStamped robot_base_transform;
     robot_base_transform.header.stamp = ros::Time::now();
     robot_base_transform.header.frame_id = "world";
@@ -219,8 +219,23 @@ int main(int argc, char** argv)
     robot_base_transform.transform.rotation.y = q(4);
     robot_base_transform.transform.rotation.z = q(5);
     robot_base_transform.transform.rotation.w = q(6);
-
     robot_base_broadcaster.sendTransform(robot_base_transform);
+
+    // publish optimized trajectory
+    for (int i = 0; i < xs_init.size(); i++)
+    {
+      robot_base_transform.header.frame_id = "world";
+      robot_base_transform.child_frame_id = tf::resolve(robot_ns, "root") + "_trajectory_" + std::to_string(i);
+      robot_base_transform.transform.translation.x = xs_init[i](0);
+      robot_base_transform.transform.translation.y = xs_init[i](1);
+      robot_base_transform.transform.translation.z = xs_init[i](2);
+      robot_base_transform.transform.rotation.x = xs_init[i](3);
+      robot_base_transform.transform.rotation.y = xs_init[i](4);
+      robot_base_transform.transform.rotation.z = xs_init[i](5);
+      robot_base_transform.transform.rotation.w = xs_init[i](6);
+
+      robot_base_broadcaster.sendTransform(robot_base_transform);
+    }
 
     sensor_msgs::JointState joint_state_msg;
     joint_state_msg.header.stamp = ros::Time::now();
