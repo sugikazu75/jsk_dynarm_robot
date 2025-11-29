@@ -19,6 +19,7 @@
 #include <crocoddyl/core/state-base.hpp>
 #include <crocoddyl/core/utils/timer.hpp>
 #include <crocoddyl/multibody/actions/free-fwddyn.hpp>
+#include <crocoddyl/multibody/actions/free-thrust-fwddyn.hpp>
 #include <crocoddyl/multibody/actions/free-invdyn.hpp>
 #include <crocoddyl/multibody/actuations/floating-base.hpp>
 #include <crocoddyl/multibody/actuations/floating-base-thrusters.hpp>
@@ -47,8 +48,8 @@ public:
     int num_threads = 1;
   };
 
-  DDPHoveringProblem(std::shared_ptr<pinocchio::Model> pinocchio_model, const CostWeight& cost_weight,
-                     const OptimizationParam& optimization_param);
+  DDPHoveringProblem(std::shared_ptr<pinocchio::Model> pinocchio_model, std::vector<crocoddyl::Rotor> rotors,
+                     bool fwddyn, const CostWeight& cost_weight, const OptimizationParam& optimization_param);
   ~DDPHoveringProblem(){};
 
   std::shared_ptr<crocoddyl::ActionModelAbstract> createActionModel(Eigen::VectorXd x0, Eigen::VectorXd xref);
@@ -62,6 +63,8 @@ protected:
   std::shared_ptr<pinocchio::Model> pinocchio_model_;
   std::shared_ptr<pinocchio::Data> pinocchio_data_;
   std::shared_ptr<crocoddyl::StateMultibody> state_;
-  std::shared_ptr<crocoddyl::ActuationModelFloatingBase> actuation_;
+  std::shared_ptr<crocoddyl::ActuationModelAbstract> actuation_;
+  std::vector<crocoddyl::Rotor> rotors_;
+  bool fwddyn_;
   int nu_;
 };

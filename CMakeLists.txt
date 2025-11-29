@@ -119,21 +119,21 @@ target_link_libraries(ddp_hovering_problem_test
   ${OsqpEigen_LIBRARIES}
   )
 
-add_library(dynarm_controllib
-  src/control/fullbody_flight_controller.cpp
-  src/control/manipulator_controller.cpp
-  src/control/full_vectoring_pid_control.cpp)
-target_link_libraries(dynarm_controllib
-  ddp_hovering_problem
-  joint_trajectory_generator
-  manipulator_model
-  nonlinear_inverse_dynamics
-  trajectory_generator
-  ${catkin_LIBRARIES}
-  pinocchio::pinocchio
-  ${Eigen3_LIBRARIES}
-  ${OsqpEigen_LIBRARIES}
-  )
+# add_library(dynarm_controllib
+#   src/control/fullbody_flight_controller.cpp
+#   src/control/manipulator_controller.cpp
+#   src/control/full_vectoring_pid_control.cpp)
+# target_link_libraries(dynarm_controllib
+#   ddp_hovering_problem
+#   joint_trajectory_generator
+#   manipulator_model
+#   nonlinear_inverse_dynamics
+#   trajectory_generator
+#   ${catkin_LIBRARIES}
+#   pinocchio::pinocchio
+#   ${Eigen3_LIBRARIES}
+#   ${OsqpEigen_LIBRARIES}
+#   )
 
 add_executable(robstride_bridge
   src/utils/robstride_bridge.cpp)

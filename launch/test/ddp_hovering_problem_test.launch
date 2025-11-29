@@ -5,11 +5,11 @@
   <arg name="headless" default="true"/>
 
   <group ns="$(arg robot_ns)">
-    <node pkg="dynarm" type="ddp_hovering_problem_test" name="ddp_hovering_problem_test" output="screen">
+    <node pkg="dynarm" type="ddp_hovering_problem_test" name="ddp_hovering_problem_test" output="screen" launch-prefix="gdb -ex run --args">
       <param name="num_threads" value="4"/>
       <param name="horizon" value="1.0"/>
       <param name="dt" value="0.05"/>
-      <param name="fwddyn" value="false"/>
+      <param name="fwddyn" value="true"/>
       <param name="max_iter" value="1000"/>
       <param name="add_noise" value="true"/>
 
