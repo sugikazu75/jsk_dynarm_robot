@@ -3,15 +3,16 @@
   <arg name="version" default="v2"/>
   <arg name="robot_ns" default="dynarm"/>
   <arg name="headless" default="true"/>
+  <arg name="fwddyn" default="false"/>
 
   <group ns="$(arg robot_ns)">
-    <node pkg="dynarm" type="ddp_hovering_problem_test" name="ddp_hovering_problem_test" output="screen" launch-prefix="gdb -ex run --args">
+    <node pkg="dynarm" type="ddp_hovering_problem_test" name="ddp_hovering_problem_test" output="screen">
       <param name="num_threads" value="4"/>
       <param name="horizon" value="1.0"/>
       <param name="dt" value="0.05"/>
-      <param name="fwddyn" value="true"/>
+      <param name="fwddyn" value="$(arg fwddyn)"/>
       <param name="max_iter" value="1000"/>
-      <param name="add_noise" value="true"/>
+      <param name="noise" value="0.005"/>
 
       <!-- weights of cost for running model  -->
       <param name="state_weight" value="1"/>

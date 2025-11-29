@@ -215,14 +215,14 @@ int main(int argc, char** argv)
   std::vector<Eigen::VectorXd> us_init = solver->get_problem()->quasiStatic_xs(xs_init);
   xs_init.push_back(x0);
 
-  bool add_noise = false;
-  nhp.getParam("add_noise", add_noise);
+  double noise = 0;
+  nhp.getParam("noise", noise);
 
   ros::Rate rate((int)(1.0 / hovering.optimization_param_.dt));
   while (ros::ok())
   {
     crocoddyl::Timer timer;
-    solver->solve(xs_init, us_init);
+    solver->solve(xs_init, us_init, hovering.optimization_param_.max_iter);
     double time = timer.get_duration();
     std::cout << "total calculation time: " << time << "[ms]" << std::endl;
     std::cout << "Number of iterations: " << solver->get_iter() << std::endl;
@@ -234,10 +234,10 @@ int main(int argc, char** argv)
     us_init = solver->get_us();
 
     Eigen::VectorXd next_x = xs_init.at(1);
-    if (add_noise)
+    if (noise > 0)
     {
-      Eigen::VectorXd noise_dq = Eigen::VectorXd::Random(pinocchio_model->nv) * 0.005;
-      Eigen::VectorXd noise_v = Eigen::VectorXd::Random(pinocchio_model->nv) * 0.005;
+      Eigen::VectorXd noise_dq = Eigen::VectorXd::Random(pinocchio_model->nv) * noise;
+      Eigen::VectorXd noise_v = Eigen::VectorXd::Random(pinocchio_model->nv) * noise;
       next_x.head(pinocchio_model->nq) =
           pinocchio::integrate(*pinocchio_model, next_x.head(pinocchio_model->nq), noise_dq);
       next_x.tail(pinocchio_model->nv) += noise_v;
