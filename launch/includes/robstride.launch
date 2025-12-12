@@ -6,7 +6,9 @@
 
     <rosparam file="$(find dynarm)/config/$(arg version)/Robstride.yaml" command="load"/>
 
-    <include file="$(find robstride_actuator_bridge)/launch/motor_test.launch"/>
+    <include file="$(find robstride_actuator_bridge)/launch/motor_test.launch">
+      <arg name="loop_rate" value="600"/>
+    </include>
 
     <node pkg="dynarm" type="robstride_bridge" name="robstride_bridge"/>
 
