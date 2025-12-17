@@ -24,7 +24,7 @@
     <param name="estimation/mode" value= "$(arg estimate_mode)" if="$(arg real_machine)"/>
 
     ###########  Motor Config  ###########
-    <rosparam file="$(find dynarm)/config/$(arg version)/MotorInfo.yaml" command="load" />
+    <rosparam file="$(find dynarm)/config/$(arg version)/MotorInfo_duct.yaml" command="load" />
 
     ###########  Servo Config  ###########
     <rosparam file="$(find dynarm)/config/$(arg version)/Servo.yaml" command="load" if="$(eval arg('simulation') and not arg('real_machine'))"/>
