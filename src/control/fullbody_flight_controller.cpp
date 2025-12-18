@@ -47,8 +47,10 @@ void FullbodyFlightController::initialize(ros::NodeHandle nh, ros::NodeHandle nh
 
   joint_state_sub_ = nh_.subscribe("joint_states", 1, &FullbodyFlightController::jointStateCallback, this);
 
-  nonlinear_inverse_dynamics_solver_ =
-      std::make_shared<aerial_robot_model::NonlinearInverseDynamics>(nh, pinocchio_robot_model_);
+  // nonlinear inverse dynamics solver
+  nonlinear_inverse_dynamics_solver_ros_ =
+      std::make_shared<aerial_robot_model::NonlinearInverseDynamicsRos>(nh, pinocchio_robot_model_);
+  nonlinear_inverse_dynamics_solver_ = nonlinear_inverse_dynamics_solver_ros_->getNonlinearInverseDynamicsSolver();
 
   control_input_ = Eigen::VectorXd::Zero(pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() +
                                          nonlinear_inverse_dynamics_solver_->getGimbalNames().size());
@@ -441,7 +443,7 @@ void FullbodyFlightController::publish()
   ddp_iteration_pub_.publish(ddp_iteration_msg);
 
   // publish nonlinear inverse dynamics solver info
-  nonlinear_inverse_dynamics_solver_->publish();
+  nonlinear_inverse_dynamics_solver_ros_->publish();
 }
 
 void FullbodyFlightController::sendFourAxisCommand()
