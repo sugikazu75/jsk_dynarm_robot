@@ -15,11 +15,11 @@
 
 namespace aerial_robot_control
 {
-class jointTrajectoryGenerator
+class JointTrajectoryGenerator
 {
 public:
-  jointTrajectoryGenerator(std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model);
-  virtual ~jointTrajectoryGenerator() = default;
+  JointTrajectoryGenerator(std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model);
+  virtual ~JointTrajectoryGenerator() = default;
 
   void update();
   Eigen::VectorXd getGimbalNominalAngles(Eigen::VectorXd q);
@@ -181,14 +181,14 @@ private:
   void loadGimbalNames();
 };
 
-class jointTrajectoryGeneratorRos
+class JointTrajectoryGeneratorRos
 {
 public:
-  jointTrajectoryGeneratorRos(ros::NodeHandle nh,
+  JointTrajectoryGeneratorRos(ros::NodeHandle nh,
                               std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model);
-  virtual ~jointTrajectoryGeneratorRos() = default;
+  virtual ~JointTrajectoryGeneratorRos() = default;
 
-  std::shared_ptr<jointTrajectoryGenerator> getJointTrajectoryGenerator()
+  std::shared_ptr<JointTrajectoryGenerator> getJointTrajectoryGenerator()
   {
     return joint_trajectory_generator_;
   }
@@ -210,7 +210,7 @@ private:
   ros::Subscriber direct_joint_angle_sub_;             // to receive direct joint angle command
   ros::Subscriber joy_sub_;                            // to receive joy command
 
-  std::shared_ptr<jointTrajectoryGenerator> joint_trajectory_generator_;
+  std::shared_ptr<JointTrajectoryGenerator> joint_trajectory_generator_;
 
   void rosParamInit();
 

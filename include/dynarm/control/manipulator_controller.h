@@ -52,8 +52,8 @@ private:
   std::shared_ptr<pinocchio::Model> pinocchio_model_;
   std::shared_ptr<pinocchio::Data> pinocchio_data_;
 
-  std::shared_ptr<jointTrajectoryGeneratorRos> joint_trajectory_generator_ros_;
-  std::shared_ptr<jointTrajectoryGenerator> joint_trajectory_generator_;
+  std::shared_ptr<JointTrajectoryGeneratorRos> joint_trajectory_generator_ros_;
+  std::shared_ptr<JointTrajectoryGenerator> joint_trajectory_generator_;
 
   std::shared_ptr<aerial_robot_model::NonlinearInverseDynamicsRos> nonlinear_inverse_dynamics_solver_ros_;
   std::shared_ptr<aerial_robot_model::NonlinearInverseDynamics> nonlinear_inverse_dynamics_solver_;

@@ -19,7 +19,7 @@ void ManipulatorController::initialize(ros::NodeHandle nh, ros::NodeHandle nhp,
   pinocchio_model_ = pinocchio_robot_model_->getModel();
   pinocchio_data_ = pinocchio_robot_model_->getData();
 
-  joint_trajectory_generator_ros_ = std::make_shared<jointTrajectoryGeneratorRos>(nh_, pinocchio_robot_model_);
+  joint_trajectory_generator_ros_ = std::make_shared<JointTrajectoryGeneratorRos>(nh_, pinocchio_robot_model_);
   joint_trajectory_generator_ = joint_trajectory_generator_ros_->getJointTrajectoryGenerator();
 
   nonlinear_inverse_dynamics_solver_ros_ =

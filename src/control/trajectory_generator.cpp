@@ -4,7 +4,7 @@ using namespace aerial_robot_control;
 
 TrajectoryGenerator::TrajectoryGenerator(
     std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model,
-    std::shared_ptr<aerial_robot_control::jointTrajectoryGenerator> joint_trajectory_generator,
+    std::shared_ptr<aerial_robot_control::JointTrajectoryGenerator> joint_trajectory_generator,
     std::shared_ptr<aerial_robot_model::NonlinearInverseDynamics> nonlinear_inverse_dynamics_solver)
   : pinocchio_robot_model_(pinocchio_robot_model)
   , joint_trajectory_generator_(joint_trajectory_generator)
@@ -93,13 +93,13 @@ bool TrajectoryGenerator::solveInverseDynamics(Eigen::VectorXd q, Eigen::VectorX
 
 TrajectoryGeneratorRos::TrajectoryGeneratorRos(
     ros::NodeHandle nh, std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model,
-    std::shared_ptr<aerial_robot_control::jointTrajectoryGeneratorRos> joint_trajectory_generator_ros,
+    std::shared_ptr<aerial_robot_control::JointTrajectoryGeneratorRos> joint_trajectory_generator_ros,
     std::shared_ptr<aerial_robot_model::NonlinearInverseDynamicsRos> nonlinear_inverse_dynamics_solver_ros)
   : nh_(nh)
   , joint_trajectory_generator_ros_(joint_trajectory_generator_ros)
   , nonlinear_inverse_dynamics_solver_ros_(nonlinear_inverse_dynamics_solver_ros)
 {
-  std::shared_ptr<aerial_robot_control::jointTrajectoryGenerator> joint_trajectory_generator =
+  std::shared_ptr<aerial_robot_control::JointTrajectoryGenerator> joint_trajectory_generator =
       joint_trajectory_generator_ros->getJointTrajectoryGenerator();
   std::shared_ptr<aerial_robot_model::NonlinearInverseDynamics> nonlinear_inverse_dynamics_solver =
       nonlinear_inverse_dynamics_solver_ros->getNonlinearInverseDynamicsSolver();
@@ -283,8 +283,8 @@ int main(int argc, char** argv)
   std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model =
       std::make_shared<aerial_robot_dynamics::PinocchioRobotModel>(is_floating_base);
 
-  std::shared_ptr<aerial_robot_control::jointTrajectoryGeneratorRos> joint_trajectory_generator_ros =
-      std::make_shared<aerial_robot_control::jointTrajectoryGeneratorRos>(nh, pinocchio_robot_model);
+  std::shared_ptr<aerial_robot_control::JointTrajectoryGeneratorRos> joint_trajectory_generator_ros =
+      std::make_shared<aerial_robot_control::JointTrajectoryGeneratorRos>(nh, pinocchio_robot_model);
   std::shared_ptr<aerial_robot_model::NonlinearInverseDynamicsRos> nonlinear_inverse_dynamics_solver_ros =
       std::make_shared<aerial_robot_model::NonlinearInverseDynamicsRos>(nh, pinocchio_robot_model);
 

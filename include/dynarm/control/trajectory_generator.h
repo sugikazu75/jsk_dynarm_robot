@@ -18,7 +18,7 @@ class TrajectoryGenerator
 {
 public:
   TrajectoryGenerator(std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model,
-                      std::shared_ptr<aerial_robot_control::jointTrajectoryGenerator> joint_trajectory_generator,
+                      std::shared_ptr<aerial_robot_control::JointTrajectoryGenerator> joint_trajectory_generator,
                       std::shared_ptr<aerial_robot_model::NonlinearInverseDynamics> nonlinear_inverse_dynamics_solver);
   ~TrajectoryGenerator() = default;
 
@@ -35,7 +35,7 @@ public:
     return pinocchio_data_;
   }
 
-  std::shared_ptr<aerial_robot_control::jointTrajectoryGenerator> getJointTrajectoryGenerator()
+  std::shared_ptr<aerial_robot_control::JointTrajectoryGenerator> getJointTrajectoryGenerator()
   {
     return joint_trajectory_generator_;
   }
@@ -81,7 +81,7 @@ private:
   std::shared_ptr<pinocchio::Model> pinocchio_model_;
   std::shared_ptr<pinocchio::Data> pinocchio_data_;
 
-  std::shared_ptr<aerial_robot_control::jointTrajectoryGenerator> joint_trajectory_generator_;
+  std::shared_ptr<aerial_robot_control::JointTrajectoryGenerator> joint_trajectory_generator_;
   std::shared_ptr<aerial_robot_model::NonlinearInverseDynamics> nonlinear_inverse_dynamics_solver_;
 
   std::vector<std::string> gimbal_names_;
@@ -99,7 +99,7 @@ class TrajectoryGeneratorRos
 public:
   TrajectoryGeneratorRos(
       ros::NodeHandle nh, std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model,
-      std::shared_ptr<aerial_robot_control::jointTrajectoryGeneratorRos> joint_trajectory_generator_ros,
+      std::shared_ptr<aerial_robot_control::JointTrajectoryGeneratorRos> joint_trajectory_generator_ros,
       std::shared_ptr<aerial_robot_model::NonlinearInverseDynamicsRos> nonlinear_inverse_dynamics_solver_ros);
   virtual ~TrajectoryGeneratorRos() = default;
 
@@ -124,7 +124,7 @@ private:
 
   std::shared_ptr<TrajectoryGenerator> trajectory_generator_;
 
-  std::shared_ptr<aerial_robot_control::jointTrajectoryGeneratorRos> joint_trajectory_generator_ros_;
+  std::shared_ptr<aerial_robot_control::JointTrajectoryGeneratorRos> joint_trajectory_generator_ros_;
   std::shared_ptr<aerial_robot_model::NonlinearInverseDynamicsRos> nonlinear_inverse_dynamics_solver_ros_;
 
   // debug

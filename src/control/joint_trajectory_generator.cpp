@@ -4,7 +4,7 @@
 
 using namespace aerial_robot_control;
 
-jointTrajectoryGenerator::jointTrajectoryGenerator(
+JointTrajectoryGenerator::JointTrajectoryGenerator(
     std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model)
   : pinocchio_robot_model_(pinocchio_robot_model)
 {
@@ -26,7 +26,7 @@ jointTrajectoryGenerator::jointTrajectoryGenerator(
   target_ee_acc_ = Eigen::Vector3d::Zero();
 }
 
-void jointTrajectoryGenerator::loadJointNames()
+void JointTrajectoryGenerator::loadJointNames()
 {
   joint_names_.clear();
   for (int i = 0; i < pinocchio_model_->njoints; i++)
@@ -39,7 +39,7 @@ void jointTrajectoryGenerator::loadJointNames()
   }
 }
 
-void jointTrajectoryGenerator::loadGimbalNames()
+void JointTrajectoryGenerator::loadGimbalNames()
 {
   gimbal_names_.clear();
   for (int i = 0; i < pinocchio_model_->njoints; i++)
@@ -52,7 +52,7 @@ void jointTrajectoryGenerator::loadGimbalNames()
   }
 }
 
-void jointTrajectoryGenerator::reset()
+void JointTrajectoryGenerator::reset()
 {
   // set private variables to initial smooth deformation
   is_transforming_ = 3;
@@ -66,14 +66,14 @@ void jointTrajectoryGenerator::reset()
   curr_target_ddq_ = Eigen::VectorXd::Zero(pinocchio_model_->nv);
 }
 
-void jointTrajectoryGenerator::update()
+void JointTrajectoryGenerator::update()
 {
   generateEndEffectorTrajectory();
   generateJointTrajectory();
   stateTransition();
 }
 
-Eigen::VectorXd jointTrajectoryGenerator::getGimbalNominalAngles(Eigen::VectorXd q)
+Eigen::VectorXd JointTrajectoryGenerator::getGimbalNominalAngles(Eigen::VectorXd q)
 {
   pinocchio::framesForwardKinematics(*pinocchio_model_, *pinocchio_data_, q);
 
@@ -98,7 +98,7 @@ Eigen::VectorXd jointTrajectoryGenerator::getGimbalNominalAngles(Eigen::VectorXd
   return gimbal_processed_q;
 }
 
-void jointTrajectoryGenerator::generateEndEffectorTrajectory()
+void JointTrajectoryGenerator::generateEndEffectorTrajectory()
 {
   switch (is_transforming_)
   {
@@ -152,7 +152,7 @@ void jointTrajectoryGenerator::generateEndEffectorTrajectory()
   }
 }
 
-void jointTrajectoryGenerator::generateJointTrajectory()
+void JointTrajectoryGenerator::generateJointTrajectory()
 {
   if (is_transforming_ == 0)
   {
@@ -228,7 +228,7 @@ void jointTrajectoryGenerator::generateJointTrajectory()
   }
 }
 
-void jointTrajectoryGenerator::stateTransition()
+void JointTrajectoryGenerator::stateTransition()
 {
   switch (is_transforming_)
   {
@@ -263,11 +263,11 @@ void jointTrajectoryGenerator::stateTransition()
   }
 }
 
-jointTrajectoryGeneratorRos::jointTrajectoryGeneratorRos(
+JointTrajectoryGeneratorRos::JointTrajectoryGeneratorRos(
     ros::NodeHandle nh, std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model)
   : nh_(nh)
 {
-  joint_trajectory_generator_ = std::make_shared<jointTrajectoryGenerator>(pinocchio_robot_model);
+  joint_trajectory_generator_ = std::make_shared<JointTrajectoryGenerator>(pinocchio_robot_model);
 
   is_transforming_pub_ = nh_.advertise<std_msgs::UInt8>("debug/is_transforming", 1);
   target_q_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/target_q", 1);
@@ -277,19 +277,19 @@ jointTrajectoryGeneratorRos::jointTrajectoryGeneratorRos(
   target_end_effector_vel_pub_ = nh_.advertise<geometry_msgs::Vector3>("debug/target_ee_vel", 1);
   target_end_effector_acc_pub_ = nh_.advertise<geometry_msgs::Vector3>("debug/target_ee_acc", 1);
 
-  joint_state_sub_ = nh_.subscribe("joint_states", 1, &jointTrajectoryGeneratorRos::jointStateCallback, this);
+  joint_state_sub_ = nh_.subscribe("joint_states", 1, &JointTrajectoryGeneratorRos::jointStateCallback, this);
   target_end_effector_final_pos_sub_ =
-      nh_.subscribe("target_ee_final_pos", 1, &jointTrajectoryGeneratorRos::targetEndEffectorPosCallback, this);
+      nh_.subscribe("target_ee_final_pos", 1, &JointTrajectoryGeneratorRos::targetEndEffectorPosCallback, this);
   circle_trajectory_sub_ =
-      nh_.subscribe("circle_trajectory", 1, &jointTrajectoryGeneratorRos::circleTrajectoryCallback, this);
+      nh_.subscribe("circle_trajectory", 1, &JointTrajectoryGeneratorRos::circleTrajectoryCallback, this);
   direct_joint_angle_sub_ =
-      nh_.subscribe("direct_joint_angle", 1, &jointTrajectoryGeneratorRos::directJointAngleCallback, this);
-  joy_sub_ = nh_.subscribe("joy", 1, &jointTrajectoryGeneratorRos::joyCallback, this);
+      nh_.subscribe("direct_joint_angle", 1, &JointTrajectoryGeneratorRos::directJointAngleCallback, this);
+  joy_sub_ = nh_.subscribe("joy", 1, &JointTrajectoryGeneratorRos::joyCallback, this);
 
   rosParamInit();
 }
 
-void jointTrajectoryGeneratorRos::rosParamInit()
+void JointTrajectoryGeneratorRos::rosParamInit()
 {
   ros::NodeHandle model_nh(nh_, "model");
   ros::NodeHandle control_nh(nh_, "controller");
@@ -357,7 +357,7 @@ void jointTrajectoryGeneratorRos::rosParamInit()
   }
 }
 
-void jointTrajectoryGeneratorRos::publish()
+void JointTrajectoryGeneratorRos::publish()
 {
   // for debug: send target q, dq, and ddq
   sensor_msgs::JointState target_q_msg;
@@ -425,7 +425,7 @@ void jointTrajectoryGeneratorRos::publish()
   is_transforming_pub_.publish(is_transforming_msg);
 }
 
-void jointTrajectoryGeneratorRos::jointStateCallback(const sensor_msgs::JointState msg)
+void JointTrajectoryGeneratorRos::jointStateCallback(const sensor_msgs::JointState msg)
 {
   for (int i = 0; i < msg.name.size(); i++)
   {
@@ -450,7 +450,7 @@ void jointTrajectoryGeneratorRos::jointStateCallback(const sensor_msgs::JointSta
   }
 }
 
-void jointTrajectoryGeneratorRos::targetEndEffectorPosCallback(const geometry_msgs::Vector3StampedConstPtr& msg)
+void JointTrajectoryGeneratorRos::targetEndEffectorPosCallback(const geometry_msgs::Vector3StampedConstPtr& msg)
 {
   pinocchio::FrameIndex frame_id =
       joint_trajectory_generator_->getPinocchioModel()->getFrameId(joint_trajectory_generator_->end_effector_name_);
@@ -477,7 +477,7 @@ void jointTrajectoryGeneratorRos::targetEndEffectorPosCallback(const geometry_ms
   joint_trajectory_generator_->transform_start_time_ = ros::Time::now().toSec();
 }
 
-void jointTrajectoryGeneratorRos::circleTrajectoryCallback(const std_msgs::Float32MultiArrayConstPtr& msg)
+void JointTrajectoryGeneratorRos::circleTrajectoryCallback(const std_msgs::Float32MultiArrayConstPtr& msg)
 {
   if (msg->data.size() != 2)
   {
@@ -510,7 +510,7 @@ void jointTrajectoryGeneratorRos::circleTrajectoryCallback(const std_msgs::Float
   joint_trajectory_generator_->transform_start_time_ = ros::Time::now().toSec();
 }
 
-void jointTrajectoryGeneratorRos::directJointAngleCallback(const sensor_msgs::JointStateConstPtr& msg)
+void JointTrajectoryGeneratorRos::directJointAngleCallback(const sensor_msgs::JointStateConstPtr& msg)
 {
   if (msg->name.size() != msg->position.size())
   {
@@ -546,7 +546,7 @@ void jointTrajectoryGeneratorRos::directJointAngleCallback(const sensor_msgs::Jo
   joint_trajectory_generator_->transform_start_time_ = ros::Time::now().toSec();
 }
 
-void jointTrajectoryGeneratorRos::joyCallback(const sensor_msgs::JoyConstPtr& msg)
+void JointTrajectoryGeneratorRos::joyCallback(const sensor_msgs::JoyConstPtr& msg)
 {
   sensor_msgs::Joy joy_cmd = joyParse(*msg);
   joint_trajectory_generator_->joy_msg_ = joy_cmd;
