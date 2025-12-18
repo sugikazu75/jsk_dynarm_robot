@@ -4,9 +4,9 @@
 
 using namespace aerial_robot_control;
 
-jointTrajectoryGenerator::jointTrajectoryGenerator(
-    ros::NodeHandle nh, std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model)
-  : nh_(nh), pinocchio_robot_model_(pinocchio_robot_model)
+JointTrajectoryGenerator::JointTrajectoryGenerator(
+    std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model)
+  : pinocchio_robot_model_(pinocchio_robot_model)
 {
   pinocchio_model_ = pinocchio_robot_model_->getModel();
   pinocchio_data_ = pinocchio_robot_model_->getData();
@@ -14,92 +14,19 @@ jointTrajectoryGenerator::jointTrajectoryGenerator(
   loadJointNames();
   loadGimbalNames();
 
-  rosParamInit();
-
-  is_transforming_pub_ = nh_.advertise<std_msgs::UInt8>("debug/is_transforming", 1);
-  target_q_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/target_q", 1);
-  target_dq_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/target_dq", 1);
-  target_ddq_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/target_ddq", 1);
-  target_end_effector_pos_pub_ = nh_.advertise<geometry_msgs::Vector3>("debug/target_ee_pos", 1);
-  target_end_effector_vel_pub_ = nh_.advertise<geometry_msgs::Vector3>("debug/target_ee_vel", 1);
-  target_end_effector_acc_pub_ = nh_.advertise<geometry_msgs::Vector3>("debug/target_ee_acc", 1);
-  dummy_joint_state_pub_ = nh_.advertise<sensor_msgs::JointState>("joint_states", 10);
-
-  joint_state_sub_ = nh_.subscribe("joint_states", 1, &jointTrajectoryGenerator::jointStateCallback, this);
-  target_end_effector_final_pos_sub_ =
-      nh_.subscribe("target_ee_final_pos", 1, &jointTrajectoryGenerator::targetEndEffectorPosCallback, this);
-  circle_trajectory_sub_ =
-      nh_.subscribe("circle_trajectory", 1, &jointTrajectoryGenerator::circleTrajectoryCallback, this);
-  direct_joint_angle_sub_ =
-      nh_.subscribe("direct_joint_angle", 1, &jointTrajectoryGenerator::directJointAngleCallback, this);
-  joy_sub_ = nh_.subscribe("joy", 1, &jointTrajectoryGenerator::joyCallback, this);
-
   curr_q_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nq);
   curr_dq_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv);
+
   curr_target_q_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nq);
   curr_target_dq_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv);
   curr_target_ddq_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv);
 
-  // joint angle in reset pose
-  std::vector<double> init_target_q;
-  ros::NodeHandle control_nh(nh_, "controller");
-  control_nh.getParam("init_target_q", init_target_q);
-  if (init_target_q.size() != pinocchio_model_->nq)
-    ROS_ERROR_STREAM("[dragon_arm] nq: " << pinocchio_model_->nq << " and initial joint angle size: "
-                                         << init_target_q.size() << " in ros parameter is not same");
-  reset_target_q_.resize(pinocchio_model_->nq);
-  for (int i = 0; i < pinocchio_model_->nq; i++)
-  {
-    reset_target_q_(i) = init_target_q.at(i);
-  }
-  ROS_INFO_STREAM("[dragon_arm][control] initial target joint angle: " << reset_target_q_.transpose());
-  curr_target_q_ = getGimbalNominalAngles(reset_target_q_);
-
-  // initialize target end-effector position, velocity, and acceleration
-  pinocchio::framesForwardKinematics(*pinocchio_model_, *pinocchio_data_, curr_target_q_);
-  pinocchio::FrameIndex frame_id = pinocchio_model_->getFrameId(end_effector_name_);
-  target_ee_pos_ = pinocchio_data_->oMf[frame_id].translation();
-  target_ee_vel_.setZero();
-  target_ee_acc_.setZero();
+  target_ee_pos_ = Eigen::Vector3d::Zero();
+  target_ee_vel_ = Eigen::Vector3d::Zero();
+  target_ee_acc_ = Eigen::Vector3d::Zero();
 }
 
-void jointTrajectoryGenerator::rosParamInit()
-{
-  ros::NodeHandle model_nh(nh_, "model");
-  getParam<int>(model_nh, "rotor_devider", rotor_devider_, 1);
-
-  ros::NodeHandle control_nh(nh_, "controller");
-  getParam<std::string>(control_nh, "end_effector_name", end_effector_name_, "");
-  getParam<double>(control_nh, "transform_duration", transform_duration_, 1.0);
-  if (!control_nh.getParam("ctrl_loop_du", ctrl_loop_du_))
-  {
-    ROS_ERROR_STREAM("[dynarm][joint_trajectory_generator] Failed to get ctrl_loop_du from ros parameter server");
-  }
-
-  double ctm_gain;
-  getParam<double>(control_nh, "ctm_p_gain", ctm_gain, 1.0);
-  ctm_p_gain_ =
-      Eigen::MatrixXd::Identity(pinocchio_robot_model_->getModel()->nv, pinocchio_robot_model_->getModel()->nv);
-  ctm_p_gain_ *= ctm_gain;
-
-  getParam<bool>(control_nh, "quasi_static_mode", quasi_static_mode_, false);
-  getParam<double>(control_nh, "ctm_d_gain", ctm_gain, 1.0);
-  if (quasi_static_mode_)
-    ctm_gain = 0.0;  // set d gain to zero in quasi-static mode
-  ctm_d_gain_ =
-      Eigen::MatrixXd::Identity(pinocchio_robot_model_->getModel()->nv, pinocchio_robot_model_->getModel()->nv);
-  ctm_d_gain_ *= ctm_gain;
-
-  // set feedback gains for gimbal to zero
-  for (int i = 0; i < gimbal_names_.size(); i++)
-  {
-    int gimbal_index_v = pinocchio_model_->joints[pinocchio_model_->getJointId(gimbal_names_.at(i))].idx_v();
-    ctm_p_gain_(gimbal_index_v, gimbal_index_v) = 0.0;
-    ctm_d_gain_(gimbal_index_v, gimbal_index_v) = 0.0;
-  }
-}
-
-void jointTrajectoryGenerator::loadJointNames()
+void JointTrajectoryGenerator::loadJointNames()
 {
   joint_names_.clear();
   for (int i = 0; i < pinocchio_model_->njoints; i++)
@@ -112,7 +39,7 @@ void jointTrajectoryGenerator::loadJointNames()
   }
 }
 
-void jointTrajectoryGenerator::loadGimbalNames()
+void JointTrajectoryGenerator::loadGimbalNames()
 {
   gimbal_names_.clear();
   for (int i = 0; i < pinocchio_model_->njoints; i++)
@@ -125,7 +52,7 @@ void jointTrajectoryGenerator::loadGimbalNames()
   }
 }
 
-void jointTrajectoryGenerator::reset()
+void JointTrajectoryGenerator::reset()
 {
   // set private variables to initial smooth deformation
   is_transforming_ = 3;
@@ -139,14 +66,14 @@ void jointTrajectoryGenerator::reset()
   curr_target_ddq_ = Eigen::VectorXd::Zero(pinocchio_model_->nv);
 }
 
-void jointTrajectoryGenerator::update()
+void JointTrajectoryGenerator::update()
 {
   generateEndEffectorTrajectory();
   generateJointTrajectory();
   stateTransition();
 }
 
-Eigen::VectorXd jointTrajectoryGenerator::getGimbalNominalAngles(Eigen::VectorXd q)
+Eigen::VectorXd JointTrajectoryGenerator::getGimbalNominalAngles(Eigen::VectorXd q)
 {
   pinocchio::framesForwardKinematics(*pinocchio_model_, *pinocchio_data_, q);
 
@@ -171,7 +98,7 @@ Eigen::VectorXd jointTrajectoryGenerator::getGimbalNominalAngles(Eigen::VectorXd
   return gimbal_processed_q;
 }
 
-void jointTrajectoryGenerator::generateEndEffectorTrajectory()
+void JointTrajectoryGenerator::generateEndEffectorTrajectory()
 {
   switch (is_transforming_)
   {
@@ -220,12 +147,12 @@ void jointTrajectoryGenerator::generateEndEffectorTrajectory()
       break;
     }
     default:
-      ROS_ERROR_STREAM("[dragon_arm][control] is_transforming_ is not valid: " << is_transforming_);
+      ROS_ERROR_STREAM("[JointTrajectoryGenerator] is_transforming_ is not valid: " << is_transforming_);
       break;
   }
 }
 
-void jointTrajectoryGenerator::generateJointTrajectory()
+void JointTrajectoryGenerator::generateJointTrajectory()
 {
   if (is_transforming_ == 0)
   {
@@ -242,7 +169,7 @@ void jointTrajectoryGenerator::generateJointTrajectory()
     if (!solved)
     {
       ROS_ERROR_STREAM(
-          "[dragon_arm][control] IK solution not found for target position: " << target_ee_pos_.transpose());
+          "[JointTrajectoryGenerator] IK solution not found for target position: " << target_ee_pos_.transpose());
     }
 
     pinocchio::FrameIndex frame_id = pinocchio_model_->getFrameId(end_effector_name_);
@@ -301,7 +228,7 @@ void jointTrajectoryGenerator::generateJointTrajectory()
   }
 }
 
-void jointTrajectoryGenerator::stateTransition()
+void JointTrajectoryGenerator::stateTransition()
 {
   switch (is_transforming_)
   {
@@ -313,7 +240,7 @@ void jointTrajectoryGenerator::stateTransition()
       if (ros::Time::now().toSec() >= transform_start_time_ + transform_duration_)
       {
         is_transforming_ = 0;
-        ROS_INFO_STREAM("[dragon_arm][control] end effector position transformation completed.");
+        ROS_INFO_STREAM("[JointTrajectoryGenerator] end effector position transformation completed.");
       }
       break;
     }
@@ -326,7 +253,7 @@ void jointTrajectoryGenerator::stateTransition()
       if (ros::Time::now().toSec() >= transform_start_time_ + transform_duration_)
       {
         is_transforming_ = 0;
-        ROS_INFO_STREAM("[dragon_arm][control] direct joint angle transformation completed.");
+        ROS_INFO_STREAM("[JointTrajectoryGenerator] direct joint angle transformation completed.");
       }
       break;
     }
@@ -336,7 +263,101 @@ void jointTrajectoryGenerator::stateTransition()
   }
 }
 
-void jointTrajectoryGenerator::publish()
+JointTrajectoryGeneratorRos::JointTrajectoryGeneratorRos(
+    ros::NodeHandle nh, std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model)
+  : nh_(nh)
+{
+  joint_trajectory_generator_ = std::make_shared<JointTrajectoryGenerator>(pinocchio_robot_model);
+
+  is_transforming_pub_ = nh_.advertise<std_msgs::UInt8>("debug/is_transforming", 1);
+  target_q_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/target_q", 1);
+  target_dq_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/target_dq", 1);
+  target_ddq_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/target_ddq", 1);
+  target_end_effector_pos_pub_ = nh_.advertise<geometry_msgs::Vector3>("debug/target_ee_pos", 1);
+  target_end_effector_vel_pub_ = nh_.advertise<geometry_msgs::Vector3>("debug/target_ee_vel", 1);
+  target_end_effector_acc_pub_ = nh_.advertise<geometry_msgs::Vector3>("debug/target_ee_acc", 1);
+
+  joint_state_sub_ = nh_.subscribe("joint_states", 1, &JointTrajectoryGeneratorRos::jointStateCallback, this);
+  target_end_effector_final_pos_sub_ =
+      nh_.subscribe("target_ee_final_pos", 1, &JointTrajectoryGeneratorRos::targetEndEffectorPosCallback, this);
+  circle_trajectory_sub_ =
+      nh_.subscribe("circle_trajectory", 1, &JointTrajectoryGeneratorRos::circleTrajectoryCallback, this);
+  direct_joint_angle_sub_ =
+      nh_.subscribe("direct_joint_angle", 1, &JointTrajectoryGeneratorRos::directJointAngleCallback, this);
+  joy_sub_ = nh_.subscribe("joy", 1, &JointTrajectoryGeneratorRos::joyCallback, this);
+
+  rosParamInit();
+}
+
+void JointTrajectoryGeneratorRos::rosParamInit()
+{
+  ros::NodeHandle model_nh(nh_, "model");
+  ros::NodeHandle control_nh(nh_, "controller");
+
+  // number of rotors in one gimbal
+  getParam<int>(model_nh, "rotor_devider", joint_trajectory_generator_->rotor_devider_, 1);
+
+  // joint angle in reset pose
+  std::vector<double> init_target_q;
+  control_nh.getParam("init_target_q", init_target_q);
+  if (init_target_q.size() != joint_trajectory_generator_->getPinocchioModel()->nq)
+    ROS_ERROR_STREAM("[JointTrajectoryGeneratorRos] nq: " << joint_trajectory_generator_->getPinocchioModel()->nq
+                                                          << " and initial joint angle size: " << init_target_q.size()
+                                                          << " in ros parameter is not same");
+
+  Eigen::VectorXd reset_target_q = Eigen::VectorXd::Zero(joint_trajectory_generator_->getPinocchioModel()->nq);
+  for (int i = 0; i < joint_trajectory_generator_->getPinocchioModel()->nq; i++)
+  {
+    reset_target_q(i) = init_target_q.at(i);
+  }
+  ROS_INFO_STREAM("[JointTrajectoryGeneratorRos] initial target joint angle: " << reset_target_q.transpose());
+  joint_trajectory_generator_->setResetTargetQ(reset_target_q);
+  joint_trajectory_generator_->setCurrentTargetQ(joint_trajectory_generator_->getGimbalNominalAngles(reset_target_q));
+
+  getParam<std::string>(control_nh, "end_effector_name", joint_trajectory_generator_->end_effector_name_, "");
+  getParam<double>(control_nh, "transform_duration", joint_trajectory_generator_->transform_duration_, 1.0);
+
+  // initialize target end-effector position
+  pinocchio::framesForwardKinematics(*(joint_trajectory_generator_->getPinocchioModel()),
+                                     *(joint_trajectory_generator_->getPinocchioData()),
+                                     joint_trajectory_generator_->getCurrentTargetQ());
+  pinocchio::FrameIndex frame_id =
+      joint_trajectory_generator_->getPinocchioModel()->getFrameId(joint_trajectory_generator_->end_effector_name_);
+  joint_trajectory_generator_->setTargetEndEffectorPos(
+      joint_trajectory_generator_->getPinocchioData()->oMf[frame_id].translation());
+
+  if (!control_nh.getParam("ctrl_loop_du", joint_trajectory_generator_->ctrl_loop_du_))
+    ROS_ERROR_STREAM("[JointTrajectoryGeneratorRos] Failed to get ctrl_loop_du from ros parameter server");
+
+  getParam<bool>(control_nh, "quasi_static_mode", joint_trajectory_generator_->quasi_static_mode_, false);
+
+  // set feedback gains for computed torque method
+  double ctm_gain;
+  getParam<double>(control_nh, "ctm_p_gain", ctm_gain, 1.0);
+  joint_trajectory_generator_->ctm_p_gain_ =
+      ctm_gain * Eigen::MatrixXd::Identity(joint_trajectory_generator_->getPinocchioModel()->nv,
+                                           joint_trajectory_generator_->getPinocchioModel()->nv);
+
+  getParam<double>(control_nh, "ctm_d_gain", ctm_gain, 1.0);
+  if (joint_trajectory_generator_->quasi_static_mode_)
+    ctm_gain = 0.0;  // set d gain to zero in quasi-static mode
+  joint_trajectory_generator_->ctm_d_gain_ =
+      ctm_gain * Eigen::MatrixXd::Identity(joint_trajectory_generator_->getPinocchioModel()->nv,
+                                           joint_trajectory_generator_->getPinocchioModel()->nv);
+
+  // set feedback gains for gimbal to zero
+  std::vector<std::string> gimbal_names = joint_trajectory_generator_->getGimbalNames();
+  for (int i = 0; i < gimbal_names.size(); i++)
+  {
+    int gimbal_index_v = joint_trajectory_generator_->getPinocchioModel()
+                             ->joints[joint_trajectory_generator_->getPinocchioModel()->getJointId(gimbal_names.at(i))]
+                             .idx_v();
+    joint_trajectory_generator_->ctm_p_gain_(gimbal_index_v, gimbal_index_v) = 0.0;
+    joint_trajectory_generator_->ctm_d_gain_(gimbal_index_v, gimbal_index_v) = 0.0;
+  }
+}
+
+void JointTrajectoryGeneratorRos::publish()
 {
   // for debug: send target q, dq, and ddq
   sensor_msgs::JointState target_q_msg;
@@ -346,25 +367,33 @@ void jointTrajectoryGenerator::publish()
   target_dq_msg.header.stamp = ros::Time::now();
   target_ddq_msg.header.stamp = ros::Time::now();
 
-  for (int i = 0; i < joint_names_.size(); i++)
+  std::vector<std::string> joint_names = joint_trajectory_generator_->getJointNames();
+  Eigen::VectorXd curr_target_q = joint_trajectory_generator_->getCurrentTargetQ();
+  Eigen::VectorXd curr_target_dq = joint_trajectory_generator_->getCurrentTargetDQ();
+  Eigen::VectorXd curr_target_ddq = joint_trajectory_generator_->getCurrentTargetDDQ();
+  for (int i = 0; i < joint_names.size(); i++)
   {
-    if (joint_names_.at(i).find("root") != std::string::npos)
+    if (joint_names.at(i).find("root") != std::string::npos)
       continue;  // skip root joint
 
-    int joint_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_names_.at(i))].idx_q();
-    int joint_index_v = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_names_.at(i))].idx_v();
+    int joint_index_q = joint_trajectory_generator_->getPinocchioModel()
+                            ->joints[joint_trajectory_generator_->getPinocchioModel()->getJointId(joint_names.at(i))]
+                            .idx_q();
+    int joint_index_v = joint_trajectory_generator_->getPinocchioModel()
+                            ->joints[joint_trajectory_generator_->getPinocchioModel()->getJointId(joint_names.at(i))]
+                            .idx_v();
 
     if (joint_index_q < 0 || joint_index_v < 0)
       continue;  // skip if joint index is invalid
 
-    target_q_msg.name.push_back(joint_names_.at(i));
-    target_q_msg.position.push_back(curr_target_q_(joint_index_q));
+    target_q_msg.name.push_back(joint_names.at(i));
+    target_q_msg.position.push_back(curr_target_q(joint_index_q));
 
-    target_dq_msg.name.push_back(joint_names_.at(i));
-    target_dq_msg.velocity.push_back(curr_target_dq_(joint_index_v));
+    target_dq_msg.name.push_back(joint_names.at(i));
+    target_dq_msg.velocity.push_back(curr_target_dq(joint_index_v));
 
-    target_ddq_msg.name.push_back(joint_names_.at(i));
-    target_ddq_msg.effort.push_back(curr_target_ddq_(joint_index_v));
+    target_ddq_msg.name.push_back(joint_names.at(i));
+    target_ddq_msg.effort.push_back(curr_target_ddq(joint_index_v));
   }
   target_q_pub_.publish(target_q_msg);
   target_dq_pub_.publish(target_dq_msg);
@@ -374,160 +403,175 @@ void jointTrajectoryGenerator::publish()
   geometry_msgs::Vector3 target_ee_pos_msg;
   geometry_msgs::Vector3 target_ee_vel_msg;
   geometry_msgs::Vector3 target_ee_acc_msg;
-  target_ee_pos_msg.x = target_ee_pos_(0);
-  target_ee_pos_msg.y = target_ee_pos_(1);
-  target_ee_pos_msg.z = target_ee_pos_(2);
-  target_ee_vel_msg.x = target_ee_vel_(0);
-  target_ee_vel_msg.y = target_ee_vel_(1);
-  target_ee_vel_msg.z = target_ee_vel_(2);
-  target_ee_acc_msg.x = target_ee_acc_(0);
-  target_ee_acc_msg.y = target_ee_acc_(1);
-  target_ee_acc_msg.z = target_ee_acc_(2);
+  Eigen::Vector3d target_ee_pos = joint_trajectory_generator_->getTargetEndEffectorPos();
+  Eigen::Vector3d target_ee_vel = joint_trajectory_generator_->getTargetEndEffectorVel();
+  Eigen::Vector3d target_ee_acc = joint_trajectory_generator_->getTargetEndEffectorAcc();
+  target_ee_pos_msg.x = target_ee_pos(0);
+  target_ee_pos_msg.y = target_ee_pos(1);
+  target_ee_pos_msg.z = target_ee_pos(2);
+  target_ee_vel_msg.x = target_ee_vel(0);
+  target_ee_vel_msg.y = target_ee_vel(1);
+  target_ee_vel_msg.z = target_ee_vel(2);
+  target_ee_acc_msg.x = target_ee_acc(0);
+  target_ee_acc_msg.y = target_ee_acc(1);
+  target_ee_acc_msg.z = target_ee_acc(2);
   target_end_effector_pos_pub_.publish(target_ee_pos_msg);
   target_end_effector_vel_pub_.publish(target_ee_vel_msg);
   target_end_effector_acc_pub_.publish(target_ee_acc_msg);
 
   // for motion planner: is transforming or not
   std_msgs::UInt8 is_transforming_msg;
-  is_transforming_msg.data = is_transforming_;
+  is_transforming_msg.data = joint_trajectory_generator_->is_transforming_;
   is_transforming_pub_.publish(is_transforming_msg);
 }
 
-void jointTrajectoryGenerator::jointStateCallback(const sensor_msgs::JointState msg)
+void JointTrajectoryGeneratorRos::jointStateCallback(const sensor_msgs::JointState msg)
 {
   for (int i = 0; i < msg.name.size(); i++)
   {
     std::string joint_name = msg.name[i];
-    int joint_id = pinocchio_model_->getJointId(joint_name);
-    if (joint_id == pinocchio_model_->njoints)
+    int joint_id = joint_trajectory_generator_->getPinocchioModel()->getJointId(joint_name);
+    if (joint_id == joint_trajectory_generator_->getPinocchioModel()->njoints)
       continue;  // skip this joint because there is not in kinematic tree
 
     // position
     if (msg.name.size() == msg.position.size())
     {
-      int joint_index_q = pinocchio_model_->joints[joint_id].idx_q();
-      curr_q_(joint_index_q) = msg.position[i];
+      int joint_index_q = joint_trajectory_generator_->getPinocchioModel()->joints[joint_id].idx_q();
+      joint_trajectory_generator_->curr_q_(joint_index_q) = msg.position[i];
     }
 
     // velocity
     if (msg.name.size() == msg.velocity.size())
     {
-      int joint_index_v = pinocchio_model_->joints[joint_id].idx_v();
-      curr_dq_(joint_index_v) = msg.velocity[i];
+      int joint_index_v = joint_trajectory_generator_->getPinocchioModel()->joints[joint_id].idx_v();
+      joint_trajectory_generator_->curr_dq_(joint_index_v) = msg.velocity[i];
     }
   }
 }
 
-void jointTrajectoryGenerator::targetEndEffectorPosCallback(const geometry_msgs::Vector3StampedConstPtr& msg)
+void JointTrajectoryGeneratorRos::targetEndEffectorPosCallback(const geometry_msgs::Vector3StampedConstPtr& msg)
 {
-  pinocchio::FrameIndex frame_id = pinocchio_model_->getFrameId(end_effector_name_);
-  pinocchio::framesForwardKinematics(*pinocchio_model_, *pinocchio_data_, curr_q_);
-  Eigen::Vector3d x_curr = pinocchio_data_->oMf[frame_id].translation();
+  pinocchio::FrameIndex frame_id =
+      joint_trajectory_generator_->getPinocchioModel()->getFrameId(joint_trajectory_generator_->end_effector_name_);
+  pinocchio::framesForwardKinematics(*(joint_trajectory_generator_->getPinocchioModel()),
+                                     *joint_trajectory_generator_->getPinocchioData(),
+                                     joint_trajectory_generator_->getCurrentQ());
+  Eigen::Vector3d x_curr = joint_trajectory_generator_->getPinocchioData()->oMf[frame_id].translation();
   Eigen::Vector3d x_des(msg->vector.x, msg->vector.y, msg->vector.z);
 
   if (msg->header.stamp.sec != 0 || msg->header.stamp.nsec != 0)
   {
-    transform_duration_ = msg->header.stamp.sec + msg->header.stamp.nsec / 1000000000.0;
+    joint_trajectory_generator_->transform_duration_ = msg->header.stamp.sec + msg->header.stamp.nsec / 1000000000.0;
   }
 
-  ROS_INFO_STREAM("[dragon_arm][control] target end effector position: " << x_des.transpose() << " with "
-                                                                         << transform_duration_ << "s");
-  ROS_INFO_STREAM("[dragon_arm][control] current end effector position: " << x_curr.transpose());
+  ROS_INFO_STREAM("[JointTrajectoryGeneratorRos] target end effector position: "
+                  << x_des.transpose() << " with " << joint_trajectory_generator_->transform_duration_ << "s");
+  ROS_INFO_STREAM("[JointTrajectoryGeneratorRos] current end effector position: " << x_curr.transpose());
 
-  pos_trajectory_generator_.reset();
-  pos_trajectory_generator_.generateTrajectory(x_curr, x_des, transform_duration_);
+  joint_trajectory_generator_->pos_trajectory_generator_.reset();
+  joint_trajectory_generator_->pos_trajectory_generator_.generateTrajectory(
+      x_curr, x_des, joint_trajectory_generator_->transform_duration_);
 
-  is_transforming_ = 1;  // linear mode
-  transform_start_time_ = ros::Time::now().toSec();
+  joint_trajectory_generator_->is_transforming_ = 1;  // linear mode
+  joint_trajectory_generator_->transform_start_time_ = ros::Time::now().toSec();
 }
 
-void jointTrajectoryGenerator::circleTrajectoryCallback(const std_msgs::Float32MultiArrayConstPtr& msg)
+void JointTrajectoryGeneratorRos::circleTrajectoryCallback(const std_msgs::Float32MultiArrayConstPtr& msg)
 {
   if (msg->data.size() != 2)
   {
-    ROS_INFO_STREAM("[dragon_arm][control] switch back to linear trajectory mode");
-    is_transforming_ = 0;  // not transforming
-    curr_target_q_ = curr_q_;
-    curr_target_dq_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv);
-    curr_target_ddq_ = Eigen::VectorXd::Zero(pinocchio_robot_model_->getModel()->nv);
+    ROS_INFO_STREAM("[JointTrajectoryGeneratorRos] switch back to linear trajectory mode");
+    joint_trajectory_generator_->is_transforming_ = 0;  // not transforming
+    joint_trajectory_generator_->setCurrentTargetQ(joint_trajectory_generator_->getCurrentQ());
+    joint_trajectory_generator_->setCurrentTargetDQ(
+        Eigen::VectorXd::Zero(joint_trajectory_generator_->getPinocchioModel()->nv));
+    joint_trajectory_generator_->setCurrentTargetDDQ(
+        Eigen::VectorXd::Zero(joint_trajectory_generator_->getPinocchioModel()->nv));
     return;
   }
 
-  pinocchio::FrameIndex frame_id = pinocchio_model_->getFrameId(end_effector_name_);
-  pinocchio::framesForwardKinematics(*pinocchio_model_, *pinocchio_data_, curr_q_);
-  circle_trajectory_center_ = pinocchio_data_->oMf[frame_id].translation();
-  circle_trajectory_radius_ = msg->data[0];
-  circle_trajectory_angular_velocity_ = msg->data[1];
+  pinocchio::FrameIndex frame_id =
+      joint_trajectory_generator_->getPinocchioModel()->getFrameId(joint_trajectory_generator_->end_effector_name_);
+  pinocchio::framesForwardKinematics(*(joint_trajectory_generator_->getPinocchioModel()),
+                                     *joint_trajectory_generator_->getPinocchioData(),
+                                     joint_trajectory_generator_->getCurrentQ());
+  joint_trajectory_generator_->circle_trajectory_center_ =
+      joint_trajectory_generator_->getPinocchioData()->oMf[frame_id].translation();
+  joint_trajectory_generator_->circle_trajectory_radius_ = msg->data[0];
+  joint_trajectory_generator_->circle_trajectory_angular_velocity_ = msg->data[1];
 
-  ROS_INFO_STREAM("[dragon_arm][control] circle trajectory with radius: "
-                  << circle_trajectory_radius_ << " and angular velocity: " << circle_trajectory_angular_velocity_
-                  << " center: " << circle_trajectory_center_.transpose());
+  ROS_INFO_STREAM("[JointTrajectoryGeneratorRos] circle trajectory with radius: "
+                  << joint_trajectory_generator_->circle_trajectory_radius_
+                  << " and angular velocity: " << joint_trajectory_generator_->circle_trajectory_angular_velocity_
+                  << " center: " << joint_trajectory_generator_->circle_trajectory_center_.transpose());
 
-  is_transforming_ = 2;  // circular mode
-  transform_start_time_ = ros::Time::now().toSec();
+  joint_trajectory_generator_->is_transforming_ = 2;  // circular mode
+  joint_trajectory_generator_->transform_start_time_ = ros::Time::now().toSec();
 }
 
-void jointTrajectoryGenerator::directJointAngleCallback(const sensor_msgs::JointStateConstPtr& msg)
+void JointTrajectoryGeneratorRos::directJointAngleCallback(const sensor_msgs::JointStateConstPtr& msg)
 {
   if (msg->name.size() != msg->position.size())
   {
-    ROS_ERROR_STREAM("[dynarm][control] size of joint name: " << msg->name.size() << " and joint position: "
-                                                              << msg->position.size() << " is not same");
+    ROS_ERROR_STREAM("[JointTrajectoryGeneratorRos] size of joint name: " << msg->name.size() << " and joint position: "
+                                                                          << msg->position.size() << " is not same");
     return;
   }
 
-  transform_duration_ = msg->header.stamp.sec + msg->header.stamp.nsec / 1000000000.0;
+  joint_trajectory_generator_->transform_duration_ = msg->header.stamp.sec + msg->header.stamp.nsec / 1000000000.0;
 
-  init_target_q_ = curr_q_;
-  final_target_q_ = curr_q_;
+  joint_trajectory_generator_->init_target_q_ = joint_trajectory_generator_->getCurrentQ();
+  joint_trajectory_generator_->final_target_q_ = joint_trajectory_generator_->getCurrentQ();
 
   for (int i = 0; i < msg->name.size(); i++)
   {
     std::string joint_name = msg->name.at(i);
-    int joint_id = pinocchio_model_->getJointId(joint_name);
-    if (joint_id == pinocchio_model_->njoints)
+    int joint_id = joint_trajectory_generator_->getPinocchioModel()->getJointId(joint_name);
+    if (joint_id == joint_trajectory_generator_->getPinocchioModel()->njoints)
     {
-      ROS_WARN_STREAM("[dynarm][control] there is not joint named \"" << joint_name << "\"");
+      ROS_WARN_STREAM("[JointTrajectoryGeneratorRos] there is not joint named \"" << joint_name << "\"");
       continue;  // skip this joint because there is not in kinematic tree
     }
 
-    int joint_index_q = pinocchio_model_->joints[joint_id].idx_q();
-    final_target_q_(joint_index_q) = msg->position[i];
+    int joint_index_q = joint_trajectory_generator_->getPinocchioModel()->joints[joint_id].idx_q();
+    joint_trajectory_generator_->final_target_q_(joint_index_q) = msg->position[i];
   }
 
-  ROS_INFO_STREAM("[dynarm][control] move to " << final_target_q_.transpose() << " with " << transform_duration_
-                                               << "s");
+  ROS_INFO_STREAM("[JointTrajectoryGeneratorRos] move to " << joint_trajectory_generator_->final_target_q_.transpose()
+                                                           << " with "
+                                                           << joint_trajectory_generator_->transform_duration_ << "s");
 
-  is_transforming_ = 3;
-  transform_start_time_ = ros::Time::now().toSec();
+  joint_trajectory_generator_->is_transforming_ = 3;
+  joint_trajectory_generator_->transform_start_time_ = ros::Time::now().toSec();
 }
 
-void jointTrajectoryGenerator::joyCallback(const sensor_msgs::JoyConstPtr& msg)
+void JointTrajectoryGeneratorRos::joyCallback(const sensor_msgs::JoyConstPtr& msg)
 {
   sensor_msgs::Joy joy_cmd = joyParse(*msg);
-  joy_msg_ = joy_cmd;
+  joint_trajectory_generator_->joy_msg_ = joy_cmd;
   if (joy_cmd.axes.size() == 0 || joy_cmd.buttons.size() == 0)
   {
-    ROS_WARN("[dynarm] the joystick type is not supported (buttons: %d, axes: %d)", (int)msg->buttons.size(),
-             (int)msg->axes.size());
+    ROS_WARN("[JointTrajectoryGeneratorRos] the joystick type is not supported (buttons: %d, axes: %d)",
+             (int)msg->buttons.size(), (int)msg->axes.size());
     return;
   }
 
   /* mode switch */
   if (joy_cmd.buttons[JOY_BUTTON_REAR_RIGHT_2])
   {
-    if (is_transforming_ != 4)
+    if (joint_trajectory_generator_->is_transforming_ != 4)
     {
-      is_transforming_ = 4;  // joy control mode
-      ROS_INFO_STREAM("[dynarm][control] switch to joy control mode");
+      joint_trajectory_generator_->is_transforming_ = 4;  // joy control mode
+      ROS_INFO_STREAM("[JointTrajectoryGeneratorRos] switch to joy control mode");
     }
   }
   else
   {
-    if (is_transforming_ == 4)
+    if (joint_trajectory_generator_->is_transforming_ == 4)
     {
-      is_transforming_ = 0;  // not transforming
-      ROS_INFO_STREAM("[dynarm][control] switch back to no transform mode");
+      joint_trajectory_generator_->is_transforming_ = 0;  // not transforming
+      ROS_INFO_STREAM("[JointTrajectoryGeneratorRos] switch back to no transform mode");
     }
   }
 }
