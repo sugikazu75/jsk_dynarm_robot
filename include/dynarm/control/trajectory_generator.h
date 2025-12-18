@@ -17,21 +17,37 @@ namespace aerial_robot_control
 class TrajectoryGenerator
 {
 public:
-  TrajectoryGenerator(ros::NodeHandle nh,
-                      std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model);
+  TrajectoryGenerator(std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model,
+                      std::shared_ptr<aerial_robot_control::JointTrajectoryGenerator> joint_trajectory_generator,
+                      std::shared_ptr<aerial_robot_model::NonlinearInverseDynamics> nonlinear_inverse_dynamics_solver);
   ~TrajectoryGenerator() = default;
 
-  std::shared_ptr<aerial_robot_control::jointTrajectoryGenerator> getJointTrajectoryGenerator()
+  std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> getPinocchioRobotModel()
+  {
+    return pinocchio_robot_model_;
+  }
+  std::shared_ptr<pinocchio::Model> getPinocchioModel()
+  {
+    return pinocchio_model_;
+  }
+  std::shared_ptr<pinocchio::Data> getPinocchioData()
+  {
+    return pinocchio_data_;
+  }
+
+  std::shared_ptr<aerial_robot_control::JointTrajectoryGenerator> getJointTrajectoryGenerator()
   {
     return joint_trajectory_generator_;
   }
 
+  std::shared_ptr<aerial_robot_model::NonlinearInverseDynamics> getNonlinearInverseDynamicsSolver()
+  {
+    return nonlinear_inverse_dynamics_solver_;
+  }
+
   void reset();
-  void timer(ros::TimerEvent const& event);
   void update();
   bool solveInverseDynamics(Eigen::VectorXd q, Eigen::VectorXd dq, Eigen::VectorXd ddq);
-  void publish();
-  void publishDummyJointState();
 
   std::vector<std::string> getGimbalNames()
   {
@@ -56,22 +72,17 @@ public:
     return curr_target_gimbal_angle_;
   }
 
+  // inverse dynamics param
+  bool nonlinear_mode_;
+  bool quasi_static_mode_;
+
 private:
   std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model_;
   std::shared_ptr<pinocchio::Model> pinocchio_model_;
   std::shared_ptr<pinocchio::Data> pinocchio_data_;
 
-  std::shared_ptr<aerial_robot_control::jointTrajectoryGenerator> joint_trajectory_generator_;
+  std::shared_ptr<aerial_robot_control::JointTrajectoryGenerator> joint_trajectory_generator_;
   std::shared_ptr<aerial_robot_model::NonlinearInverseDynamics> nonlinear_inverse_dynamics_solver_;
-
-  ros::NodeHandle nh_;
-  ros::Publisher target_q_pub_;             // for debug: gimbal
-  ros::Publisher target_joint_torque_pub_;  // for debug
-  ros::Publisher tau_by_thrust_pub_;        // for debug
-  ros::Publisher rotor_wrench_pub_;         // for debug
-  ros::Publisher thrust_pub_;               // for debug
-  ros::Publisher id_solve_time_pub_;        // for debug
-  ros::Publisher dummy_joint_state_pub_;    // for debug
 
   std::vector<std::string> gimbal_names_;
   std::map<std::string, int> gimbal_index_map_;
@@ -80,15 +91,48 @@ private:
   Eigen::VectorXd curr_target_thrust_;
   Eigen::VectorXd curr_target_gimbal_angle_;
 
+  void loadGimbalNames();
+};
+
+class TrajectoryGeneratorRos
+{
+public:
+  TrajectoryGeneratorRos(
+      ros::NodeHandle nh, std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model,
+      std::shared_ptr<aerial_robot_control::JointTrajectoryGeneratorRos> joint_trajectory_generator_ros,
+      std::shared_ptr<aerial_robot_model::NonlinearInverseDynamicsRos> nonlinear_inverse_dynamics_solver_ros);
+  virtual ~TrajectoryGeneratorRos() = default;
+
+  std::shared_ptr<TrajectoryGenerator> getTrajectoryGenerator()
+  {
+    return trajectory_generator_;
+  }
+
+  void publish();
+  void timer(ros::TimerEvent const& event);
+
+private:
+  ros::NodeHandle nh_;
+  ros::Publisher target_q_pub_;       // for debug. only gimbal part
+  ros::Publisher rotor_wrench_pub_;   // for debug. rotor wrench visualization
+  ros::Publisher id_solve_time_pub_;  // for debug. linear ID solve time if necessary
+
+  ros::Publisher tau_by_thrust_pub_;        // for debug. in desired state. published in test mode.
+  ros::Publisher thrust_pub_;               // for debug. published in test mode
+  ros::Publisher target_joint_torque_pub_;  // for debug. published in test mode
+  ros::Publisher dummy_joint_state_pub_;    // for debug. published in test mode
+
+  std::shared_ptr<TrajectoryGenerator> trajectory_generator_;
+
+  std::shared_ptr<aerial_robot_control::JointTrajectoryGeneratorRos> joint_trajectory_generator_ros_;
+  std::shared_ptr<aerial_robot_model::NonlinearInverseDynamicsRos> nonlinear_inverse_dynamics_solver_ros_;
+
   // debug
   std::string robot_ns_;
   int rotor_wrench_pub_index_;
 
-  // inverse dynamics param
-  bool nonlinear_mode_;
-  bool quasi_static_mode_;
-
-  void loadGimbalNames();
+  void publishDummyJointState();
+  void publishAll();
   void rosParamInit();
 
   template <class T>

@@ -10,8 +10,7 @@ namespace aerial_robot_model
 class NonlinearInverseDynamics
 {
 public:
-  NonlinearInverseDynamics(ros::NodeHandle nh,
-                           std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model);
+  NonlinearInverseDynamics(std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model);
   virtual ~NonlinearInverseDynamics() = default;
 
   std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> getPinocchioRobotModel()
@@ -36,6 +35,16 @@ public:
     return gimbal_names_;
   }
 
+  void setGimbalDeltaMax(double gimbal_delta_max)
+  {
+    gimbal_delta_max_ = gimbal_delta_max;
+  }
+
+  const int getNlpNumVariables()
+  {
+    return nlp_n_variables_;
+  }
+
   const Eigen::VectorXd getCurrentTargetQForOpt()
   {
     return nlp_curr_target_q_;
@@ -51,9 +60,19 @@ public:
     return nlp_curr_target_ddq_;
   }
 
+  void setHessianTrace(const Eigen::VectorXd& hessian_trace)
+  {
+    nlp_hessian_trace_ = hessian_trace;
+  }
+
   const Eigen::VectorXd getHessianTrace()
   {
     return nlp_hessian_trace_;
+  }
+
+  const int getNlpResult()
+  {
+    return nlp_result_;
   }
 
   int getLastIteration()
@@ -74,12 +93,8 @@ public:
   void reset();
   bool solve(const Eigen::VectorXd& q, const Eigen::VectorXd& v, const Eigen::VectorXd& a,
              Eigen::VectorXd& tau_thrust_gimbal);
-  void publish();
 
 private:
-  ros::NodeHandle nh_;
-  ros::Publisher nlp_iteration_pub_;
-  ros::Publisher nlp_solve_time_pub_;
   std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model_;
   std::shared_ptr<pinocchio::Model> pinocchio_model_;
   std::shared_ptr<pinocchio::Data> pinocchio_data_;
@@ -94,6 +109,7 @@ private:
 
   Eigen::VectorXd nlp_hessian_trace_;
 
+  int nlp_result_ = 0;
   int nlp_last_iteration_ = 0;
   Eigen::VectorXd nlp_last_solution_;
   Eigen::VectorXd nlp_curr_target_q_;
@@ -102,9 +118,33 @@ private:
   double gimbal_delta_max_;
   double solve_time_ = 0.0;
 
-  void rosParamInit();
   void loadJointNames();
   void loadGimbalNames();
+};
+
+class NonlinearInverseDynamicsRos
+{
+public:
+  NonlinearInverseDynamicsRos(ros::NodeHandle nh,
+                              std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model);
+  virtual ~NonlinearInverseDynamicsRos() = default;
+
+  std::shared_ptr<NonlinearInverseDynamics> getNonlinearInverseDynamicsSolver()
+  {
+    return nonlinear_inverse_dynamics_solver_;
+  }
+
+  void publish();
+
+private:
+  ros::NodeHandle nh_;
+  ros::Publisher nlp_result_pub_;
+  ros::Publisher nlp_iteration_pub_;
+  ros::Publisher nlp_solve_time_pub_;
+
+  std::shared_ptr<NonlinearInverseDynamics> nonlinear_inverse_dynamics_solver_;
+
+  void rosParamInit();
 
   template <class T>
   void getParam(ros::NodeHandle nh, std::string param_name, T& param, T default_value)

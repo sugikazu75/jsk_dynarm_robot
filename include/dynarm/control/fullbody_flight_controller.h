@@ -73,6 +73,7 @@ private:
   std::vector<Eigen::VectorXd> us_init_;
   double ddp_solve_time_ = 0.0;
 
+  std::shared_ptr<aerial_robot_model::NonlinearInverseDynamicsRos> nonlinear_inverse_dynamics_solver_ros_;
   std::shared_ptr<aerial_robot_model::NonlinearInverseDynamics> nonlinear_inverse_dynamics_solver_;
 
   Eigen::VectorXd xref_;
