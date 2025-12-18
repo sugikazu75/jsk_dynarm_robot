@@ -145,7 +145,7 @@ void ManipulatorController::sendCmd()
   Eigen::VectorXd curr_q = joint_trajectory_generator_->getCurrentQ();
   Eigen::VectorXd curr_target_thrust = trajectory_generator_->getCurrentTargetThrust();
   sensor_msgs::JointState tau_by_thrust_msg;  // in real q and lambda
-  sensor_msgs::JointState rnea_solution_msg;  // in real q, dq, and target ddq. calculaed in ControlCore()
+  sensor_msgs::JointState rnea_solution_msg;  // in real q, dq, and target ddq. calculated in ControlCore()
   tau_by_thrust_msg.header.stamp = ros::Time::now();
   rnea_solution_msg.header.stamp = ros::Time::now();
   Eigen::VectorXd tau_by_thrust = pinocchio_robot_model_->computeTauExtByThrustDerivative(curr_q) * curr_target_thrust;
