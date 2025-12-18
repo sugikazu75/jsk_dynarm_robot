@@ -157,14 +157,11 @@ void rneaConstraint(unsigned m, double* result, unsigned n, const double* x, dou
 }  // namespace
 
 NonlinearInverseDynamics::NonlinearInverseDynamics(
-    ros::NodeHandle nh, std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model)
-  : nh_(nh), pinocchio_robot_model_(pinocchio_robot_model)
+    std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model)
+  : pinocchio_robot_model_(pinocchio_robot_model)
 {
   pinocchio_model_ = pinocchio_robot_model_->getModel();
   pinocchio_data_ = pinocchio_robot_model_->getData();
-
-  nlp_iteration_pub_ = nh_.advertise<std_msgs::UInt16>("debug/nonlinear_id_iteration", 1);
-  nlp_solve_time_pub_ = nh_.advertise<std_msgs::Float64>("debug/nonlinear_id_solve_time", 1);
 
   loadJointNames();
   loadGimbalNames();
@@ -173,18 +170,20 @@ NonlinearInverseDynamics::NonlinearInverseDynamics(
                      gimbal_names_.size();    // generalized_force + thrust + gimbal_angles
   nlp_n_constraints_ = pinocchio_model_->nv;  // rnea
 
-  rosParamInit();
-
   nlp_lb_.resize(nlp_n_variables_, -std::numeric_limits<double>::infinity());
   nlp_ub_.resize(nlp_n_variables_, std::numeric_limits<double>::infinity());
   Eigen::VectorXd joint_torque_limits = pinocchio_robot_model_->getJointTorqueLimits();
   Eigen::VectorXd thrust_upper_limits = pinocchio_robot_model_->getThrustUpperLimits();
   Eigen::VectorXd thrust_lower_limits = pinocchio_robot_model_->getThrustLowerLimits();
+
+  // joint part
   for (int i = 0; i < pinocchio_model_->nv; ++i)
   {
     nlp_lb_[i] = -joint_torque_limits(i);
     nlp_ub_[i] = joint_torque_limits(i);
   }
+
+  // thrust part
   for (int i = 0; i < pinocchio_robot_model_->getRotorNum(); ++i)
   {
     nlp_lb_[pinocchio_model_->nv + i] = thrust_lower_limits(i);
@@ -207,30 +206,6 @@ void NonlinearInverseDynamics::reset()
   nlp_last_solution_ =
       Eigen::VectorXd::Zero(pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + gimbal_names_.size());
   solve_time_ = 0.0;
-}
-
-void NonlinearInverseDynamics::rosParamInit()
-{
-  ros::NodeHandle control_nh(nh_, "controller");
-  getParam<double>(control_nh, "gimbal_delta_max", gimbal_delta_max_, M_PI);
-  std::cout << "gimbal_delta_max: " << gimbal_delta_max_ << std::endl;
-
-  ros::NodeHandle dynamics_nh(nh_, "dynamics");
-  std::vector<double> hessian_trace;
-  dynamics_nh.getParam("hessian_trace", hessian_trace);
-  if (hessian_trace.size() != nlp_n_variables_)
-  {
-    ROS_ERROR("nlp_hessian_trace size does not match the number of variables.");
-    nlp_hessian_trace_ = Eigen::VectorXd::Ones(nlp_n_variables_);
-    nlp_hessian_trace_.segment(pinocchio_model_->nv, pinocchio_robot_model_->getRotorNum()) *=
-        pinocchio_robot_model_->getThrustHessianWeight();
-    nlp_hessian_trace_.tail(gimbal_names_.size()) *= 0.0;  // gimbal angles do not contribute to the cost
-  }
-  else
-  {
-    nlp_hessian_trace_ = Eigen::Map<Eigen::VectorXd>(hessian_trace.data(), hessian_trace.size());
-  }
-  std::cout << "nlp_hessian_trace: " << nlp_hessian_trace_.transpose() << std::endl;
 }
 
 void NonlinearInverseDynamics::loadJointNames()
@@ -286,7 +261,7 @@ bool NonlinearInverseDynamics::solve(const Eigen::VectorXd& q, const Eigen::Vect
   nlp_solver_.set_lower_bounds(nlp_lb_);
   nlp_solver_.set_upper_bounds(nlp_ub_);
 
-  // // Set initial guess
+  // Set initial guess
   std::vector<double> x(nlp_n_variables_);
   for (int i = 0; i < pinocchio_model_->nv; ++i)  // initial guess for generalized force.
   {
@@ -325,8 +300,8 @@ bool NonlinearInverseDynamics::solve(const Eigen::VectorXd& q, const Eigen::Vect
   }
   if (result < 0)
     ROS_ERROR_STREAM_THROTTLE(1.0, "[nlopt] failed to solve. result is " << result);
+  nlp_result_ = result;
 
-  // print
   tau.resize(nlp_n_variables_);
   for (int i = 0; i < nlp_n_variables_; i++)
   {
@@ -342,13 +317,62 @@ bool NonlinearInverseDynamics::solve(const Eigen::VectorXd& q, const Eigen::Vect
   return (result >= 0) ? true : false;
 }
 
-void NonlinearInverseDynamics::publish()
+NonlinearInverseDynamicsRos::NonlinearInverseDynamicsRos(
+    ros::NodeHandle nh, std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model)
+  : nh_(nh)
 {
+  nlp_result_pub_ = nh_.advertise<std_msgs::UInt16>("debug/nonlinear_id_result", 1);
+  nlp_iteration_pub_ = nh_.advertise<std_msgs::UInt16>("debug/nonlinear_id_iteration", 1);
+  nlp_solve_time_pub_ = nh_.advertise<std_msgs::Float64>("debug/nonlinear_id_solve_time", 1);
+
+  nonlinear_inverse_dynamics_solver_ = std::make_shared<NonlinearInverseDynamics>(pinocchio_robot_model);
+
+  rosParamInit();
+}
+
+void NonlinearInverseDynamicsRos::rosParamInit()
+{
+  ros::NodeHandle control_nh(nh_, "controller");
+
+  // gimbal delta max
+  double gimbal_delta_max;
+  getParam<double>(control_nh, "gimbal_delta_max", gimbal_delta_max, M_PI);
+  ROS_INFO_STREAM("[NonlinearInverseDynamicsRos] gimbal_delta_max: " << gimbal_delta_max);
+  nonlinear_inverse_dynamics_solver_->setGimbalDeltaMax(gimbal_delta_max);
+
+  ros::NodeHandle dynamics_nh(nh_, "dynamics");
+  std::vector<double> hessian_trace;
+  Eigen::VectorXd nlp_hessian_trace;
+  dynamics_nh.getParam("hessian_trace", hessian_trace);
+  if (hessian_trace.size() != nonlinear_inverse_dynamics_solver_->getNlpNumVariables())
+  {
+    ROS_ERROR("[NonlinearInverseDynamicsRos] nlp_hessian_trace size does not match the number of variables.");
+    nlp_hessian_trace = Eigen::VectorXd::Ones(nonlinear_inverse_dynamics_solver_->getNlpNumVariables());
+    nlp_hessian_trace.segment(nonlinear_inverse_dynamics_solver_->getPinocchioModel()->nv,
+                              nonlinear_inverse_dynamics_solver_->getPinocchioRobotModel()->getRotorNum()) *=
+        nonlinear_inverse_dynamics_solver_->getPinocchioRobotModel()->getThrustHessianWeight();
+    nlp_hessian_trace.tail(nonlinear_inverse_dynamics_solver_->getGimbalNames().size()) *=
+        0.0;  // gimbal angles do not contribute to the cost
+  }
+  else
+  {
+    nlp_hessian_trace = Eigen::Map<Eigen::VectorXd>(hessian_trace.data(), hessian_trace.size());
+  }
+  nonlinear_inverse_dynamics_solver_->setHessianTrace(nlp_hessian_trace);
+  ROS_INFO_STREAM("[NonlinearInverseDynamicsRos] nlp_hessian_trace: " << nlp_hessian_trace.transpose());
+}
+
+void NonlinearInverseDynamicsRos::publish()
+{
+  std_msgs::UInt16 result_msg;
+  result_msg.data = nonlinear_inverse_dynamics_solver_->getNlpResult();
+  nlp_result_pub_.publish(result_msg);
+
   std_msgs::Float64 solve_time_msg;
-  solve_time_msg.data = solve_time_ * 1e-3;  // ms
+  solve_time_msg.data = nonlinear_inverse_dynamics_solver_->getSolveTime() * 1e-3;  // ms
   nlp_solve_time_pub_.publish(solve_time_msg);
 
   std_msgs::UInt16 iteration_msg;
-  iteration_msg.data = nlp_last_iteration_;
+  iteration_msg.data = nonlinear_inverse_dynamics_solver_->getLastIteration();
   nlp_iteration_pub_.publish(iteration_msg);
 }
