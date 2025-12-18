@@ -346,7 +346,7 @@ void NonlinearInverseDynamicsRos::rosParamInit()
   dynamics_nh.getParam("hessian_trace", hessian_trace);
   if (hessian_trace.size() != nonlinear_inverse_dynamics_solver_->getNlpNumVariables())
   {
-    ROS_ERROR("[NonlinearInverseDynamicsRos] nlp_hessian_trace size does not match the number of variables.");
+    ROS_ERROR("[NonlinearInverseDynamicsRos] hessian_trace size does not match the number of variables.");
     nlp_hessian_trace = Eigen::VectorXd::Ones(nonlinear_inverse_dynamics_solver_->getNlpNumVariables());
     nlp_hessian_trace.segment(nonlinear_inverse_dynamics_solver_->getPinocchioModel()->nv,
                               nonlinear_inverse_dynamics_solver_->getPinocchioRobotModel()->getRotorNum()) *=
