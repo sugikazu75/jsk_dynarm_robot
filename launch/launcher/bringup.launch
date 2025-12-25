@@ -56,6 +56,9 @@
       </group>
       <group unless="$(arg full_vectoring_mode)">
         <rosparam file="$(find dynarm)/config/$(arg version)/FullbodyFlightControl.yaml" command="load"/>
+        <group ns="ddp">
+          <rosparam file="$(find dynarm)/config/$(arg version)/DDP_dynarm.yaml" command="load"/>
+        </group>
         <rosparam file="$(find dynarm)/config/$(arg version)/FullbodyFlightModel.yaml" command="load" />
       </group>
     </group>
