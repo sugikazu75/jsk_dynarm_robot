@@ -20,8 +20,8 @@
 
 - git:
     local-name: crocoddyl
-    uri: https://github.com/loco-3d/crocoddyl.git
-    version: devel
+    uri: https://github.com/sugikazu75/crocoddyl.git
+    version: develop/articulated_aerial_robot
 
 - git:
     local-name: robstride_actuator_bridge
