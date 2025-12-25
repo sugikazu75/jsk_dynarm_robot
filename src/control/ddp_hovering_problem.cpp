@@ -7,7 +7,8 @@
 #include <tf/transform_broadcaster.h>
 
 DDPHoveringProblem::DDPHoveringProblem(std::shared_ptr<pinocchio::Model> pinocchio_model,
-                                       std::vector<crocoddyl::Rotor> rotors, bool fwddyn, const CostWeight& cost_weight,
+                                       std::vector<crocoddyl::DistributedThruster> rotors, bool fwddyn,
+                                       const CostWeight& cost_weight,
                                        const OptimizationParam& optimization_param = OptimizationParam())
   : pinocchio_model_(pinocchio_model)
   , rotors_(rotors)
@@ -18,21 +19,12 @@ DDPHoveringProblem::DDPHoveringProblem(std::shared_ptr<pinocchio::Model> pinocch
   pinocchio_data_ = std::make_shared<pinocchio::Data>(*pinocchio_model_);
   state_ = std::make_shared<crocoddyl::StateMultibody>(pinocchio_model_);
 
-  std::vector<crocoddyl::Thruster> thrusters;
-  for (int i = 0; i < rotors_.size(); i++)
-  {
-    thrusters.emplace_back(0);
-  }
+  actuation_ = std::make_shared<crocoddyl::ActuationModelFloatingBaseDistributedThrusters>(state_, rotors_);
+
   if (fwddyn_)
-  {
-    actuation_ = std::make_shared<crocoddyl::ActuationModelFloatingBaseThrusters>(state_, thrusters);
     nu_ = actuation_->get_nu();
-  }
   else
-  {
-    actuation_ = std::make_shared<crocoddyl::ActuationModelFloatingBase>(state_);
     nu_ = state_->get_nv();
-  }
 
   std::cout << "nu: " << nu_ << std::endl;
 }
@@ -78,8 +70,7 @@ std::shared_ptr<crocoddyl::ActionModelAbstract> DDPHoveringProblem::createAction
 
   std::shared_ptr<crocoddyl::DifferentialActionModelAbstract> dmodel;
   if (fwddyn_)
-    dmodel = std::make_shared<crocoddyl::DifferentialActionModelFreeThrustFwdDynamics>(state_, actuation_, cost_model,
-                                                                                       rotors_);
+    dmodel = std::make_shared<crocoddyl::DifferentialActionModelFreeFwdDynamics>(state_, actuation_, cost_model);
   else
     dmodel = std::make_shared<crocoddyl::DifferentialActionModelFreeInvDynamics>(state_, actuation_, cost_model);
 
@@ -129,17 +120,16 @@ int main(int argc, char** argv)
   std::vector<int> rotor_frame_indices = pinocchio_robot_model->getRotorFrameIndices();
   double m_f_rate = pinocchio_robot_model->getMFRate();
 
-  std::vector<crocoddyl::Rotor> rotors;
+  std::vector<crocoddyl::DistributedThruster> distributed_thrusters;
   for (int i = 0; i < rotor_frame_indices.size(); i++)
   {
     int rotor_direction = pinocchio_robot_model->getRotorDirection(i);
     double thrust_lower_limit = pinocchio_robot_model->getThrustLowerLimits()(i);
     double thrust_upper_limit = pinocchio_robot_model->getThrustUpperLimits()(i);
 
-    rotors.emplace_back(
-        rotor_frame_indices.at(i), pinocchio::SE3::Identity(), (float)(abs(m_f_rate)),
-        ((rotor_direction == 1) ? crocoddyl::RotorDirection::COUNTERCLOCKWISE : crocoddyl::RotorDirection::CLOCKWISE),
-        (float)thrust_lower_limit, (float)thrust_upper_limit);
+    distributed_thrusters.emplace_back(rotor_frame_indices.at(i), pinocchio::SE3::Identity(), (float)(abs(m_f_rate)),
+                                       ((rotor_direction == 1) ? crocoddyl::DT_CCW : crocoddyl::DT_CW),
+                                       (float)thrust_lower_limit, (float)thrust_upper_limit);
   }
 
   bool fwddyn;
@@ -188,7 +178,7 @@ int main(int argc, char** argv)
     std::cout << "num_threads: " << optimization_param.num_threads << std::endl;
   }
 
-  DDPHoveringProblem hovering(pinocchio_model, rotors, fwddyn, cost_weight, optimization_param);
+  DDPHoveringProblem hovering(pinocchio_model, distributed_thrusters, fwddyn, cost_weight, optimization_param);
 
   // reference state
   Eigen::VectorXd xref = Eigen::VectorXd::Zero(pinocchio_model->nq + pinocchio_model->nv);
