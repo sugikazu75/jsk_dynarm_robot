@@ -12,7 +12,7 @@
       <param name="robot_description" command="$(find xacro)/xacro $(find dynarm)/robots/$(arg version)/dynarm.urdf.xacro" />
     </group>
 
-    <node name="pinocchio_robot_description_generator" pkg="dynarm" type="pinocchio_robot_description_generator.py" output="screen"/>
+    <node name="pinocchio_robot_description_generator" pkg="aerial_robot_dynamics" type="pinocchio_robot_description_generator.py" output="screen"/>
 
   </group>
 
