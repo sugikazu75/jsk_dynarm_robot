@@ -380,7 +380,7 @@ void FullbodyFlightController::controlCore()
   curr_target_q_.head(7) = curr_target_x.head(7);
 
   crocoddyl::Timer timer;
-  ddp_solver_->solve(xs_init_, us_init_);
+  ddp_solver_->solve(xs_init_, us_init_, hovering_->optimization_param_.max_iter);
   ddp_solve_time_ = timer.get_duration();
 
   xs_init_ = ddp_solver_->get_xs();
