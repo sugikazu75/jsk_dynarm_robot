@@ -19,7 +19,6 @@
 #include <crocoddyl/core/state-base.hpp>
 #include <crocoddyl/core/utils/timer.hpp>
 #include <crocoddyl/multibody/actions/free-fwddyn.hpp>
-#include <crocoddyl/multibody/actions/free-thrust-fwddyn.hpp>
 #include <crocoddyl/multibody/actions/free-invdyn.hpp>
 #include <crocoddyl/multibody/actuations/floating-base.hpp>
 #include <crocoddyl/multibody/actuations/floating-base-distributed-thrusters.hpp>
