@@ -270,7 +270,7 @@ int main(int argc, char** argv)
     std::cout << std::endl;
 
     // publish the robot state
-    Eigen::VectorXd q = xs_init.at(0).head(pinocchio_model->nq);
+    Eigen::VectorXd q = xs_init.at(1).head(pinocchio_model->nq);
     geometry_msgs::TransformStamped robot_base_transform;
     robot_base_transform.header.stamp = ros::Time::now();
     robot_base_transform.header.frame_id = "world";
