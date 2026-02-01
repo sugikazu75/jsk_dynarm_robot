@@ -8,5 +8,5 @@ ddp:
   num_threads: 4
   horizon: 2.0
   dt: 0.05
-  fwddyn: true
+  fwddyn: false
   max_iter: 100
