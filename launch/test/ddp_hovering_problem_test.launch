@@ -3,20 +3,17 @@
   <arg name="version" default="v2"/>
   <arg name="robot_ns" default="dynarm"/>
   <arg name="headless" default="true"/>
+  <arg name="fwddyn" default="false"/>
+  <arg name="noise" default="0.005"/>
 
   <group ns="$(arg robot_ns)">
     <node pkg="dynarm" type="ddp_hovering_problem_test" name="ddp_hovering_problem_test" output="screen">
       <param name="num_threads" value="4"/>
       <param name="horizon" value="1.0"/>
       <param name="dt" value="0.05"/>
-      <param name="fwddyn" value="false"/>
+      <param name="fwddyn" value="$(arg fwddyn)"/>
       <param name="max_iter" value="1000"/>
-      <param name="add_noise" value="true"/>
-
-      <!-- weights of cost for running model  -->
-      <param name="state_weight" value="1"/>
-      <param name="state_bound_weight" value="100"/>
-      <param name="control_weight" value="0.1"/>
+      <param name="noise" value="$(arg noise)"/>
 
       <rosparam command="load" file="$(find dynarm)/config/$(arg version)/DDP_$(arg robot_ns).yaml"/>
 
@@ -33,7 +30,7 @@
     </node>
 
     <!-- pinocchio robot model generator -->
-    <node name="pinocchio_robot_description_generator" pkg="dynarm" type="pinocchio_robot_description_generator.py" output="screen"/>
+    <node name="pinocchio_robot_description_generator" pkg="aerial_robot_dynamics" type="pinocchio_robot_description_generator.py" output="screen"/>
 
   </group>
 

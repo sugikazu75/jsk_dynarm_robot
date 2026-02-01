@@ -70,6 +70,9 @@ void FullbodyFlightController::DDPProblemInit()
 {
   ros::NodeHandle ddp_nh(nh_, "ddp");
 
+  ddp_nh.param("fwddyn", fwddyn_, true);
+  std::cout << "fwddyn: " << fwddyn_ << std::endl;
+
   DDPHoveringProblem::CostWeight cost_weight;
   {
     double whatever_double;
@@ -86,8 +89,16 @@ void FullbodyFlightController::DDPProblemInit()
     ddp_nh.getParam("x_state_weights", whatever_vector);
     cost_weight.x_weights = Eigen::Map<Eigen::VectorXd>(whatever_vector.data(), whatever_vector.size());
 
-    ddp_nh.getParam("u_weight_invdyn", whatever_vector);
-    cost_weight.u_weights = Eigen::Map<Eigen::VectorXd>(whatever_vector.data(), whatever_vector.size());
+    if (fwddyn_)
+    {
+      ddp_nh.getParam("u_weight_fwddyn", whatever_vector);
+      cost_weight.u_weights = Eigen::Map<Eigen::VectorXd>(whatever_vector.data(), whatever_vector.size());
+    }
+    else
+    {
+      ddp_nh.getParam("u_weight_invdyn", whatever_vector);
+      cost_weight.u_weights = Eigen::Map<Eigen::VectorXd>(whatever_vector.data(), whatever_vector.size());
+    }
 
     std::cout << "state_weight: " << cost_weight.state_weight << std::endl;
     std::cout << "state_bound_weight: " << cost_weight.state_bound_weight << std::endl;
@@ -117,7 +128,23 @@ void FullbodyFlightController::DDPProblemInit()
     std::cout << "num_threads: " << optimization_param.num_threads << std::endl;
   }
 
-  hovering_ = std::make_shared<DDPHoveringProblem>(pinocchio_model_, cost_weight, optimization_param);
+  distributed_thrusters_.clear();
+  std::vector<pinocchio::SE3> joint_M_rotors = pinocchio_robot_model_->getJointMRotors();
+  std::vector<int> rotor_frame_indices = pinocchio_robot_model_->getRotorFrameIndices();
+  for (int i = 0; i < pinocchio_robot_model_->getRotorNum(); i++)
+  {
+    int rotor_direction = pinocchio_robot_model_->getRotorDirection(i);
+    double thrust_lower_limit = pinocchio_robot_model_->getThrustLowerLimits()(i);
+    double thrust_upper_limit = pinocchio_robot_model_->getThrustUpperLimits()(i);
+
+    distributed_thrusters_.emplace_back(rotor_frame_indices.at(i), joint_M_rotors.at(i),
+                                        (float)(std::abs(pinocchio_robot_model_->getMFRate())),
+                                        ((rotor_direction == 1) ? crocoddyl::DT_CCW : crocoddyl::DT_CW),
+                                        (float)thrust_lower_limit, (float)thrust_upper_limit);
+  }
+
+  hovering_ = std::make_shared<DDPHoveringProblem>(pinocchio_model_, distributed_thrusters_, fwddyn_, cost_weight,
+                                                   optimization_param);
 }
 
 void FullbodyFlightController::activate()
@@ -353,7 +380,7 @@ void FullbodyFlightController::controlCore()
   curr_target_q_.head(7) = curr_target_x.head(7);
 
   crocoddyl::Timer timer;
-  ddp_solver_->solve(xs_init_, us_init_);
+  ddp_solver_->solve(xs_init_, us_init_, hovering_->optimization_param_.max_iter);
   ddp_solve_time_ = timer.get_duration();
 
   xs_init_ = ddp_solver_->get_xs();
@@ -369,16 +396,34 @@ void FullbodyFlightController::controlCore()
   us_init_.push_back(us_init_.back());
 
   // solve inverse dynamics to get control input
-  Eigen::VectorXd target_ddq = us_init_.at(0);
-  Eigen::VectorXd control_input;
-  bool solved = nonlinear_inverse_dynamics_solver_->solve(
-      current_x.head(pinocchio_model_->nq), current_x.tail(pinocchio_model_->nv), target_ddq, control_input);
-  if (!solved)
+  if (!fwddyn_)
   {
-    ROS_ERROR("[ddp] Nonlinear inverse dynamics solver failed to solve.");
-    return;
+    Eigen::VectorXd target_ddq = us_init_.at(0);
+    Eigen::VectorXd control_input;
+    bool solved = nonlinear_inverse_dynamics_solver_->solve(
+        current_x.head(pinocchio_model_->nq), current_x.tail(pinocchio_model_->nv), target_ddq, control_input);
+    if (!solved)
+    {
+      ROS_ERROR("[ddp] Nonlinear inverse dynamics solver failed to solve.");
+      return;
+    }
+    control_input_ = control_input;
   }
-  control_input_ = control_input;
+  else
+  {
+    control_input_.head(pinocchio_model_->nv) = us_init_.at(0).tail(pinocchio_model_->nv);  // joint torques
+    control_input_.segment(pinocchio_model_->nv, pinocchio_robot_model_->getRotorNum()) =
+        us_init_.at(0).head(pinocchio_robot_model_->getRotorNum());  // rotor thrusts
+    for (int i = 0; i < nonlinear_inverse_dynamics_solver_->getGimbalNames().size(); i++)
+    {
+      int gimbal_index_q =
+          pinocchio_model_
+              ->joints[pinocchio_model_->getJointId(nonlinear_inverse_dynamics_solver_->getGimbalNames().at(i))]
+              .idx_q();
+      control_input_(pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i) =
+          xs_init_.at(1)(gimbal_index_q);  // target gimbal angles
+    }
+  }
 }
 
 void FullbodyFlightController::sendCmd()

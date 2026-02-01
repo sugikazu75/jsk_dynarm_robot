@@ -69,8 +69,10 @@ private:
   std::shared_ptr<DDPHoveringProblem> hovering_;
   std::shared_ptr<crocoddyl::ShootingProblem> ddp_problem_;
   std::shared_ptr<crocoddyl::SolverAbstract> ddp_solver_;
+  std::vector<crocoddyl::DistributedThruster> distributed_thrusters_;
   std::vector<Eigen::VectorXd> xs_init_;
   std::vector<Eigen::VectorXd> us_init_;
+  bool fwddyn_;
   double ddp_solve_time_ = 0.0;
 
   std::shared_ptr<aerial_robot_model::NonlinearInverseDynamicsRos> nonlinear_inverse_dynamics_solver_ros_;

@@ -6,15 +6,27 @@
 #include <ros/ros.h>
 #include <tf/transform_broadcaster.h>
 
-DDPHoveringProblem::DDPHoveringProblem(std::shared_ptr<pinocchio::Model> pinocchio_model, const CostWeight& cost_weight,
+DDPHoveringProblem::DDPHoveringProblem(std::shared_ptr<pinocchio::Model> pinocchio_model,
+                                       std::vector<crocoddyl::DistributedThruster> rotors, bool fwddyn,
+                                       const CostWeight& cost_weight,
                                        const OptimizationParam& optimization_param = OptimizationParam())
-  : pinocchio_model_(pinocchio_model), cost_weight_(cost_weight), optimization_param_(optimization_param)
+  : pinocchio_model_(pinocchio_model)
+  , rotors_(rotors)
+  , fwddyn_(fwddyn)
+  , cost_weight_(cost_weight)
+  , optimization_param_(optimization_param)
 {
   pinocchio_data_ = std::make_shared<pinocchio::Data>(*pinocchio_model_);
   state_ = std::make_shared<crocoddyl::StateMultibody>(pinocchio_model_);
-  actuation_ = std::make_shared<crocoddyl::ActuationModelFloatingBase>(state_);
 
-  nu_ = state_->get_nv();
+  actuation_ = std::make_shared<crocoddyl::ActuationModelFloatingBaseDistributedThrusters>(state_, rotors_);
+
+  if (fwddyn_)
+    nu_ = actuation_->get_nu();
+  else
+    nu_ = state_->get_nv();
+
+  std::cout << "nu: " << nu_ << std::endl;
 }
 
 std::shared_ptr<crocoddyl::ActionModelAbstract> DDPHoveringProblem::createActionModel(Eigen::VectorXd x0,
@@ -57,7 +69,10 @@ std::shared_ptr<crocoddyl::ActionModelAbstract> DDPHoveringProblem::createAction
   }
 
   std::shared_ptr<crocoddyl::DifferentialActionModelAbstract> dmodel;
-  dmodel = std::make_shared<crocoddyl::DifferentialActionModelFreeInvDynamics>(state_, actuation_, cost_model);
+  if (fwddyn_)
+    dmodel = std::make_shared<crocoddyl::DifferentialActionModelFreeFwdDynamics>(state_, actuation_, cost_model);
+  else
+    dmodel = std::make_shared<crocoddyl::DifferentialActionModelFreeInvDynamics>(state_, actuation_, cost_model);
 
   std::shared_ptr<crocoddyl::ActionModelAbstract> action_model =
       std::make_shared<crocoddyl::IntegratedActionModelEuler>(dmodel, optimization_param_.dt);
@@ -100,6 +115,30 @@ int main(int argc, char** argv)
       std::make_shared<aerial_robot_dynamics::PinocchioRobotModel>(true);
   std::shared_ptr<pinocchio::Model> pinocchio_model = pinocchio_robot_model->getModel();
 
+  std::cout << "effortLimit: " << pinocchio_model->effortLimit.transpose() << std::endl;
+
+  std::vector<int> rotor_frame_indices = pinocchio_robot_model->getRotorFrameIndices();
+  double m_f_rate = pinocchio_robot_model->getMFRate();
+
+  std::vector<crocoddyl::DistributedThruster> distributed_thrusters;
+  for (int i = 0; i < rotor_frame_indices.size(); i++)
+  {
+    int rotor_direction = pinocchio_robot_model->getRotorDirection(i);
+    double thrust_lower_limit = pinocchio_robot_model->getThrustLowerLimits()(i);
+    double thrust_upper_limit = pinocchio_robot_model->getThrustUpperLimits()(i);
+
+    distributed_thrusters.emplace_back(rotor_frame_indices.at(i), pinocchio::SE3::Identity(),
+                                       (float)(std::abs(m_f_rate)),
+                                       ((rotor_direction == 1) ? crocoddyl::DT_CCW : crocoddyl::DT_CW),
+                                       (float)thrust_lower_limit, (float)thrust_upper_limit);
+  }
+
+  bool fwddyn;
+  {
+    nhp.getParam("fwddyn", fwddyn);
+    std::cout << "fwddyn: " << fwddyn << std::endl;
+  }
+
   DDPHoveringProblem::CostWeight cost_weight;
   {
     double whatever_double;
@@ -116,7 +155,10 @@ int main(int argc, char** argv)
     nhp.getParam("x_state_weights", whatever_vector);
     cost_weight.x_weights = Eigen::Map<Eigen::VectorXd>(whatever_vector.data(), whatever_vector.size());
 
-    nhp.getParam("u_weight_invdyn", whatever_vector);
+    if (fwddyn)
+      nhp.getParam("u_weight_fwddyn", whatever_vector);
+    else
+      nhp.getParam("u_weight_invdyn", whatever_vector);
     cost_weight.u_weights = Eigen::Map<Eigen::VectorXd>(whatever_vector.data(), whatever_vector.size());
 
     std::cout << "state_weight: " << cost_weight.state_weight << std::endl;
@@ -137,7 +179,7 @@ int main(int argc, char** argv)
     std::cout << "num_threads: " << optimization_param.num_threads << std::endl;
   }
 
-  DDPHoveringProblem hovering(pinocchio_model, cost_weight, optimization_param);
+  DDPHoveringProblem hovering(pinocchio_model, distributed_thrusters, fwddyn, cost_weight, optimization_param);
 
   // reference state
   Eigen::VectorXd xref = Eigen::VectorXd::Zero(pinocchio_model->nq + pinocchio_model->nv);
@@ -164,14 +206,14 @@ int main(int argc, char** argv)
   std::vector<Eigen::VectorXd> us_init = solver->get_problem()->quasiStatic_xs(xs_init);
   xs_init.push_back(x0);
 
-  bool add_noise = false;
-  nhp.getParam("add_noise", add_noise);
+  double noise = 0;
+  nhp.getParam("noise", noise);
 
   ros::Rate rate((int)(1.0 / hovering.optimization_param_.dt));
   while (ros::ok())
   {
     crocoddyl::Timer timer;
-    solver->solve(xs_init, us_init);
+    solver->solve(xs_init, us_init, hovering.optimization_param_.max_iter);
     double time = timer.get_duration();
     std::cout << "total calculation time: " << time << "[ms]" << std::endl;
     std::cout << "Number of iterations: " << solver->get_iter() << std::endl;
@@ -183,10 +225,10 @@ int main(int argc, char** argv)
     us_init = solver->get_us();
 
     Eigen::VectorXd next_x = xs_init.at(1);
-    if (add_noise)
+    if (noise > 0)
     {
-      Eigen::VectorXd noise_dq = Eigen::VectorXd::Random(pinocchio_model->nv) * 0.005;
-      Eigen::VectorXd noise_v = Eigen::VectorXd::Random(pinocchio_model->nv) * 0.005;
+      Eigen::VectorXd noise_dq = Eigen::VectorXd::Random(pinocchio_model->nv) * noise;
+      Eigen::VectorXd noise_v = Eigen::VectorXd::Random(pinocchio_model->nv) * noise;
       next_x.head(pinocchio_model->nq) =
           pinocchio::integrate(*pinocchio_model, next_x.head(pinocchio_model->nq), noise_dq);
       next_x.tail(pinocchio_model->nv) += noise_v;
@@ -195,14 +237,35 @@ int main(int argc, char** argv)
 
     std::cout << "q: " << xs_init.at(1).head(pinocchio_model->nq).transpose() << std::endl;
     std::cout << "v: " << xs_init.at(1).tail(pinocchio_model->nv).transpose() << std::endl;
-    std::cout << "root ddq: " << us_init.at(0).head(6).transpose() << std::endl;
-    std::cout << "joint ddq: " << us_init.at(0).tail(us_init.at(0).size() - 6).transpose() << std::endl;
+    if (fwddyn)
+    {
+      std::cout << "thrust: " << us_init.at(0).head(pinocchio_robot_model->getRotorNum()).transpose() << std::endl;
+      std::cout << "joint torque: "
+                << us_init.at(0).tail(us_init.at(0).size() - pinocchio_robot_model->getRotorNum()).transpose()
+                << std::endl;
+    }
+    else
+    {
+      std::cout << "root ddq: " << us_init.at(0).head(6).transpose() << std::endl;
+      std::cout << "joint ddq: " << us_init.at(0).tail(us_init.at(0).size() - 6).transpose() << std::endl;
+    }
     std::cout << std::endl;
 
     std::cout << "q final: " << xs_init.back().head(pinocchio_model->nq).transpose() << std::endl;
     std::cout << "v final: " << xs_init.back().tail(pinocchio_model->nv).transpose() << std::endl;
-    std::cout << "root ddq final: " << us_init.back().head(6).transpose() << std::endl;
-    std::cout << "joint ddq final: " << us_init.back().tail(us_init.back().size() - 6).transpose() << std::endl;
+    if (fwddyn)
+    {
+      std::cout << "thrust final: " << us_init.back().head(pinocchio_robot_model->getRotorNum()).transpose()
+                << std::endl;
+      std::cout << "joint torque final: "
+                << us_init.back().tail(us_init.back().size() - pinocchio_robot_model->getRotorNum()).transpose()
+                << std::endl;
+    }
+    else
+    {
+      std::cout << "root ddq final: " << us_init.back().head(6).transpose() << std::endl;
+      std::cout << "joint ddq final: " << us_init.back().tail(us_init.back().size() - 6).transpose() << std::endl;
+    }
     std::cout << std::endl;
     std::cout << std::endl;
 
@@ -219,8 +282,23 @@ int main(int argc, char** argv)
     robot_base_transform.transform.rotation.y = q(4);
     robot_base_transform.transform.rotation.z = q(5);
     robot_base_transform.transform.rotation.w = q(6);
-
     robot_base_broadcaster.sendTransform(robot_base_transform);
+
+    // publish optimized trajectory
+    for (int i = 0; i < xs_init.size(); i++)
+    {
+      robot_base_transform.header.frame_id = "world";
+      robot_base_transform.child_frame_id = tf::resolve(robot_ns, "root") + "_trajectory_" + std::to_string(i);
+      robot_base_transform.transform.translation.x = xs_init[i](0);
+      robot_base_transform.transform.translation.y = xs_init[i](1);
+      robot_base_transform.transform.translation.z = xs_init[i](2);
+      robot_base_transform.transform.rotation.x = xs_init[i](3);
+      robot_base_transform.transform.rotation.y = xs_init[i](4);
+      robot_base_transform.transform.rotation.z = xs_init[i](5);
+      robot_base_transform.transform.rotation.w = xs_init[i](6);
+
+      robot_base_broadcaster.sendTransform(robot_base_transform);
+    }
 
     sensor_msgs::JointState joint_state_msg;
     joint_state_msg.header.stamp = ros::Time::now();

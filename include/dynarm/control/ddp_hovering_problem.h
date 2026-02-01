@@ -21,7 +21,7 @@
 #include <crocoddyl/multibody/actions/free-fwddyn.hpp>
 #include <crocoddyl/multibody/actions/free-invdyn.hpp>
 #include <crocoddyl/multibody/actuations/floating-base.hpp>
-#include <crocoddyl/multibody/actuations/floating-base-thrusters.hpp>
+#include <crocoddyl/multibody/actuations/floating-base-distributed-thrusters.hpp>
 #include <crocoddyl/multibody/states/multibody.hpp>
 #include <crocoddyl/multibody/residuals/com-position.hpp>
 #include <crocoddyl/multibody/residuals/frame-placement.hpp>
@@ -47,7 +47,8 @@ public:
     int num_threads = 1;
   };
 
-  DDPHoveringProblem(std::shared_ptr<pinocchio::Model> pinocchio_model, const CostWeight& cost_weight,
+  DDPHoveringProblem(std::shared_ptr<pinocchio::Model> pinocchio_model,
+                     std::vector<crocoddyl::DistributedThruster> rotors, bool fwddyn, const CostWeight& cost_weight,
                      const OptimizationParam& optimization_param);
   ~DDPHoveringProblem(){};
 
@@ -62,6 +63,8 @@ protected:
   std::shared_ptr<pinocchio::Model> pinocchio_model_;
   std::shared_ptr<pinocchio::Data> pinocchio_data_;
   std::shared_ptr<crocoddyl::StateMultibody> state_;
-  std::shared_ptr<crocoddyl::ActuationModelFloatingBase> actuation_;
+  std::shared_ptr<crocoddyl::ActuationModelAbstract> actuation_;
+  std::vector<crocoddyl::DistributedThruster> rotors_;
+  bool fwddyn_;
   int nu_;
 };
