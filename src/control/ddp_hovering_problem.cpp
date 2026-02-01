@@ -127,7 +127,8 @@ int main(int argc, char** argv)
     double thrust_lower_limit = pinocchio_robot_model->getThrustLowerLimits()(i);
     double thrust_upper_limit = pinocchio_robot_model->getThrustUpperLimits()(i);
 
-    distributed_thrusters.emplace_back(rotor_frame_indices.at(i), pinocchio::SE3::Identity(), (float)(abs(m_f_rate)),
+    distributed_thrusters.emplace_back(rotor_frame_indices.at(i), pinocchio::SE3::Identity(),
+                                       (float)(std::abs(m_f_rate)),
                                        ((rotor_direction == 1) ? crocoddyl::DT_CCW : crocoddyl::DT_CW),
                                        (float)thrust_lower_limit, (float)thrust_upper_limit);
   }
