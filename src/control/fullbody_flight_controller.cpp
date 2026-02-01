@@ -138,7 +138,7 @@ void FullbodyFlightController::DDPProblemInit()
     double thrust_upper_limit = pinocchio_robot_model_->getThrustUpperLimits()(i);
 
     distributed_thrusters_.emplace_back(rotor_frame_indices.at(i), joint_M_rotors.at(i),
-                                        (float)(abs(pinocchio_robot_model_->getMFRate())),
+                                        (float)(std::abs(pinocchio_robot_model_->getMFRate())),
                                         ((rotor_direction == 1) ? crocoddyl::DT_CCW : crocoddyl::DT_CW),
                                         (float)thrust_lower_limit, (float)thrust_upper_limit);
   }
