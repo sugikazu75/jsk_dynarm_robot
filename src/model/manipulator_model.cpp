@@ -1,24 +1,22 @@
 #include <dynarm/model/manipulator_model.h>
 
+#include <aerial_robot_dynamics/robot_model_ros.h>
+
 using namespace aerial_robot_model;
 
 ManipulatorRobotModel::ManipulatorRobotModel(bool init_with_rosparam, bool verbose)
   : aerial_robot_model::transformable::RobotModel(init_with_rosparam, verbose)
 {
-  if (init_with_rosparam)
-    getParamFromRos();
-
-  pinocchio_robot_model_ = std::make_shared<aerial_robot_dynamics::PinocchioRobotModel>(is_floating_base_);
+  // PinocchioRobotModel no longer reads the parameter server by itself.
+  // PinocchioRobotModelRos fetches robot_description, pinocchio_robot_description and
+  // dynamics/{is_floating_base,thrust_hessian_weight}, and the returned model outlives it.
+  ros::NodeHandle nh;
+  aerial_robot_dynamics::PinocchioRobotModelRos pinocchio_robot_model_ros(nh);
+  pinocchio_robot_model_ = pinocchio_robot_model_ros.getPinocchioRobotModel();
   pinocchio_model_ = pinocchio_robot_model_->getModel();
   pinocchio_data_ = pinocchio_robot_model_->getData();
 
   curr_q_.resize(pinocchio_robot_model_->getModel()->nq);
-}
-
-void ManipulatorRobotModel::getParamFromRos()
-{
-  ros::NodeHandle nh;
-  nh.param("dynamics/is_floating_base", is_floating_base_, false);
 }
 
 void ManipulatorRobotModel::updateRobotModelImpl(const KDL::JntArray& joint_positions)

@@ -1,6 +1,7 @@
 #include <dynarm/control/ddp_hovering_problem.h>
 
 #include <aerial_robot_dynamics/robot_model.h>
+#include <aerial_robot_dynamics/robot_model_ros.h>
 #include <sensor_msgs/JointState.h>
 
 #include <ros/ros.h>
@@ -111,8 +112,11 @@ int main(int argc, char** argv)
   if (!robot_ns.empty() && robot_ns[0] == '/')
     robot_ns = robot_ns.substr(1);
 
+  // is_floating_base comes from dynamics/is_floating_base (default true) via
+  // PinocchioRobotModelRos instead of being hard-coded here
+  aerial_robot_dynamics::PinocchioRobotModelRos pinocchio_robot_model_ros(nh);
   std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model =
-      std::make_shared<aerial_robot_dynamics::PinocchioRobotModel>(true);
+      pinocchio_robot_model_ros.getPinocchioRobotModel();
   std::shared_ptr<pinocchio::Model> pinocchio_model = pinocchio_robot_model->getModel();
 
   std::cout << "effortLimit: " << pinocchio_model->effortLimit.transpose() << std::endl;

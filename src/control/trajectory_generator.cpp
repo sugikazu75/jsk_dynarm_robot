@@ -1,5 +1,7 @@
 #include <dynarm/control/trajectory_generator.h>
 
+#include <aerial_robot_dynamics/robot_model_ros.h>
+
 using namespace aerial_robot_control;
 
 TrajectoryGenerator::TrajectoryGenerator(
@@ -278,10 +280,11 @@ int main(int argc, char** argv)
   ros::NodeHandle nh;
   ros::NodeHandle nhp("~");
 
-  bool is_floating_base;
-  nhp.param("dynamics/is_floating_base", is_floating_base, false);
+  // is_floating_base is now read from dynamics/is_floating_base of this namespace by
+  // PinocchioRobotModelRos, which is where ManipulatorModel.yaml loads it
+  aerial_robot_dynamics::PinocchioRobotModelRos pinocchio_robot_model_ros(nh);
   std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model =
-      std::make_shared<aerial_robot_dynamics::PinocchioRobotModel>(is_floating_base);
+      pinocchio_robot_model_ros.getPinocchioRobotModel();
 
   std::shared_ptr<aerial_robot_control::JointTrajectoryGeneratorRos> joint_trajectory_generator_ros =
       std::make_shared<aerial_robot_control::JointTrajectoryGeneratorRos>(nh, pinocchio_robot_model);

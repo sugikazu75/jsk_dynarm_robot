@@ -18,7 +18,6 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Eigen3 REQUIRED)
 find_package(pinocchio REQUIRED)
 find_package(crocoddyl REQUIRED)
-find_package(OsqpEigen REQUIRED)
 find_package(NLopt REQUIRED)
 find_package(OpenMP REQUIRED)
 
@@ -32,7 +31,6 @@ include_directories(
   include
   ${catkin_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
-  ${OsqpEigen_INCLUDE_DIRS}
   ${pinocchio_INCLUDE_DIRS}
   ${NLOPT_INCLUDE_DIRS}
   )
@@ -43,7 +41,6 @@ target_link_libraries(nonlinear_inverse_dynamics
   ${catkin_LIBRARIES}
   pinocchio::pinocchio
   ${Eigen3_LIBRARIES}
-  ${OsqpEigen_LIBRARIES}
   ${NLOPT_LIBRARIES}
   )
 
@@ -53,7 +50,6 @@ target_link_libraries(joint_trajectory_generator
   ${catkin_LIBRARIES}
   pinocchio::pinocchio
   ${Eigen3_LIBRARIES}
-  ${OsqpEigen_LIBRARIES}
   )
 
 add_library(trajectory_generator
@@ -64,7 +60,6 @@ target_link_libraries(trajectory_generator
   ${catkin_LIBRARIES}
   pinocchio::pinocchio
   ${Eigen3_LIBRARIES}
-  ${OsqpEigen_LIBRARIES}
   ${NLOPT_LIBRARIES}
   )
 add_executable(trajectory_generator_test
@@ -75,7 +70,6 @@ target_link_libraries(trajectory_generator_test
   ${catkin_LIBRARIES}
   pinocchio::pinocchio
   ${Eigen3_LIBRARIES}
-  ${OsqpEigen_LIBRARIES}
   ${NLOPT_LIBRARIES}
   )
 
@@ -86,7 +80,6 @@ target_link_libraries(manipulator_model
   ${catkin_LIBRARIES}
   pinocchio::pinocchio
   ${Eigen3_LIBRARIES}
-  ${OsqpEigen_LIBRARIES}
   ${NLOPT_LIBRARIES}
   )
 
@@ -105,7 +98,6 @@ target_link_libraries(ddp_hovering_problem
   pinocchio::pinocchio
   crocoddyl::crocoddyl
   ${Eigen3_LIBRARIES}
-  ${OsqpEigen_LIBRARIES}
   )
 
 add_executable(ddp_hovering_problem_test
@@ -116,7 +108,6 @@ target_link_libraries(ddp_hovering_problem_test
   pinocchio::pinocchio
   crocoddyl::crocoddyl
   ${Eigen3_LIBRARIES}
-  ${OsqpEigen_LIBRARIES}
   )
 
 add_library(dynarm_controllib
@@ -132,7 +123,6 @@ target_link_libraries(dynarm_controllib
   ${catkin_LIBRARIES}
   pinocchio::pinocchio
   ${Eigen3_LIBRARIES}
-  ${OsqpEigen_LIBRARIES}
   )
 
 add_executable(robstride_bridge

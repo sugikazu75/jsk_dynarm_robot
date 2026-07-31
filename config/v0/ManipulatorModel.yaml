@@ -4,4 +4,5 @@ model:
   rotor_devider: 2
 
 dynamics:
+  is_floating_base: false # was the hard-coded default before PinocchioRobotModelRos read it from here
   thrust_hessian_weight: 0.01 # the larger, there smaller thrust is exerted and joint torque become larger

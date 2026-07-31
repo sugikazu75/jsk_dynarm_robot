@@ -3,6 +3,7 @@
 #include <pinocchio/fwd.hpp>
 #include <aerial_robot_dynamics/robot_model.h>
 
+#include <ros/ros.h>
 #include <nlopt.hpp>
 
 namespace aerial_robot_model

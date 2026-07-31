@@ -28,12 +28,9 @@ private:
   std::shared_ptr<pinocchio::Model> pinocchio_model_;
   std::shared_ptr<pinocchio::Data> pinocchio_data_;
   Eigen::VectorXd curr_q_;
-  bool is_floating_base_ = false;
 
   void updateRobotModelImpl(const KDL::JntArray& joint_positions) override;
   Eigen::VectorXd parseJointState(const sensor_msgs::JointState& joint_state);
   Eigen::VectorXd parseJointState(const KDL::JntArray& joint_positions);
-
-  void getParamFromRos();
 };
 }  // namespace aerial_robot_model

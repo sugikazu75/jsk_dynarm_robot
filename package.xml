@@ -17,7 +17,6 @@
   <build_depend>crocoddyl</build_depend>
   <build_depend>motion_planning</build_depend>
   <build_depend>nlopt</build_depend>
-  <build_depend>osqp-eigen</build_depend>
   <build_depend>pluginlib</build_depend>
   <build_depend>robstride_actuator_bridge</build_depend>
   <build_depend>roscpp</build_depend>
@@ -35,7 +34,6 @@
   <exec_depend>gazebo_ros_link_attacher</exec_depend>
   <exec_depend>motion_planning</exec_depend>
   <exec_depend>nlopt</exec_depend>
-  <exec_depend>osqp-eigen</exec_depend>
   <exec_depend>pluginlib</exec_depend>
   <exec_depend>robstride_actuator_bridge</exec_depend>
   <exec_depend>roscpp</exec_depend>
