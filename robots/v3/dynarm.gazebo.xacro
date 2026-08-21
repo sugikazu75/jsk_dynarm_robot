@@ -24,4 +24,9 @@
   <xacro:rotor_transmission id="1"/>
   <xacro:rotor_transmission id="2"/>
 
+  <!-- friction -->
+  <xacro:gazebo_friction link="link1"/>
+  <xacro:gazebo_friction link="link2"/>
+  <xacro:gazebo_friction link="link3"/>
+
 </robot>

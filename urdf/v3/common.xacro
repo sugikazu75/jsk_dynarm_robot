@@ -54,4 +54,13 @@
       </actuator>
     </transmission>
   </xacro:macro>
+
+  <!-- friction -->
+  <xacro:macro name="gazebo_friction" params="link">
+    <gazebo reference="${link}">
+      <mu1>0.4</mu1>
+      <mu2>0.4</mu2>
+    </gazebo>
+  </xacro:macro>
+
 </robot>
