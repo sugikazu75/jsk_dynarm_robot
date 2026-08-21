@@ -113,7 +113,8 @@ target_link_libraries(ddp_hovering_problem_test
 add_library(dynarm_controllib
   src/control/fullbody_flight_controller.cpp
   src/control/manipulator_controller.cpp
-  src/control/full_vectoring_pid_control.cpp)
+  src/control/full_vectoring_pid_control.cpp
+  src/control/whole_body_force_controller.cpp)
 target_link_libraries(dynarm_controllib
   ddp_hovering_problem
   joint_trajectory_generator

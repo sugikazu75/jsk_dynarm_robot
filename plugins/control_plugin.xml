@@ -6,4 +6,7 @@
   </class>
 
   <class name="aerial_robot_control/full_vectoring_pid_controller" type="aerial_robot_control::FullVectoringPIDController" base_class_type="aerial_robot_control::ControlBase"/>
+
+  <class name="aerial_robot_control/whole_body_force_controller" type="aerial_robot_control::WholeBodyForceController" base_class_type="aerial_robot_control::ControlBase">
+  </class>
 </library>
