@@ -25,9 +25,11 @@ void WholeBodyForceController::initialize(ros::NodeHandle nh, ros::NodeHandle nh
   final_target_q_ = Eigen::VectorXd::Zero(pinocchio_model_->nq);
 
   loadJointNames();
+  loadGimbalGroups();
   rosParamInit();
 
   joints_control_pub_ = nh_.advertise<sensor_msgs::JointState>("joints_ctrl", 1);
+  gimbals_control_pub_ = nh_.advertise<sensor_msgs::JointState>("gimbals_ctrl", 1);
   target_q_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/target_q", 1);
 }
 
@@ -42,6 +44,41 @@ void WholeBodyForceController::loadJointNames()
       joint_names_.push_back(joint_name);
     }
   }
+}
+
+void WholeBodyForceController::loadGimbalGroups()
+{
+  gimbal_groups_ = dynarm::findGimbalGroups<double>(*pinocchio_model_, false);
+
+  std::stringstream ss;
+  for (const auto& group : gimbal_groups_)
+  {
+    ss << " " << group.rotor_frame_name << "(";
+    for (int i = 0; i < group.joint_names.size(); i++)
+      ss << (i == 0 ? "" : ", ") << group.joint_names.at(i);
+    ss << ")";
+  }
+  ROS_INFO_STREAM("[dynarm][whole_body_force_control] " << gimbal_groups_.size()
+                                                        << " gimbal groups found:" << ss.str());
+}
+
+Eigen::VectorXd WholeBodyForceController::getGimbalNominalAngles(const Eigen::VectorXd& q, bool global_search)
+{
+  Eigen::VectorXd gimbal_processed_q = q;
+
+  dynarm::AlignUpwardOptionsTpl<double> options;
+  options.verbose = false;
+  if (!global_search)
+  {
+    options.max_seed_combinations = 1;  // start from the gimbal angles already in q
+    options.max_iterations = 10;
+    options.max_damping_steps = 10;
+  }
+
+  for (const auto& group : gimbal_groups_)
+    dynarm::alignRotorUpward<double>(*pinocchio_model_, *pinocchio_data_, gimbal_processed_q, group, options);
+
+  return gimbal_processed_q;
 }
 
 void WholeBodyForceController::rosParamInit()
@@ -70,6 +107,8 @@ void WholeBodyForceController::rosParamInit()
       final_target_q_(i) = init_target_q.at(i);
     }
   }
+  // set gimbal nominal angles for the target joint angle
+  final_target_q_ = getGimbalNominalAngles(final_target_q_, true);
   ROS_INFO_STREAM("[dynarm][whole_body_force_control] initial target joint angle: " << final_target_q_.transpose());
 
   // duration to reach the target joint angle
@@ -83,8 +122,8 @@ void WholeBodyForceController::resetJointTrajectory()
 
   is_transforming_ = true;
   transform_start_time_ = ros::Time::now().toSec();
-  init_target_q_ = curr_q;
-  curr_target_q_ = curr_q;
+  init_target_q_ = getGimbalNominalAngles(curr_q, true);
+  curr_target_q_ = init_target_q_;
   curr_target_dq_ = Eigen::VectorXd::Zero(pinocchio_model_->nv);
 }
 
@@ -131,11 +170,24 @@ void WholeBodyForceController::controlCore()
 
   // linear interpolation from init_target_q_ to final_target_q_
   Eigen::VectorXd delta_q = pinocchio::difference(*pinocchio_model_, init_target_q_, final_target_q_);  // nv
+
+  // the gimbals are not interpolated: they follow the nominal angle of the interpolated pose
+  for (const auto& group : gimbal_groups_)
+    for (const int idx_v : group.idx_vs)
+      delta_q(idx_v) = 0.0;
+
   curr_target_q_ = pinocchio::integrate(*pinocchio_model_, init_target_q_, delta_q * (curr_time / transform_duration_));
   curr_target_dq_ = delta_q / transform_duration_;
+  curr_target_q_ = getGimbalNominalAngles(curr_target_q_, false);
 }
 
 void WholeBodyForceController::sendCmd()
+{
+  sendJointCommand();
+  sendGimbalCommand();
+}
+
+void WholeBodyForceController::sendJointCommand()
 {
   // send target joint angle, velocity and feedforward torque
   sensor_msgs::JointState joint_state_msg;
@@ -154,6 +206,24 @@ void WholeBodyForceController::sendCmd()
 
   joints_control_pub_.publish(joint_state_msg);
   target_q_pub_.publish(joint_state_msg);
+}
+
+void WholeBodyForceController::sendGimbalCommand()
+{
+  // send the nominal gimbal angles of the target pose
+  sensor_msgs::JointState joint_state_msg;
+  joint_state_msg.header.stamp = ros::Time::now();
+
+  for (const auto& group : gimbal_groups_)
+  {
+    for (int i = 0; i < group.joint_names.size(); i++)
+    {
+      joint_state_msg.name.push_back(group.joint_names.at(i));
+      joint_state_msg.position.push_back(curr_target_q_(group.idx_qs.at(i)));
+    }
+  }
+
+  gimbals_control_pub_.publish(joint_state_msg);
 }
 
 /* plugin registration */

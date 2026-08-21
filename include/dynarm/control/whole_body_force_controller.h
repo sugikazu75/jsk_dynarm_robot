@@ -1,6 +1,7 @@
 #pragma once
 
 #include <dynarm/model/manipulator_model.h>
+#include <dynarm/utils/gimbal_util.h>
 
 #include <aerial_robot_control/control/base/base.h>
 
@@ -23,8 +24,9 @@ public:
                           boost::shared_ptr<aerial_robot_navigation::BaseNavigator> navigator, double ctrl_loop_du);
 
 private:
-  ros::Publisher joints_control_pub_;  // for servo bridge
-  ros::Publisher target_q_pub_;        // for debug
+  ros::Publisher joints_control_pub_;   // for servo bridge
+  ros::Publisher gimbals_control_pub_;  // for servo bridge
+  ros::Publisher target_q_pub_;         // for debug
 
   boost::shared_ptr<aerial_robot_model::ManipulatorRobotModel> dynarm_robot_model_;
   std::shared_ptr<aerial_robot_dynamics::PinocchioRobotModel> pinocchio_robot_model_;
@@ -33,6 +35,7 @@ private:
 
   // robot parameter
   std::vector<std::string> joint_names_;
+  std::vector<dynarm::GimbalGroupTpl<double> > gimbal_groups_;
 
   // joint angle trajectory
   Eigen::VectorXd final_target_q_;   // nq. target joint angles from ros param
@@ -47,8 +50,12 @@ private:
   virtual void reset() override;
   void rosParamInit();
   void loadJointNames();
+  void loadGimbalGroups();
+  Eigen::VectorXd getGimbalNominalAngles(const Eigen::VectorXd& q, bool global_search);
   void resetJointTrajectory();
   void controlCore();
   void sendCmd();
+  void sendJointCommand();
+  void sendGimbalCommand();
 };
 }  // namespace aerial_robot_control
