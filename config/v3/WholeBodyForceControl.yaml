@@ -1,0 +1,5 @@
+aerial_robot_control_name: aerial_robot_control/whole_body_force_controller
+
+controller:
+  end_effector_name: link3_tip
+  ctrl_loop_du: 0.01

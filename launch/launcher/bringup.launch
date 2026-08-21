@@ -7,6 +7,7 @@
   <arg name="version" default="v1"/>
   <arg name="root_fix" default="True"/>
   <arg name="full_vectoring_mode" default="False"/>
+  <arg name="whole_body_force_mode" default="False"/>
 
   <arg name="estimate_mode" default="1"/>
   <arg name="sim_estimate_mode" default="2"/>
@@ -44,8 +45,14 @@
     ###########  Control  ###########
     <group if="$(arg root_fix)">
       <param name="flight_navigation_plugin_name" value="aerial_robot_navigation/manipulator_navigation" />
-      <rosparam file="$(find dynarm)/config/$(arg version)/ManipulatorControl.yaml" command="load"/>
-      <rosparam file="$(find dynarm)/config/$(arg version)/ManipulatorModel.yaml" command="load"/>
+      <group if="$(arg whole_body_force_mode)">
+        <rosparam file="$(find dynarm)/config/$(arg version)/WholeBodyForceControl.yaml" command="load"/>
+        <rosparam file="$(find dynarm)/config/$(arg version)/WholeBodyForceModel.yaml" command="load"/>
+      </group>
+      <group unless="$(arg whole_body_force_mode)">
+        <rosparam file="$(find dynarm)/config/$(arg version)/ManipulatorControl.yaml" command="load"/>
+        <rosparam file="$(find dynarm)/config/$(arg version)/ManipulatorModel.yaml" command="load"/>
+      </group>
     </group>
 
     <group unless="$(arg root_fix)">
