@@ -8,20 +8,24 @@ servo_controller:
 
     # for simulation
     simulation:
-      pid: {p: 200.0, i: 0.0, d: 10.0}
+      pid: {p: 20.0, i: 0.0, d: 0.5}
       init_value: 0.0
       type: effort_controllers/JointComputeTorqueController
 
     controller1:
       name: joint1
+      simulation:
+        init_value: 1.0
     controller2:
       name: joint2
+      simulation:
+        init_value: -1.0
     controller3:
       name: joint3
 
   gimbals:
     simulation:
-      pid: {p: 50.0, i: 0.01, d: 0.0}
+      pid: {p: 5.0, i: 0.0, d: 1.0}
       init_value: 0.0
       type: effort_controllers/JointPositionController
 
