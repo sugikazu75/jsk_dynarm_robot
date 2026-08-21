@@ -1,0 +1,236 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<robot name="dynarm" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <link name="base_link">
+    <inertial>
+      <origin xyz="0.027111559582523 0.00165632549449175 1.3437401002616e-09" rpy="0.0 -0.0 0.0"/>
+      <mass value="0.490000522187397"/>
+      <inertia ixx="0.000198107312535685" ixy="-6.96972575146703e-07" ixz="6.50710842999406e-08" iyy="0.000213284145580095" iyz="-1.01698023263196e-11" izz="0.000189175868864902"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/v3/base_link.dae"/>
+      </geometry>
+      <material name="__unnamed_material_1"/>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 -0.0 0.0"/>
+    </visual>
+  </link>
+  <link name="link1">
+    <inertial>
+      <origin xyz="0.3459227611967 -0.000221078938689229 0.0153188536699517" rpy="0.0 -0.0 0.0"/>
+      <mass value="1.85632504317605"/>
+      <inertia ixx="0.0108448412120977" ixy="-5.6416499725003e-07" ixz="2.96991333310925e-07" iyy="0.0156637188549782" iyz="5.88810884503775e-08" izz="0.024018838204809"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/v3/link1.dae"/>
+      </geometry>
+      <material name="__unnamed_material_2"/>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 -0.0 0.0"/>
+    </visual>
+  </link>
+  <link name="gimbal1_roll_link">
+    <inertial>
+      <origin xyz="-0.00783546366619609 -0.0324699030903514 1.64826370592793e-06" rpy="0.0 -0.0 0.0"/>
+      <mass value="0.29135232532025"/>
+      <inertia ixx="0.00161603335066671" ixy="9.08174410370115e-07" ixz="4.40820031639382e-09" iyy="0.000344744394264198" iyz="5.23305789314138e-09" izz="0.00188868729102949"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/v3/gimbal1_roll_link.dae"/>
+      </geometry>
+      <material name="__unnamed_material_3"/>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 -0.0 0.0"/>
+    </visual>
+  </link>
+  <link name="gimbal1_pitch_link">
+    <inertial>
+      <origin xyz="-6.99171337977811e-05 -0.000443866346860996 0.00162824501615241" rpy="0.0 -0.0 0.0"/>
+      <mass value="0.409711618848904"/>
+      <inertia ixx="0.00125969767885536" ixy="6.17380392220277e-07" ixz="-5.03873537223111e-07" iyy="0.00103671312020798" iyz="1.25621062897587e-05" izz="0.00202112119538432"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/v3/gimbal1_pitch_link.dae"/>
+      </geometry>
+      <material name="__unnamed_material_4"/>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 -0.0 0.0"/>
+    </visual>
+  </link>
+  <link name="thrust1">
+    <inertial>
+      <origin xyz="1.08136435422734e-06 -5.59005514422567e-07 0.00395854941642201" rpy="0.0 -0.0 0.0"/>
+      <mass value="0.0107232111514425"/>
+      <inertia ixx="1.65582387978783e-05" ixy="2.64405902452945e-10" ixz="-6.36535202066436e-11" iyy="1.65577469248177e-05" iyz="-8.56721496798493e-12" izz="3.3077650948732e-05"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/v3/thrust1.dae"/>
+      </geometry>
+      <material name="__unnamed_material_5"/>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 -0.0 0.0"/>
+    </visual>
+  </link>
+  <link name="link2">
+    <inertial>
+      <origin xyz="0.345922761187255 -0.000221078932155115 0.0153188536674012" rpy="0.0 -0.0 0.0"/>
+      <mass value="1.8563250433674"/>
+      <inertia ixx="0.0108448412121155" ixy="-5.64164996967007e-07" ixz="2.96991332357008e-07" iyy="0.0156637188549864" iyz="5.88810875578539e-08" izz="0.0240188382048185"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/v3/link2.dae"/>
+      </geometry>
+      <material name="__unnamed_material_6"/>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 -0.0 0.0"/>
+    </visual>
+  </link>
+  <link name="gimbal2_roll_link">
+    <inertial>
+      <origin xyz="-0.00783546360767251 -0.0324699030947344 1.64831496667882e-06" rpy="0.0 -0.0 0.0"/>
+      <mass value="0.291352325353693"/>
+      <inertia ixx="0.00161603335066697" ixy="9.08174410696797e-07" ixz="4.40820023795866e-09" iyy="0.00034474439426527" iyz="5.23305784752353e-09" izz="0.00188868729103088"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/v3/gimbal2_roll_link.dae"/>
+      </geometry>
+      <material name="__unnamed_material_7"/>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 -0.0 0.0"/>
+    </visual>
+  </link>
+  <link name="gimbal2_pitch_link">
+    <inertial>
+      <origin xyz="-6.99171338204296e-05 -0.000443866346266648 0.00162824501608197" rpy="0.0 -0.0 0.0"/>
+      <mass value="0.409711618847066"/>
+      <inertia ixx="0.00125969767885561" ixy="6.17380392191852e-07" ixz="-5.03873537220234e-07" iyy="0.00103671312020799" iyz="1.25621062897626e-05" izz="0.00202112119538455"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/v3/gimbal2_pitch_link.dae"/>
+      </geometry>
+      <material name="__unnamed_material_8"/>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 -0.0 0.0"/>
+    </visual>
+  </link>
+  <link name="thrust2">
+    <inertial>
+      <origin xyz="9.08944965405389e-07 -6.38348894601007e-07 0.00395854992447526" rpy="0.0 -0.0 0.0"/>
+      <mass value="0.0107232454039342"/>
+      <inertia ixx="1.65582691015053e-05" ixy="2.03708555861106e-10" ixz="-6.38647659964995e-11" iyy="1.65578719942898e-05" iyz="-8.85544756614096e-12" izz="3.30778062428382e-05"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/v3/thrust2.dae"/>
+      </geometry>
+      <material name="__unnamed_material_9"/>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 -0.0 0.0"/>
+    </visual>
+  </link>
+  <link name="link3">
+    <inertial>
+      <origin xyz="0.0582149613585146 -0.00176173194949543 3.8361490812658e-09" rpy="0.0 -0.0 0.0"/>
+      <mass value="0.105760535828491"/>
+      <inertia ixx="1.36775986135056e-05" ixy="-1.71368753621589e-08" ixz="4.16604448211742e-12" iyy="0.000105563860087045" iyz="-7.45684977109264e-12" izz="0.00010330461617006"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://dynarm/meshes/v3/link3.dae"/>
+      </geometry>
+      <material name="__unnamed_material_10"/>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 -0.0 0.0"/>
+    </visual>
+  </link>
+  <joint name="joint1" type="revolute">
+    <limit effort="12.0" velocity="10.0" lower="-1.57" upper="1.57"/>
+    <parent link="base_link"/>
+    <child link="link1"/>
+    <axis xyz="0. 1. 0."/>
+    <origin xyz="0.032 0.0 0.0" rpy="0.0 -0.0 0.0"/>
+  </joint>
+  <joint name="gimbal1_roll" type="revolute">
+    <limit effort="3.0" velocity="6.0" lower="-2.0" upper="2.0"/>
+    <parent link="link1"/>
+    <child link="gimbal1_roll_link"/>
+    <axis xyz="1. 0. 0."/>
+    <origin xyz="0.2885 0.0 0.0" rpy="0.0 -0.0 0.0"/>
+  </joint>
+  <joint name="gimbal1_pitch" type="revolute">
+    <limit effort="3.0" velocity="6.0" lower="-2.0" upper="2.0"/>
+    <parent link="gimbal1_roll_link"/>
+    <child link="gimbal1_pitch_link"/>
+    <axis xyz="0. 1. 0."/>
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 -0.0 0.0"/>
+  </joint>
+  <joint name="rotor1" type="continuous">
+    <limit effort="0.0" velocity="0.0" lower="0.0" upper="40.0"/>
+    <parent link="gimbal1_pitch_link"/>
+    <child link="thrust1"/>
+    <axis xyz="0. 0. 1."/>
+    <origin xyz="0.0 0.0 0.026" rpy="0.0 -0.0 0.0"/>
+  </joint>
+  <joint name="joint2" type="revolute">
+    <limit effort="12.0" velocity="10.0" lower="-1.57" upper="1.57"/>
+    <parent link="link1"/>
+    <child link="link2"/>
+    <axis xyz="0. 1. 0."/>
+    <origin xyz="0.577 0.0 0.0" rpy="0.0 -0.0 0.0"/>
+  </joint>
+  <joint name="gimbal2_roll" type="revolute">
+    <limit effort="3.0" velocity="6.0" lower="-2.0" upper="2.0"/>
+    <parent link="link2"/>
+    <child link="gimbal2_roll_link"/>
+    <axis xyz="1. 0. 0."/>
+    <origin xyz="0.2885 0.0 0.0" rpy="0.0 -0.0 0.0"/>
+  </joint>
+  <joint name="gimbal2_pitch" type="revolute">
+    <limit effort="3.0" velocity="6.0" lower="-2.0" upper="2.0"/>
+    <parent link="gimbal2_roll_link"/>
+    <child link="gimbal2_pitch_link"/>
+    <axis xyz="0. 1. 0."/>
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 -0.0 0.0"/>
+  </joint>
+  <joint name="rotor2" type="continuous">
+    <limit effort="0.0" velocity="0.0" lower="0.0" upper="40.0"/>
+    <parent link="gimbal2_pitch_link"/>
+    <child link="thrust2"/>
+    <axis xyz=" 0.  0. -1."/>
+    <origin xyz="0.0 0.0 0.026" rpy="0.0 -0.0 0.0"/>
+  </joint>
+  <joint name="joint3" type="revolute">
+    <limit effort="12.0" velocity="10.0" lower="-1.57" upper="1.57"/>
+    <parent link="link2"/>
+    <child link="link3"/>
+    <axis xyz="0. 1. 0."/>
+    <origin xyz="0.577 0.0 0.0" rpy="0.0 -0.0 0.0"/>
+  </joint>
+  <material name="__unnamed_material_1">
+    <color rgba="0.75294118 0.75294118 0.75294118 1.        "/>
+  </material>
+  <material name="__unnamed_material_2">
+    <color rgba="0.75294118 0.75294118 0.75294118 1.        "/>
+  </material>
+  <material name="__unnamed_material_3">
+    <color rgba="0.75294118 0.75294118 0.75294118 1.        "/>
+  </material>
+  <material name="__unnamed_material_4">
+    <color rgba="0.75294118 0.75294118 0.75294118 1.        "/>
+  </material>
+  <material name="__unnamed_material_5">
+    <color rgba="0.69803922 0.69803922 0.69803922 1.        "/>
+  </material>
+  <material name="__unnamed_material_6">
+    <color rgba="0.75294118 0.75294118 0.75294118 1.        "/>
+  </material>
+  <material name="__unnamed_material_7">
+    <color rgba="0.75294118 0.75294118 0.75294118 1.        "/>
+  </material>
+  <material name="__unnamed_material_8">
+    <color rgba="0.75294118 0.75294118 0.75294118 1.        "/>
+  </material>
+  <material name="__unnamed_material_9">
+    <color rgba="0.69803922 0.69803922 0.69803922 1.        "/>
+  </material>
+  <material name="__unnamed_material_10">
+    <color rgba="0.75294118 0.75294118 0.75294118 1.        "/>
+  </material>
+</robot>

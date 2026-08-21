@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<robot
+    xmlns:xacro="http://www.ros.org/wiki/xacro" name="dynarm" >
+
+  <xacro:include filename="$(find dynarm)/urdf/v3/common.xacro" />
+  <xacro:include filename="$(find dynarm)/urdf/v3/dynarm_all.xacro" />
+
+  <!-- root frame -->
+  <link name="root"/>
+
+  <joint name="base_link_joint" type="fixed">
+    <parent link="root"/>
+    <child link="base_link"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <!-- set the fcu frame -->
+  <xacro:virtual_link parent="base_link" child="fc"/>
+
+  <!-- end effector frame -->
+  <xacro:virtual_link parent="link3" child="link3_tip" xyz="0.25 0 0"/>
+
+</robot>
