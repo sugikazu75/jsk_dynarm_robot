@@ -13,12 +13,93 @@ void WholeBodyForceController::initialize(ros::NodeHandle nh, ros::NodeHandle nh
                                           double ctrl_loop_du)
 {
   ControlBase::initialize(nh, nhp, robot_model, estimator, navigator, ctrl_loop_du);
+
+  dynarm_robot_model_ = boost::dynamic_pointer_cast<aerial_robot_model::ManipulatorRobotModel>(robot_model);
+  pinocchio_robot_model_ = dynarm_robot_model_->getPinocchioRobotModel();
+  pinocchio_model_ = pinocchio_robot_model_->getModel();
+  pinocchio_data_ = std::make_shared<pinocchio::Data>(*pinocchio_model_);
+
+  curr_target_q_ = Eigen::VectorXd::Zero(pinocchio_model_->nq);
+  curr_target_dq_ = Eigen::VectorXd::Zero(pinocchio_model_->nv);
+  init_target_q_ = Eigen::VectorXd::Zero(pinocchio_model_->nq);
+  final_target_q_ = Eigen::VectorXd::Zero(pinocchio_model_->nq);
+
+  loadJointNames();
+  rosParamInit();
+
+  joints_control_pub_ = nh_.advertise<sensor_msgs::JointState>("joints_ctrl", 1);
+  target_q_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/target_q", 1);
+}
+
+void WholeBodyForceController::loadJointNames()
+{
+  joint_names_.clear();
+  for (int i = 0; i < pinocchio_model_->njoints; i++)
+  {
+    std::string joint_name = pinocchio_model_->names[i];
+    if (joint_name.find("joint") != std::string::npos)
+    {
+      joint_names_.push_back(joint_name);
+    }
+  }
+}
+
+void WholeBodyForceController::rosParamInit()
+{
+  ros::NodeHandle control_nh(nh_, "controller");
+
+  // show the order of the configuration vector, which init_target_q has to follow
+  std::stringstream q_order;
+  for (int i = 1; i < pinocchio_model_->njoints; i++)
+    q_order << " " << pinocchio_model_->joints[i].idx_q() << ":" << pinocchio_model_->names[i];
+  ROS_INFO_STREAM("[dynarm][whole_body_force_control] order of init_target_q:" << q_order.str());
+
+  // target joint angle after takeoff
+  std::vector<double> init_target_q;
+  control_nh.getParam("init_target_q", init_target_q);
+  if (init_target_q.size() != pinocchio_model_->nq)
+  {
+    ROS_ERROR_STREAM("[dynarm][whole_body_force_control] nq: "
+                     << pinocchio_model_->nq << " and initial joint angle size: " << init_target_q.size()
+                     << " in ros parameter is not same");
+  }
+  else
+  {
+    for (int i = 0; i < pinocchio_model_->nq; i++)
+    {
+      final_target_q_(i) = init_target_q.at(i);
+    }
+  }
+  ROS_INFO_STREAM("[dynarm][whole_body_force_control] initial target joint angle: " << final_target_q_.transpose());
+
+  // duration to reach the target joint angle
+  getParam<double>(control_nh, "transform_duration", transform_duration_, 1.0);
+}
+
+void WholeBodyForceController::resetJointTrajectory()
+{
+  // start the transformation from the current joint angles
+  Eigen::VectorXd curr_q = dynarm_robot_model_->getCurrentJointPositions();
+
+  is_transforming_ = true;
+  transform_start_time_ = ros::Time::now().toSec();
+  init_target_q_ = curr_q;
+  curr_target_q_ = curr_q;
+  curr_target_dq_ = Eigen::VectorXd::Zero(pinocchio_model_->nv);
+}
+
+void WholeBodyForceController::reset()
+{
+  ControlBase::reset();
+
+  resetJointTrajectory();
 }
 
 bool WholeBodyForceController::update()
 {
   if (!ControlBase::update())
   {
+    resetJointTrajectory();  // keep the start pose updated until takeoff
     return false;
   }
 
@@ -30,10 +111,49 @@ bool WholeBodyForceController::update()
 
 void WholeBodyForceController::controlCore()
 {
+  if (!is_transforming_)
+  {
+    curr_target_q_ = final_target_q_;
+    curr_target_dq_ = Eigen::VectorXd::Zero(pinocchio_model_->nv);
+    return;
+  }
+
+  double curr_time = ros::Time::now().toSec() - transform_start_time_;
+
+  if (transform_duration_ <= 0.0 || curr_time >= transform_duration_)
+  {
+    curr_target_q_ = final_target_q_;
+    curr_target_dq_ = Eigen::VectorXd::Zero(pinocchio_model_->nv);
+    is_transforming_ = false;
+    ROS_INFO_STREAM("[dynarm][whole_body_force_control] transformation to the target joint angle completed");
+    return;
+  }
+
+  // linear interpolation from init_target_q_ to final_target_q_
+  Eigen::VectorXd delta_q = pinocchio::difference(*pinocchio_model_, init_target_q_, final_target_q_);  // nv
+  curr_target_q_ = pinocchio::integrate(*pinocchio_model_, init_target_q_, delta_q * (curr_time / transform_duration_));
+  curr_target_dq_ = delta_q / transform_duration_;
 }
 
 void WholeBodyForceController::sendCmd()
 {
+  // send target joint angle, velocity and feedforward torque
+  sensor_msgs::JointState joint_state_msg;
+  joint_state_msg.header.stamp = ros::Time::now();
+
+  for (int i = 0; i < joint_names_.size(); i++)
+  {
+    int joint_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_names_.at(i))].idx_q();
+    int joint_index_v = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_names_.at(i))].idx_v();
+
+    joint_state_msg.name.push_back(joint_names_.at(i));
+    joint_state_msg.position.push_back(curr_target_q_(joint_index_q));
+    joint_state_msg.velocity.push_back(curr_target_dq_(joint_index_v));
+    joint_state_msg.effort.push_back(0.0);  // TODO: feedforward torque from the whole body force control
+  }
+
+  joints_control_pub_.publish(joint_state_msg);
+  target_q_pub_.publish(joint_state_msg);
 }
 
 /* plugin registration */

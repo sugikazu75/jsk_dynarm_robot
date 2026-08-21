@@ -1,5 +1,7 @@
 aerial_robot_control_name: aerial_robot_control/whole_body_force_controller
 
 controller:
-  end_effector_name: link3_tip
-  ctrl_loop_du: 0.01
+  # joint1, gimbal1_roll, gimbal1_pitch, joint2, gimbal2_roll, gimbal2_pitch, joint3
+  init_target_q: [1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0]
+
+  transform_duration: 5.0 # [s]
