@@ -20,7 +20,7 @@
 
   <!-- macro of virtual link -->
   <xacro:macro name="virtual_link" params="parent child xyz:='0 0 0' rpy:='0 0 0'">
-    <link name="child"/>
+    <link name="${child}"/>
     <joint name="${parent}_2_${child}" type="fixed">
       <parent link="${parent}"/>
       <child link="${child}"/>
