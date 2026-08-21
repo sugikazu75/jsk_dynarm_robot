@@ -7,32 +7,43 @@ using namespace aerial_robot_model;
 ManipulatorRobotModel::ManipulatorRobotModel(bool init_with_rosparam, bool verbose)
   : aerial_robot_model::transformable::RobotModel(init_with_rosparam, verbose)
 {
-  // PinocchioRobotModel no longer reads the parameter server by itself.
-  // PinocchioRobotModelRos fetches robot_description, pinocchio_robot_description and
-  // dynamics/{is_floating_base,thrust_hessian_weight}, and the returned model outlives it.
   ros::NodeHandle nh;
   aerial_robot_dynamics::PinocchioRobotModelRos pinocchio_robot_model_ros(nh);
   pinocchio_robot_model_ = pinocchio_robot_model_ros.getPinocchioRobotModel();
   pinocchio_model_ = pinocchio_robot_model_->getModel();
   pinocchio_data_ = pinocchio_robot_model_->getData();
 
-  curr_q_.resize(pinocchio_robot_model_->getModel()->nq);
+  curr_q_ = Eigen::VectorXd::Zero(pinocchio_model_->nq);
+  curr_dq_ = Eigen::VectorXd::Zero(pinocchio_model_->nv);
+}
+
+void ManipulatorRobotModel::updateRobotModel(const sensor_msgs::JointState& state)
+{
+  // hold the joint positions and velocities before the velocity is dropped by jointMsgToKdl()
+  parseJointState(state);
+
+  aerial_robot_model::RobotModel::updateRobotModel(state);
 }
 
 void ManipulatorRobotModel::updateRobotModelImpl(const KDL::JntArray& joint_positions)
 {
   aerial_robot_model::RobotModel::updateRobotModelImpl(joint_positions);
-
-  Eigen::VectorXd curr_q = parseJointState(joint_positions);
 }
 
 Eigen::VectorXd ManipulatorRobotModel::parseJointState(const sensor_msgs::JointState& joint_state)
 {
-  // Update the current joint positions in the robot model
+  // Update the current joint positions and velocities in the robot model
   for (int i = 0; i < joint_state.name.size(); i++)
   {
-    int index = pinocchio_model_->joints[pinocchio_model_->getJointId(joint_state.name.at(i))].idx_q();
-    curr_q_(index) = joint_state.position.at(i);
+    int joint_id = pinocchio_model_->getJointId(joint_state.name.at(i));
+    if (joint_id == pinocchio_model_->njoints)
+      continue;  // skip this joint because it is not in the kinematic tree
+
+    if (joint_state.name.size() == joint_state.position.size())
+      curr_q_(pinocchio_model_->joints[joint_id].idx_q()) = joint_state.position.at(i);
+
+    if (joint_state.name.size() == joint_state.velocity.size())
+      curr_dq_(pinocchio_model_->joints[joint_id].idx_v()) = joint_state.velocity.at(i);
   }
   return curr_q_;
 }
