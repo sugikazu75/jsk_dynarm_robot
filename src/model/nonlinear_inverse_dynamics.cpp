@@ -283,10 +283,13 @@ bool NonlinearInverseDynamics::solve(const Eigen::VectorXd& q, const Eigen::Vect
   }
   for (int i = 0; i < gimbal_num; ++i)  // initial guess for gimbal angles
   {
+    int index = pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i;
     int gimbal_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(gimbal_names_.at(i))].idx_q();
-    x[pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i] =
-        std::clamp(q(gimbal_index_q), nlp_lb_[pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i],
-                   nlp_ub_[pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i]);
+
+    if (tau.size() == nlp_n_variables_)  // initial guess is passed
+      x[index] = std::clamp(tau(index), nlp_lb_[index], nlp_ub_[index]);
+    else  // no initial guess: start from the gimbal angles of q, e.g. the nominal ones
+      x[index] = std::clamp(q(gimbal_index_q), nlp_lb_[index], nlp_ub_[index]);
   }
 
   // Solve the optimization problem
