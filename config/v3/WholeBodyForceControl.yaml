@@ -5,3 +5,5 @@ controller:
   init_target_q: [1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0]
 
   transform_duration: 5.0 # [s]
+
+  gimbal_delta_max: 0.5 # [rad]. how far the solver may move a gimbal from its nominal angle

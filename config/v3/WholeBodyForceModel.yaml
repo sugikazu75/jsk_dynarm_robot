@@ -6,3 +6,7 @@ model:
 dynamics:
   is_floating_base: false
   thrust_hessian_weight: 0.1 # the larger, there smaller thrust is exerted and joint torque become larger
+
+  hessian_trace: [1.0, 0.1, 0.1, 1.0, 0.1, 0.1, 1.0,
+                  0.1, 0.1,
+                  0.0, 0.0, 0.0, 0.0]
