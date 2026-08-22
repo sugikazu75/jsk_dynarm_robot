@@ -116,7 +116,7 @@ private:
   Eigen::VectorXd nlp_curr_target_q_;
   Eigen::VectorXd nlp_curr_target_dq_;
   Eigen::VectorXd nlp_curr_target_ddq_;
-  double gimbal_delta_max_;
+  double gimbal_delta_max_ = M_PI;
   double solve_time_ = 0.0;
 
   void loadJointNames();

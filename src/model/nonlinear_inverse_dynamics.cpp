@@ -170,6 +170,8 @@ NonlinearInverseDynamics::NonlinearInverseDynamics(
                      gimbal_names_.size();    // generalized_force + thrust + gimbal_angles
   nlp_n_constraints_ = pinocchio_model_->nv;  // rnea
 
+  nlp_hessian_trace_ = Eigen::VectorXd::Ones(nlp_n_variables_);  // default hessian trace is 1.0
+
   nlp_lb_.resize(nlp_n_variables_, -std::numeric_limits<double>::infinity());
   nlp_ub_.resize(nlp_n_variables_, std::numeric_limits<double>::infinity());
   Eigen::VectorXd joint_torque_limits = pinocchio_robot_model_->getJointTorqueLimits();
