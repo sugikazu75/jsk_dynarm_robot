@@ -28,6 +28,11 @@ void WholeBodyForceController::initialize(ros::NodeHandle nh, ros::NodeHandle nh
   loadGimbalGroups();
   rosParamInit();
 
+  nonlinear_inverse_dynamics_solver_ros_ =
+      std::make_shared<aerial_robot_model::NonlinearInverseDynamicsRos>(nh_, pinocchio_robot_model_);
+  nonlinear_inverse_dynamics_solver_ = nonlinear_inverse_dynamics_solver_ros_->getNonlinearInverseDynamicsSolver();
+
+  four_axis_command_pub_ = nh_.advertise<spinal::FourAxisCommand>("four_axes/command", 1);
   joints_control_pub_ = nh_.advertise<sensor_msgs::JointState>("joints_ctrl", 1);
   gimbals_control_pub_ = nh_.advertise<sensor_msgs::JointState>("gimbals_ctrl", 1);
   target_q_pub_ = nh_.advertise<sensor_msgs::JointState>("debug/target_q", 1);
@@ -132,6 +137,9 @@ void WholeBodyForceController::reset()
   ControlBase::reset();
 
   resetJointTrajectory();
+
+  nonlinear_inverse_dynamics_solver_->reset();
+  id_result_.resize(0);  // the first solve after a reset starts from the nominal gimbal angles
 }
 
 bool WholeBodyForceController::update()
@@ -149,6 +157,12 @@ bool WholeBodyForceController::update()
 }
 
 void WholeBodyForceController::controlCore()
+{
+  updateTargetPose();
+  solveInverseDynamics();
+}
+
+void WholeBodyForceController::updateTargetPose()
 {
   if (!is_transforming_)
   {
@@ -181,10 +195,49 @@ void WholeBodyForceController::controlCore()
   curr_target_q_ = getGimbalNominalAngles(curr_target_q_, false);
 }
 
+void WholeBodyForceController::solveInverseDynamics()
+{
+  // quasi static: the target pose is reached slowly enough to drop the velocity and acceleration terms
+  Eigen::VectorXd dq = Eigen::VectorXd::Zero(pinocchio_model_->nv);
+  Eigen::VectorXd ddq = Eigen::VectorXd::Zero(pinocchio_model_->nv);
+
+  // id_result_ is empty on the first solve.  afterwards warmstarted
+  if (!nonlinear_inverse_dynamics_solver_->solve(curr_target_q_, dq, ddq, id_result_))
+  {
+    ROS_ERROR_STREAM_THROTTLE(1.0, "[dynarm][whole_body_force_control] inverse dynamics failed to solve"
+                                       << "\n  q: " << curr_target_q_.transpose());
+  }
+
+  // the solved gimbal angles replace the nominal ones in the target pose
+  const std::vector<std::string>& gimbal_names = nonlinear_inverse_dynamics_solver_->getGimbalNames();
+  for (int i = 0; i < gimbal_names.size(); i++)
+  {
+    int gimbal_index_q = pinocchio_model_->joints[pinocchio_model_->getJointId(gimbal_names.at(i))].idx_q();
+    curr_target_q_(gimbal_index_q) = id_result_(pinocchio_model_->nv + pinocchio_robot_model_->getRotorNum() + i);
+  }
+}
+
 void WholeBodyForceController::sendCmd()
 {
+  sendFourAxisCommand();
   sendJointCommand();
   sendGimbalCommand();
+
+  nonlinear_inverse_dynamics_solver_ros_->publish();
+}
+
+void WholeBodyForceController::sendFourAxisCommand()
+{
+  // send the target thrust
+  Eigen::VectorXd thrust_lower_limits = pinocchio_robot_model_->getThrustLowerLimits();
+  Eigen::VectorXd thrust_upper_limits = pinocchio_robot_model_->getThrustUpperLimits();
+
+  spinal::FourAxisCommand four_axis_command_msg;
+  for (int i = 0; i < pinocchio_robot_model_->getRotorNum(); i++)
+    four_axis_command_msg.base_thrust.push_back(
+        std::clamp(id_result_(pinocchio_model_->nv + i), thrust_lower_limits(i), thrust_upper_limits(i)));
+
+  four_axis_command_pub_.publish(four_axis_command_msg);
 }
 
 void WholeBodyForceController::sendJointCommand()
@@ -201,7 +254,7 @@ void WholeBodyForceController::sendJointCommand()
     joint_state_msg.name.push_back(joint_names_.at(i));
     joint_state_msg.position.push_back(curr_target_q_(joint_index_q));
     joint_state_msg.velocity.push_back(curr_target_dq_(joint_index_v));
-    joint_state_msg.effort.push_back(0.0);  // TODO: feedforward torque from the whole body force control
+    joint_state_msg.effort.push_back(id_result_(joint_index_v));
   }
 
   joints_control_pub_.publish(joint_state_msg);
@@ -210,7 +263,7 @@ void WholeBodyForceController::sendJointCommand()
 
 void WholeBodyForceController::sendGimbalCommand()
 {
-  // send the nominal gimbal angles of the target pose
+  // send the solved gimbal angles, already written back into curr_target_q_
   sensor_msgs::JointState joint_state_msg;
   joint_state_msg.header.stamp = ros::Time::now();
 
